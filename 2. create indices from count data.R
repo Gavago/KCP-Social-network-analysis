@@ -1,0 +1,175 @@
+library(tidyverse)
+library(magrittr)
+
+# Rdata files output from this file are
+# 1. annual dyadic grooming indices.Rdata
+# 2. annual dyadic 5m proximity indices.Rdata
+# to pass to next script with sna measures function with outputs of sociograms and dataframes
+
+# 1. Grooming indices ----
+# ----- Assemble grooming indices #####
+load("annual dyadic grooming counts.Rdata", verbose = T)
+load("dyadic focal party and total focal counts.Rdata", verbose = T)
+
+#total grooming index - AB gm_gmd / AB total time in party where one was focal
+
+total_gm_gmd %>% nrow()
+total_AB_party %>% names()
+str(total_gm_gmd)
+str(total_AB_party)
+
+total_gm_gmd_index <- total_gm_gmd %>%
+  #join count data w total number of times individuals A and B were in same party as one was being focaled
+  left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>% 
+  #replace NAs for dyads never observed in same party during focal follow
+  mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
+  mutate(gmgmdi = (total_AB_gm_gmd / total_AB_party) * 100) %>% # gm gmd index, percentage of time in party spent grooming each other
+  mutate(gmgmdi = ifelse(is.nan(gmgmdi), 0, gmgmdi)) %>% # for 0/0
+  select(ID1, ID2, year, total_AB_gm_gmd, total_AB_party, gmgmdi, sex_ID1, sex_ID2, everything())
+nrow(total_gm_gmd_index) #2759, 796
+head(total_gm_gmd_index)
+
+total_gm_index <- total_gm %>%
+  left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
+  #replace NAs for dyads never observed in party during focal follow
+  mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
+  mutate(gmi = (total_AB_gm / total_AB_party) * 100) %>% # gm gmd index, percentage of time in party spent grooming each other
+  mutate(gmi = ifelse(is.nan(gmi), 0, gmi)) %>% #for 0/0
+  select(ID1, ID2, year, total_AB_gm, total_AB_party, gmi, sex_ID1, sex_ID2)
+nrow(total_gm_index) #5516, 7712 w possible but ungrooming dyads, 825 before
+
+total_gmd_index <- total_gmd %>%
+  merge(., total_AB_party, by = c("ID1", "ID2", "year"), all.x = T) %>%
+  #replace NAs for dyads never observed in party during focal follow
+  mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
+  mutate(gmdi = (total_AB_gmd / total_AB_party) * 100) %>% # gm gmd index, percentage time in party spent grooming each other
+  mutate(gmdi = ifelse(is.nan(gmdi), 0, gmdi)) %>% #for 0/0
+  select(ID1, ID2, year, total_AB_gmd, total_AB_party, gmdi, sex_ID1, sex_ID2)
+nrow(total_gmd_index) #5516, 7712 w possible but ungrooming dyads, 825 before
+head(total_gmd_index)
+
+total_gm_gmd_index %>%
+  filter(apply(., 1, function(x) any(is.na(x))))
+
+total_gm_index %>%
+  filter(apply(., 1, function(x) any(is.na(x))))
+
+total_gmd_index %>%
+  filter(apply(., 1, function(x) any(is.na(x))))
+
+#of 5516 possible dyads, 386 never observed within same party during a focal follow
+total_gm %>%
+  left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
+  filter(is.na(total_AB_party))
+
+
+# ----- Sex specific networks of indices ####
+
+fem_gmgmdi <- total_gm_gmd_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmgmdi) #1010?, 69 
+head(fem_gmgmdi)
+
+male_gmgmdi <- total_gm_gmd_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmgmdi) #391, 316
+head(male_gmgmdi)
+
+fem_gmi <- total_gm_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmi) #2020 rows w non-grooming dyads included, 53 without
+head(fem_gmi)
+
+male_gmi <- total_gm_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmi) #782 rows w non-grooming dyads included,405 without
+head(male_gmi)
+
+fem_gmdi <- total_gmd_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmdi) #2020 rows w non-grooming dyads included, 53 without
+head(fem_gmdi)
+
+male_gmdi <- total_gmd_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmdi) #782 rows w non-grooming dyads included,405 without
+head(male_gmdi)
+
+
+unique(fem_gmi$ID1) %>% length() #more females than males...
+unique(male_gmi$ID1) %>% length()
+
+
+# save(total_gm_gmd_index, total_gm_index, total_gmd_index,
+#         fem_gmgmdi, male_gmgmdi, 
+#         fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "annual dyadic grooming indices.Rdata")
+
+
+# ----- Explore annual grooming indices ####
+load("annual possible focal dyads.Rdata", verbose = T)
+load("annual dyadic grooming indices.Rdata", verbose = T)
+load("functions - add dyad attributes, age, filter age.Rdata", verbose = T)
+nrow(total_gm_gmd_index) #2759, 2968
+
+# unique female and male dyads by year
+# no age filter
+dir_annual_dyads %>%
+  rename(Year = year) %>%
+  add_dyad_attr() %>%
+  filter(sex_ID1 == sex_ID2) %>%
+  group_by(Year, sex_ID1) %>%
+  tally()
+
+# unique female and male dyads by year
+# with age filter
+dir_annual_dyads %>%
+  add_dyad_attr() %>%
+  add_age() %>%
+  filter_age() %>%
+  filter(sex_ID1 == sex_ID2) %>%
+  group_by(year, sex_ID1) %>%
+  tally()
+
+
+#range
+total_gm_gmd_index %>%
+  group_by(year) %>%
+  summarise(max = max(gmgmdi, na.rm = T), min = min(gmgmdi, na.rm = T),  
+            median = median(gmgmdi, na.rm = T), mean = mean(gmgmdi, na.rm = T),
+            sd = sd(gmgmdi, na.rm = T))
+
+total_gm_gmd_index %>%
+  filter(gmgmdi > 45)
+
+
+
+# 2. Prox indices ----
+# ----- Assemble time in 5m index #####
+load("dyadic focal party and total focal counts.Rdata", verbose = T)
+load("count time in 5m.Rdata", verbose = T)
+
+names(total_5m)
+nrow(total_5m) #2779, 3873
+names(total_AB_party)
+
+index_5m <- total_5m %>%
+  left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
+  mutate(total_AB_party = ifelse(is.na(total_AB_party), 0 , total_AB_party)) %>% #NAs of total AB party are dyads never seen in groups
+  mutate(prox5i = ifelse(total_AB_party == 0, 0, total_5m/total_AB_party)) %>% # if total AB party is zero, avoid NaN of 0/0
+  select(ID1, ID2, year, total_5m, total_AB_party, prox5i, everything())
+
+nrow(index_5m) #2779, 3873 w possible dyads, 2116 before
+names(index_5m)
+
+# ----- Sex specific 5m ####
+female_prox5i <- index_5m %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+
+male_prox5i <- index_5m %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+
+nrow(female_prox5i) #1018, 1072
+nrow(male_prox5i) #391, 822
+
+#save(female_prox5i, male_prox5i, index_5m, file = "annual dyadic 5m proximity indices.Rdata")
+load("annual dyadic 5m proximity indices.Rdata", verbose = T)
