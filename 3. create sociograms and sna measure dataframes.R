@@ -80,6 +80,13 @@ E(x)[keep] # does same thing, selects != 0 edges to keep
 
 # Function 2 -- plotting -------
 
+# the plot graph function takes the graph/sociogram output from the sna_measures_undir function and creates
+# a sociogram, arguments year, dyads, size centrality supplied manually, & behavior taken from graph object itself
+
+#maybe change where function gets these arguments - maybe instead supply df, c
+
+
+
 plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
                        size_centrality = c("ec", "bt", "deg", "trans"),
                        layout = c("fr","circle","nicely"), scale_edge_weight = 5, scale_vertex_size = 1) {
