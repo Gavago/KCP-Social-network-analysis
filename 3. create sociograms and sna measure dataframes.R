@@ -28,6 +28,11 @@ names(index_5m)
 
 # Function 1 -- undirected centrality measures function -----
 
+# sna measures undirected is a function that takes a list column data frame with graph objects for sex-specific dyads by year
+# and calculates individual's network positions for betweenness, ec, degree, and transitivity
+# the output of the function can be a data frame of observations of individual network score by year, or a sociogram ("graph")
+# that produces a visualization of the network, with the sna measure defining the size of the vertex 
+
 sna_measures_undir <- function(g, year = NULL, network_sex = c("male", "female", "any_combination"), output = c("graph", "data.frame")){
   
   if( grepl("gm", edge_attr(g) %>% names())){
