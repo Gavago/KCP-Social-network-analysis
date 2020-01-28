@@ -16,11 +16,6 @@ ymd_hms <- lubridate::ymd_hms
 # define a data source name DSN - check if access is running at 32 or 64 bit to choose correct odbc option in administrative tools
 # https://support.office.com/en-us/article/administer-odbc-data-sources-b19f856b-5b9b-48c9-8b93-07484bfab5a7
 
-#setwd("2. R projects/Kanyawara social data")
-
-# Age filtering to do:
-# Add ages within gm_gmd, gm, gmd, and prox, make age relative to start of year
-# Then for females say > 12 years, males > 15 years
 
 # Timing issues to take care of:
 # create new variable for time present or seen during year...?, if individual is not present for >= 6 months in a year, is removed from year
@@ -56,8 +51,7 @@ groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
 i <- sapply(groomingx, is.factor)
 groomingx[i] <- lapply(groomingx[i], as.character)
 
-#focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
-focal_5m1 <- read_xlsx("FOCAL PROXIMITY within 5.xlsx")
+focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
 focal_5m1 %<>% mutate_if(is.factor, as.character)
 
 agg <- sqlFetch(connection, "AGGRESSION")
