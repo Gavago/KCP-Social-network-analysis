@@ -226,7 +226,7 @@ nrow(undir_annual_dyads) # using "partner" column is 13319, when using "Focal" c
 
 # add dyad member sexes and birthdates
 add_dyad_attr <- function(df,...){
-  load("attribute data alone.Rdata", verbose = T)
+  load("data/attribute data alone.Rdata", verbose = T)
   a <- df %>%
    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID1" = "chimp_id")) %>%
    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID2" = "chimp_id")) %>%
@@ -265,7 +265,7 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 #used grooming table made in Access "FOCAL GROOMING SCANS"
 load("data/grooming raw and dyad attributes.Rdata", verbose = T)
 load("data/annual possible focal dyads.Rdata", verbose = T)
-load("function/function - add dyad attributes, age, filter age.Rdata", verbose = T)
+load("functions/functions - add dyad attributes, age, filter age.Rdata", verbose = T)
 
 
 # focal codes for grooming between adults: G (grooming), MG (mutual grooming), BG (being groomed), "BG,F", HGC, HCG, GC (grooming chain, focal grooming ID2 and being groomed by ID3)
