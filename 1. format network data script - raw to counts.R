@@ -125,7 +125,7 @@ grooming_raw <- groomingx %>%
 
 ## 2. Focal party data and possible dyadsfrom MET (starts 2009) ####
 
-foc_part <- read.csv(file = "d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
+foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
   rename(date = "V1", time = "V2", f_obs = "V3", focal = "V4", kpc_obs = "V5", partner = "V6") %>%
   unite("scan_id", date, time, sep = "_") %>%
   separate(scan_id, into = c("date", "trash", "scan_time"), sep = " ", remove = F) %>%
@@ -184,9 +184,9 @@ nrow(total_focal) #269
 
 
 # ----- create possible dyads per year #####
-#start using met's file.
+#start using met's file 1/2020
 
-head(foc_part)w
+head(foc_part)
 
 #focal_scans_raw[focal_scans_raw$Focal == "TT ", "Focal"] <- "TT"
 #focal_scans_raw[focal_scans_raw$Focal == "UM ", "Focal"] <- "UM"
@@ -220,7 +220,7 @@ undir_annual_dyads <- dir_annual_dyads %>%
 
 nrow(undir_annual_dyads) # using "partner" column is 13319, when using "Focal" column is 3856
 
-#save(dir_annual_dyads, undir_annual_dyads, file = "annual possible focal dyads.Rdata")
+#save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 
 ## 3. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
 
@@ -256,16 +256,16 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 }
   
 
-#save(add_dyad_attr, add_age, filter_age, file = "functions - add dyad attributes, age, filter age.Rdata")
+#save(add_dyad_attr, add_age, filter_age, file = "functions/functions - add dyad attributes, age, filter age.Rdata")
 
 
 ## 4. Create dyadic annual grooming counts (starts 2009)  ####
 # ----- load grooming data #####
 
 #used grooming table made in Access "FOCAL GROOMING SCANS"
-load("grooming raw and dyad attributes.Rdata", verbose = T)
-load("annual possible focal dyads.Rdata", verbose = T)
-load("function - add dyad attributes, age, filter age.Rdata", verbose = T)
+load("data/grooming raw and dyad attributes.Rdata", verbose = T)
+load("data/annual possible focal dyads.Rdata", verbose = T)
+load("function/function - add dyad attributes, age, filter age.Rdata", verbose = T)
 
 
 # focal codes for grooming between adults: G (grooming), MG (mutual grooming), BG (being groomed), "BG,F", HGC, HCG, GC (grooming chain, focal grooming ID2 and being groomed by ID3)
