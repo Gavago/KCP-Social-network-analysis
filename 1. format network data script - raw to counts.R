@@ -38,33 +38,30 @@ ymd_hms <- lubridate::ymd_hms
 ## 1. Upload data from access database DSN ####
 connection <- odbcConnect("Kanyawara social")
 
+#demography data
 demox <- sqlFetch(connection, "DEMOGRAPHY")
 i <- sapply(demox, is.factor)
 demox[i] <- lapply(demox[i], as.character)
 
-#for focal list by year - just use party IDs, not focals, for more comprehensive list
-#focal_scans_raw <- sqlFetch(connection, "FOCAL SCANS")
-
-
+#grooming records from focal data
 groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
   mutate(year = year(ymd(Date)), month = month(ymd(Date)))
 i <- sapply(groomingx, is.factor)
 groomingx[i] <- lapply(groomingx[i], as.character)
 
+#5 m records from focal data
 focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
 focal_5m1 %<>% mutate_if(is.factor, as.character)
 
+#aggression 
 agg <- sqlFetch(connection, "AGGRESSION")
 
+#various action codes, e.g. grooming types
 action <- sqlFetch(connection, "ACTION_LOOKUP")
-#focalx <- sqlFetch(connection, "FOCAL DATA")
 
 
-
-#save(agg, file = "raw aggression.Rdata")
-#save(action, file = "action lookup.Rdata")
-
-#foc_party <- sqlFetch(connection, "FOCAL PARTY") read in MET foc party corrected txt
+#save(agg, file = "data/raw aggression.Rdata")
+#save(action, file = "data/action lookup.Rdata")
 
 # ----- Format attribute data #####
 names(demox)
@@ -86,7 +83,7 @@ attr <- demox %>%
 attr[is.na(attr$chimp_id), "chimp_id"] <- "NX" #change ngamba to NX
 attr[attr$chimp_id == "NPT", "chimp_id"] <- "NT"
 
-#save(attr, file = "attribute data alone.Rdata")
+#save(attr, file = "data/attribute data alone.Rdata")
 
 # ----- Format prox in 5 #####
 names(focal_5m1)
@@ -104,15 +101,12 @@ focal_5m_raw <- focal_5m1 %>%
 
 nrow(focal_5m_raw) # 177686
 
-#save(attr, focal_5m_raw, file = "raw 5 m proximity.Rdata")
+#save(attr, focal_5m_raw, file = "data/raw 5 m proximity.Rdata")
 
 #load("raw 5 m proximity.Rdata", verbose = T)
 
 # ----- Format grooming and add attribute data ####
 
-
-# add sex and dob attribute to grooming data
-# then add annual age (age at start of year) and filter for adult-adult grooming only > 15
 # fix a few typos of chimpid names
 groomingx[groomingx$Focal == "TT ", "Focal"] <- "TT"
 groomingx[groomingx$Partner_ID == "NPT", "Partner_ID"] <- "NT"
@@ -126,22 +120,7 @@ grooming_raw <- groomingx %>%
   filter(ID1 != ID2)
 # to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
 
-#save(attr, grooming_raw, file = "grooming raw and dyad attributes.Rdata")
-
-
-#scan <-  sqlFetch(connection, "CHIMP_OBSERVATION") %>%
-#  mutate(month = month(date), 
-#         year = year(date), 
-#         hms = lubridate::ymd_hms(scan_time),
-#         scan_id = interaction(date, scan_time)) #create column for unique scan id - date time#not 15_MINUTE_SCAN
-
-
-# in scan data, fix chimp name NA to ...
-# actually... let's just convert her to NZ
-# scan$chimp_id <- as.character(scan$chimp_id)
-# scan[is.na(scan$chimp_id),"chimp_id"]<- "NA"
-
-
+#save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
 
 
 ## 2. Focal party data and possible dyadsfrom MET (starts 2009) ####
@@ -201,7 +180,7 @@ total_focal <- foc_part %>%
 nrow(total_focal) #269 
 
 
-#save(total_AB_party, total_focal, file = "dyadic focal party and total focal counts.Rdata")
+#save(total_AB_party, total_focal, file = "data/dyadic focal party and total focal counts.Rdata")
 
 
 # ----- create possible dyads per year #####
