@@ -228,7 +228,9 @@ gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 load("functions - SNA measures and graph plotting.Rdata", verbose = T)
 load("graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
 
-#list of of list columns (!)
+#create master data frame with all individual sna measures by year
+
+#list of list columns (!)
 graph_list <- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf_prox_sex_comb) 
 
 all_sna_measure_df_list <- vector("list", length(graph_list))
@@ -255,6 +257,10 @@ all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list)
 # 3. Create pdf sociograms from igraphs in list column  ----
 load("graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
 load("functions - SNA measures and graph plotting.Rdata", verbose = T)
+
+
+#problem here is that pdf function comes before calling the graph requires object
+
 
 # outside of loop, set graph dataframe to visualize / save
 gdf <- gdf_gm_sex_sep

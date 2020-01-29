@@ -59,6 +59,8 @@ agg <- sqlFetch(connection, "AGGRESSION")
 action <- sqlFetch(connection, "ACTION_LOOKUP")
 #focalx <- sqlFetch(connection, "FOCAL DATA")
 
+
+
 #save(agg, file = "raw aggression.Rdata")
 #save(action, file = "action lookup.Rdata")
 
@@ -100,11 +102,11 @@ focal_5m_raw <- focal_5m1 %>%
   filter(ID1 != ID2) # removes 50 cases, removes 59 cases
 
 
-nrow(focal_5m_raw) # 148853 (table from steph...), 150353
+nrow(focal_5m_raw) # 177686
 
 #save(attr, focal_5m_raw, file = "raw 5 m proximity.Rdata")
 
-load("raw 5 m proximity.Rdata", verbose = T)
+#load("raw 5 m proximity.Rdata", verbose = T)
 
 # ----- Format grooming and add attribute data ####
 

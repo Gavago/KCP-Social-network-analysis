@@ -5,7 +5,6 @@ library(magrittr)
 # 1. annual dyadic grooming indices.Rdata
 # 2. annual dyadic 5m proximity indices.Rdata
 # to pass to next script with sna measures function with outputs of sociograms and dataframes
-
 # 1. Grooming indices ----
 # ----- Assemble grooming indices #####
 load("annual dyadic grooming counts.Rdata", verbose = T)
