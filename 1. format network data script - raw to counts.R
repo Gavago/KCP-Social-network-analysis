@@ -128,32 +128,28 @@ grooming_raw <- groomingx %>%
 # add dyad member sexes and birthdates
 add_dyad_attr <- function(df, ID1, ID2, ...){
   load("data/attribute data alone.Rdata")
-  #ID1 <- enquo(ID1) %>% quo_name()
-  #ID2 <- enquo(ID2) %>% quo_name()
+  names(df)[names(df) == ID1] <- "ID1"
+  names(df)[names(df) == ID2] <- "ID2"
+  #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
+  #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
   a <- df %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c(ID1 = "chimp_id")) %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c(ID2 = "chimp_id")) %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID1" = "chimp_id")) %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID2" = "chimp_id")) %>%
     rename_at(vars(contains(".x")), list( ~ sub("\\.x", "_ID1", .))) %>%
     rename_at(vars(contains(".y")), list( ~ sub(".y", "_ID2", .)))
   return(a)
 }
 
+# 1. ATTEMPTING TO MAKE ADD DYAD ATTR MORE GENERALIZABLE SO CAN ADD ATTRIBUTES TO ANY DF NOT JUST THOSE W COLUMN ID1 ID2
 foc_part %>%
   add_dyad_attr(ID1 = "focal", ID2 = "partner") %>% names()
 
+# 2. THEN WANT USE ADD DYAD ATTR TO THEN EXTRACT TYPOS IN CHIMP ID COLS... CHIMPS WITHOUT ATTRIBUTES (E.G. SEX OR DOBC) CAN
+# BE PASSED TO A FUNCTION - INCORRECT IDS ARE EXTRACTED, QUOTED, AND MADE INTO A LOOKUP TABLE THAT HAS "ORIGINAL" AND "CORRECTED" VERSIONS - 
+# WHERE CORRECTED VERSION IS EACH ELEMENT OF THE VECTOR WITHOUT ANy SPACES
+# TEST THIS ON FOC PART DATA
+
 #create ages on june 1 of observation year
-
-df <- total_gm_gmd1 %>%
-  add_dyad_attr()
-
-testID1 <- df %>%
-  filter(is.na(sex_ID1)) %>%
-  distinct(ID1, year)
-testID2 <- df %>%
-  filter(is.na(sex_ID2)) %>%
-  distinct(ID2, year)
-
-
 add_age <- function(df) {
   b <- df %>%
     mutate(mid_year = as.Date(paste(year,"-06-01", sep="")), 
