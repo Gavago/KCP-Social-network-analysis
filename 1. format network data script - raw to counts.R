@@ -49,6 +49,7 @@ groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
 i <- sapply(groomingx, is.factor)
 groomingx[i] <- lapply(groomingx[i], as.character)
 
+
 #5 m records from focal data
 focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
 focal_5m1 %<>% mutate_if(is.factor, as.character)
@@ -122,8 +123,62 @@ grooming_raw <- groomingx %>%
 
 #save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
 
+## 2. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
 
-## 2. Focal party data and possible dyadsfrom MET (starts 2009) ####
+# add dyad member sexes and birthdates
+add_dyad_attr <- function(df, ID1, ID2, ...){
+  load("data/attribute data alone.Rdata")
+  #ID1 <- enquo(ID1) %>% quo_name()
+  #ID2 <- enquo(ID2) %>% quo_name()
+  a <- df %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c(ID1 = "chimp_id")) %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c(ID2 = "chimp_id")) %>%
+    rename_at(vars(contains(".x")), list( ~ sub("\\.x", "_ID1", .))) %>%
+    rename_at(vars(contains(".y")), list( ~ sub(".y", "_ID2", .)))
+  return(a)
+}
+
+foc_part %>%
+  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>% names()
+
+#create ages on june 1 of observation year
+
+df <- total_gm_gmd1 %>%
+  add_dyad_attr()
+
+testID1 <- df %>%
+  filter(is.na(sex_ID1)) %>%
+  distinct(ID1, year)
+testID2 <- df %>%
+  filter(is.na(sex_ID2)) %>%
+  distinct(ID2, year)
+
+
+add_age <- function(df) {
+  b <- df %>%
+    mutate(mid_year = as.Date(paste(year,"-06-01", sep="")), 
+           age_year_start_ID1 =  as.numeric(mid_year - dobc_ID1)/365.25,
+           age_year_start_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25)
+  return(b)
+}  
+
+
+
+#sex specific age filter
+filter_age <- function(df, Age_F = 12, Age_M = 15) {
+  f <- df %>%
+    filter( ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F)) | #FF dyad
+              ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #MM dyad
+              ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #FM dyad
+              ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F))) # MF dyad
+  return(f)
+}
+
+
+#save(add_dyad_attr, add_age, filter_age, file = "functions/functions - add dyad attributes, age, filter age.Rdata")
+
+
+## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
 
 foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
   rename(date = "V1", time = "V2", f_obs = "V3", focal = "V4", kpc_obs = "V5", partner = "V6") %>%
@@ -134,6 +189,23 @@ foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F,
 
 foc_part$focal[foc_part$focal == "NPT"] <- "NT"
 foc_part$partner[foc_part$partner == "NPT"] <- "NT"
+
+testID1 %>%
+  arrange(ID1)
+
+testID1 %>%
+  filter(ID1 == "BL  ")
+
+load("functions/functions - add dyad attributes, age, filter age.Rdata", verbose = T)
+a <- foc_part %>%
+  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>% names()
+  filter(is.na(dobc_ID1))
+  
+
+
+#fix spaces in partner names
+#save(testID1, testID2, file = "data/test files that show where individuals don't have attributes bc mispelled.Rdata")
+load("data/test files that show where individuals don't have attributes bc mispelled.Rdata", verbose = TRUE)
 
 # ----- create total AB party -----
 
@@ -222,43 +294,6 @@ nrow(undir_annual_dyads) # using "partner" column is 13319, when using "Focal" c
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 
-## 3. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
-
-# add dyad member sexes and birthdates
-add_dyad_attr <- function(df,...){
-  load("data/attribute data alone.Rdata", verbose = T)
-  a <- df %>%
-   left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID1" = "chimp_id")) %>%
-   left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID2" = "chimp_id")) %>%
-   rename_at(vars(contains(".x")), list( ~ sub("\\.x", "_ID1", .))) %>%
-   rename_at(vars(contains(".y")), list( ~ sub(".y", "_ID2", .)))
- return(a)
-}
-
-#create ages on jan 1 of observation year
-add_age <- function(df) {
-  b <- df %>%
-   mutate(year_start = as.POSIXct(paste(year,"-01-01", sep="")), 
-          age_year_start_ID1 =  (year_start - dobc_ID1)/365.25,
-          age_year_start_ID2 =  (year_start - dobc_ID2)/365.25)
- return(b)
- }  
-  
-
-#sex specific age filter
-filter_age <- function(df, Age_F = 12, Age_M = 15) {
-  f <- df %>%
-    filter( ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F)) | #FF dyad
-            ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #MM dyad
-            ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #FM dyad
-            ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F))) # MF dyad
-    return(f)
-}
-  
-
-#save(add_dyad_attr, add_age, filter_age, file = "functions/functions - add dyad attributes, age, filter age.Rdata")
-
-
 ## 4. Create dyadic annual grooming counts (starts 2009)  ####
 # ----- load grooming data #####
 
@@ -308,6 +343,16 @@ total_gm_gmd1 <- AB %>%
 
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
 names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))] <- paste(x, "gmgmd", sep = "_")
+
+
+testID1
+names(groomingx)
+undir_annual_dyads %>% #the culprits are in undirected annual dyads!!!!!!
+  filter(ID1 == "BL ")
+df %>%
+  filter(ID1 == " BL")
+
+
 
 nrow(total_gm_gmd1) #now 14304, was 1132, added poss dyads at early stage and don't age filter
 head(total_gm_gmd1)
