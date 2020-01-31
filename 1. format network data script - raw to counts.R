@@ -167,26 +167,22 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 
 
 # remove spaces from any IDs
-fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2", remove_attr = FALSE){
+fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
   
-  df_to_check <- df %>%
-    add_dyad_attr(ID1, ID2) 
-  df_fixed <- df_to_check
+  names(df)[names(df) == ID1] <- "ID1"
+  names(df)[names(df) == ID2] <- "ID2" 
   
-  loc_ID1 <- is.na(df_to_check$sex_ID1) #locations of mistyped codes in ID1
+  df_fixed <- df
+  
+  loc_ID1 <- grepl(" ", df$ID1) #locations of mistyped codes in ID1
   ID1_whack <- df_to_check[loc_ID1, "ID1"] 
   ID1_fixed <- gsub(" ", "", ID1_whack)
   df_fixed[loc_ID1, "ID1"] <- ID1_fixed
   
-  loc_ID2 <- is.na(df_to_check$sex_ID2) #locations of mistyped codes in ID2
+  loc_ID2 <- grepl(" ", df$ID2) #locations of mistyped codes in ID2
   ID2_whack <- df_to_check[loc_ID2, "ID2"]
   ID2_fixed <- gsub(" ", "", ID2_whack)
   df_fixed[loc_ID2, "ID2"] <- ID2_fixed
-  
-  if(remove_attr == TRUE){
-    df_fixed <- df_fixed %>%
-      select(-ends_with("_ID1"), -ends_with("_ID2"))
-  }
   
   return(df_fixed)
   
@@ -197,22 +193,24 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2", remove_attr = FALSE){
 
 ## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
 
-foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
+foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
   rename(date = "V1", time = "V2", f_obs = "V3", focal = "V4", kpc_obs = "V5", partner = "V6") %>%
   unite("scan_id", date, time, sep = "_") %>%
   separate(scan_id, into = c("date", "trash", "scan_time"), sep = " ", remove = F) %>%
   select(-trash) %>%
   mutate(year = year(mdy(date)), month = month(mdy(date))) 
 
-foc_part$focal[foc_part$focal == "NPT"] <- "NT"
-foc_part$partner[foc_part$partner == "NPT"] <- "NT"
+foc_part1$focal[foc_part1$focal == "NPT"] <- "NT"
+foc_part1$partner[foc_part1$partner == "NPT"] <- "NT"
 
-foc_part <- fix_ID_errors(foc_part, ID1 = "focal", ID2 = "partner", remove_attr = TRUE)
+foc_part1[grepl(" ", foc_part1$focal), "focal"]
+foc_part1[grepl(" ", foc_part1$partner), "partner"]
+
+foc_part <- fix_ID_errors(foc_part1, ID1 = "focal", ID2 = "partner")
 
 # test fix id errors worked
-# foc_part %>%
-#  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>%
-#  filter(is.na(sex_ID1))
+# foc_part[grepl(" ", foc_part$ID1), "ID1"]
+# foc_part[grepl(" ", foc_part$ID2), "ID2"]
 
 
 # ----- create total AB party -----
@@ -224,6 +222,7 @@ foc_part <- fix_ID_errors(foc_part, ID1 = "focal", ID2 = "partner", remove_attr 
 #is not used for party association of A and B (that would be somthing like)
 
 head(foc_part)
+nrow(foc_part) #1760408
 
 #counts where focal was in same party as partner for a given year
 dyad_party <- foc_part %>%
@@ -271,9 +270,8 @@ head(foc_part)
 #focal_scans_raw[focal_scans_raw$Focal == "UM ", "Focal"] <- "UM"
 
 all_individs_yr <- foc_part %>%
-  rename(chimp_id = partner) %>%
-  distinct(chimp_id, year) %>%
-  left_join(., attr %>% select(chimp_id, sex), by = "chimp_id")
+  distinct(ID2, year) %>% #use ID2 bc is more comprehensive than ID1 (id1 was focals, 2 was partners)
+  left_join(., attr %>% select(chimp_id, sex), by = c( "ID2" = "chimp_id"))
 
 dir_annual_dyads <- all_individs_yr %>%
   mutate(ID1 = chimp_id, ID2 = chimp_id) %>%
