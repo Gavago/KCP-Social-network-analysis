@@ -192,16 +192,7 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2", remove_attr = FALSE){
   
 }
 
-
-a <- foc_part %>%
-  fix_ID_errors(ID1 = "focal", ID2 = "partner", remove_attr = TRUE)
-
-a %>%
-  add_dyad_attr() %>%
-  filter(is.na(sex_ID1))
-
-
-save(add_dyad_attr, add_age, filter_age, fix_ID_errors, file = "functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata")
+#save(add_dyad_attr, add_age, filter_age, fix_ID_errors, file = "functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata")
 
 
 ## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
@@ -216,8 +207,12 @@ foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F,
 foc_part$focal[foc_part$focal == "NPT"] <- "NT"
 foc_part$partner[foc_part$partner == "NPT"] <- "NT"
 
-fix_ID_errors(foc_part, ID1 = "focal")
+foc_part <- fix_ID_errors(foc_part, ID1 = "focal", ID2 = "partner", remove_attr = TRUE)
 
+# test fix id errors worked
+# foc_part %>%
+#  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>%
+#  filter(is.na(sex_ID1))
 
 
 # ----- create total AB party -----
@@ -232,12 +227,11 @@ head(foc_part)
 
 #counts where focal was in same party as partner for a given year
 dyad_party <- foc_part %>%
-  rename(ID1 = focal, ID2 = partner) %>% 
   group_by(year, ID1, ID2) %>%
   tally() %>%
   ungroup()
 
-nrow(dyad_party) #12135
+nrow(dyad_party) #12076
 head(dyad_party)
 
 total_AB_party <- dyad_party %>%
@@ -251,7 +245,7 @@ x <- names(total_AB_party)[grepl("^n_", names(total_AB_party))]
 names(total_AB_party)[grepl("^n_", names(total_AB_party))] <- paste(x, "party", sep = "_")
 
 
-nrow(total_AB_party) #17686
+nrow(total_AB_party) #17568 after removing ID typos
 head(total_AB_party)
 
 #total_AB_party %>%
