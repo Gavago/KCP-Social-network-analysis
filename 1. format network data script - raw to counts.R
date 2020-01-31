@@ -109,7 +109,12 @@ nrow(focal_5m_raw) # 177686
 # ----- Format grooming and add attribute data ####
 
 # fix a few typos of chimpid names
+names(groomingx)
+
+groomingx$Focal[grepl(" ", groomingx$Focal)]
+groomingx$Partner_ID[grepl(" ", groomingx$Partner_ID)]
 groomingx[groomingx$Focal == "TT ", "Focal"] <- "TT"
+
 groomingx[groomingx$Partner_ID == "NPT", "Partner_ID"] <- "NT"
 groomingx[groomingx$Partner_ID == "OP(DEAD)", "Partner_ID"] <- "OP"
 
@@ -175,12 +180,12 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
   df_fixed <- df
   
   loc_ID1 <- grepl(" ", df$ID1) #locations of mistyped codes in ID1
-  ID1_whack <- df_to_check[loc_ID1, "ID1"] 
+  ID1_whack <- df[loc_ID1, "ID1"] 
   ID1_fixed <- gsub(" ", "", ID1_whack)
   df_fixed[loc_ID1, "ID1"] <- ID1_fixed
   
   loc_ID2 <- grepl(" ", df$ID2) #locations of mistyped codes in ID2
-  ID2_whack <- df_to_check[loc_ID2, "ID2"]
+  ID2_whack <- df[loc_ID2, "ID2"]
   ID2_fixed <- gsub(" ", "", ID2_whack)
   df_fixed[loc_ID2, "ID2"] <- ID2_fixed
   
@@ -192,6 +197,7 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
 
 
 ## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
+load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 
 foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
   rename(date = "V1", time = "V2", f_obs = "V3", focal = "V4", kpc_obs = "V5", partner = "V6") %>%
