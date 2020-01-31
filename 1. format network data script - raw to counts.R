@@ -307,7 +307,7 @@ nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" c
 #used grooming table made in Access "FOCAL GROOMING SCANS"
 load("data/grooming raw and dyad attributes.Rdata", verbose = T)
 load("data/annual possible focal dyads.Rdata", verbose = T)
-load("functions/functions - add dyad attributes, age, filter age.Rdata", verbose = T)
+load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 
 
 # focal codes for grooming between adults: G (grooming), MG (mutual grooming), BG (being groomed), "BG,F", HGC, HCG, GC (grooming chain, focal grooming ID2 and being groomed by ID3)
@@ -324,7 +324,7 @@ grooming_raw %>%
 358/nrow(grooming_raw) #4.4% grooming is mutual
 
 nrow(grooming_raw) #8817
-nrow(undir_annual_dyads) #13319
+nrow(undir_annual_dyads) #12018
 
 # ----- All AB grooming counts, undirected ####
 
@@ -351,17 +351,7 @@ total_gm_gmd1 <- AB %>%
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
 names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))] <- paste(x, "gmgmd", sep = "_")
 
-
-testID1
-names(groomingx)
-undir_annual_dyads %>% #the culprits are in undirected annual dyads!!!!!!
-  filter(ID1 == "BL ")
-df %>%
-  filter(ID1 == " BL")
-
-
-
-nrow(total_gm_gmd1) #now 14304, was 1132, added poss dyads at early stage and don't age filter
+nrow(total_gm_gmd1) #now 13003 added poss dyads at early stage and don't age filter
 head(total_gm_gmd1)
 
 # readd IDs in alphabetical order to then remove duplicate dyads
@@ -381,7 +371,7 @@ total_gm_gmd <- total_gm_gmd1 %>%
   filter_age()
 
 
-nrow(total_gm_gmd) #2759 with total possible dyads
+nrow(total_gm_gmd) #2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 
 
@@ -406,7 +396,6 @@ x %>%
   filter_age() %>%
   filter(ID1 == "LK") %>%
   distinct(year)
-#TRY this - name the males in all of gm and prox and see if someone familiar w them notices someone is missing
 
 x %>%
   filter(sex_ID1 == "M" & sex_ID2 == "M") %>%
@@ -458,7 +447,7 @@ total_gm <- total_gm1 %>%
   add_age() %>%
   filter_age() 
 
-nrow(total_gm) # 5516, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) # 5826, 825 without possibl dyads, 1382 before age filter
 
 
 # describe non grooming
@@ -470,10 +459,10 @@ a <- total_gm %>%
 
 nrow(a)  
 a %>% filter(sex_ID1 == sex_ID2) %>% nrow()
-a %>% filter(sex_ID1 == "M" & sex_ID2 == "M") %>% nrow() # 402 - bonds
-a %>% filter(sex_ID1 == "M" & sex_ID2 == "F") %>% nrow() # 1142 - sex
-a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1197 - appeasement? protection?
-a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 1942 - family?
+a %>% filter(sex_ID1 == "M" & sex_ID2 == "M") %>% nrow() # 441 - bonds
+a %>% filter(sex_ID1 == "M" & sex_ID2 == "F") %>% nrow() # 1208 - sex
+a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1269 - appeasement? protection?
+a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 2024 - family?
 
 total_gm1 %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
@@ -513,13 +502,12 @@ total_gmd <- total_gmd1 %>%
   filter_age()
 
 head(total_gm)
-nrow(total_gmd) #5516 w total possible dyads, 825
+nrow(total_gmd) #5826 w total possible dyads, 825
 
 total_gmd1 %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
 #save(total_gm_gmd, total_gm, total_gmd, file = "annual dyadic grooming counts.Rdata")
-
 
 
 ## 5. Focal 5 meter (where to find 5 m data?) ####
