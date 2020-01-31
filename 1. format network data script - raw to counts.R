@@ -97,8 +97,11 @@ focal_5m_raw <- focal_5m1 %>%
   rename(ID1 = Focal, ID2 = w5) %>%
   mutate_if(is.factor, as.character) %>%
   mutate(year = year(ymd(Date)), month = month(ymd(Date))) %>%
-  filter(ID1 != ID2) # removes 50 cases, removes 59 cases
+  filter(ID1 != ID2) %>% # removes 50 cases, removes 59 cases
+  fix_ID_errors()
 
+focal_5m_raw$ID1[grepl(" ", focal_5m_raw$ID1)]
+focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
 
 nrow(focal_5m_raw) # 177686
 
@@ -512,8 +515,8 @@ total_gmd1 %>%
 
 ## 5. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
-load("raw 5 m proximity.Rdata", verbose = T) #this is stephs, only goees up to 2016
-load("annual possible focal dyads.Rdata", verbose = T)
+load("data/raw 5 m proximity.Rdata", verbose = T) #this is stephs, only goees up to 2016
+load("data/annual possible focal dyads.Rdata", verbose = T)
 
 names(attr)
 names(focal_5m_raw)
