@@ -510,7 +510,7 @@ nrow(total_gmd) #5826 w total possible dyads, 825
 total_gmd1 %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
-#save(total_gm_gmd, total_gm, total_gmd, file = "annual dyadic grooming counts.Rdata")
+save(total_gm_gmd, total_gm, total_gmd, file = "data/annual dyadic grooming counts.Rdata")
 
 
 ## 5. Focal 5 meter (where to find 5 m data?) ####
