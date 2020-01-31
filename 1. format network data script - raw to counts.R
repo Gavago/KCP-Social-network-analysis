@@ -275,19 +275,15 @@ head(foc_part)
 #focal_scans_raw[focal_scans_raw$Focal == "TT ", "Focal"] <- "TT"
 #focal_scans_raw[focal_scans_raw$Focal == "UM ", "Focal"] <- "UM"
 
-all_individs_yr <- foc_part %>%
+dir_annual_dyads <- foc_part %>%
   distinct(ID2, year) %>% #use ID2 bc is more comprehensive than ID1 (id1 was focals, 2 was partners)
-  left_join(., attr %>% select(chimp_id, sex), by = c( "ID2" = "chimp_id"))
-
-dir_annual_dyads <- all_individs_yr %>%
-  mutate(ID1 = chimp_id, ID2 = chimp_id) %>%
+  mutate(ID1 = ID2) %>%
   group_by(year) %>%
   complete(ID2, nesting(ID1)) %>%
-  select(-chimp_id, -sex) %>%
-  ungroup()%>%
+  ungroup() %>%
   filter(ID1 != ID2)
 
-nrow(dir_annual_dyads) # using "partner" column is 26638, when using "Focal" column is 7712
+nrow(dir_annual_dyads) # using "partner" column is 24036, when using "Focal" column is 7712
 
 abc_ids <- dir_annual_dyads %>%
   select(ID1, ID2) %>%
@@ -301,7 +297,7 @@ undir_annual_dyads <- dir_annual_dyads %>%
   cbind(abc_ids, .) %>%
   distinct(ID1, ID2, year)
 
-nrow(undir_annual_dyads) # using "partner" column is 13319, when using "Focal" column is 3856
+nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" column is 3856
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 
