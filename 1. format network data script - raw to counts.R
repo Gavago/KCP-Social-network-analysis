@@ -259,9 +259,9 @@ head(total_AB_party)
 
 #total focal obs in given year
 total_focal <- foc_part %>%
-  group_by(year, focal) %>%
+  group_by(year, ID1) %>%
   tally()
-nrow(total_focal) #269 
+nrow(total_focal) #267 
 
 
 #save(total_AB_party, total_focal, file = "data/dyadic focal party and total focal counts.Rdata")
