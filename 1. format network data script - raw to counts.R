@@ -520,7 +520,7 @@ load("data/annual possible focal dyads.Rdata", verbose = T)
 
 names(attr)
 names(focal_5m_raw)
-nrow(focal_5m_raw) #148853, 520256
+nrow(focal_5m_raw) #177686
 str(focal_5m_raw)
 
 total_5m2 <- focal_5m_raw %>% 
@@ -534,20 +534,19 @@ total_5m1 <- total_5m2 %>%
   rename(n_AB = n.x, n_BA = n.y) %>%
   mutate(n_AB = ifelse(is.na(n_AB), 0, n_AB), n_BA = ifelse(is.na(n_BA), 0, n_BA)) %>%
   mutate(total_5m = n_AB + n_BA)
-nrow(total_5m1) #12596, 4254
+nrow(total_5m1) #14740, 4254
 
 x <- names(total_5m1)[grepl("^n_", names(total_5m1))]
 names(total_5m1)[grepl("^n_", names(total_5m1))] <- paste(x, "prox5", sep = "_")
 
-
-#READD ids in alphabetial order
+#RE-ADD ids in alphabetial order
 IDs <- total_5m1 %>%
   select(ID1, ID2) %>%
   apply(., 1, sort) %>% #alphabetize sort in each row
   t(.) %>%
   data.frame(., stringsAsFactors = F) %>%
   rename(ID1 = X1, ID2 = X2)
-nrow(IDs) #12596, 4254
+nrow(IDs) #14740, 4254
 
 total_5m <- total_5m1 %>%
   select(-ID1, -ID2) %>%
@@ -562,7 +561,7 @@ total_5m <- total_5m1 %>%
 
 
 names(total_5m)
-nrow(total_5m) #2779, 3873 with possible dyads included, 2127 before
+nrow(total_5m) #2936
 head(total_5m)
 tail(total_5m)
 
