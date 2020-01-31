@@ -66,8 +66,8 @@ action <- sqlFetch(connection, "ACTION_LOOKUP")
 
 # ----- Format attribute data #####
 names(demox)
-demox %>%
-  filter(chimp_name == "Ngamba") %>% View()
+#demox %>%
+#  filter(chimp_name == "Ngamba") %>% View()
 # Ngamba the female was first seen in 2004, last seen feb 7 2007, before focal obs started
 # her code name "NA" needs correcting only when dealing with scan data from <= 2007
 
@@ -75,11 +75,11 @@ demox %>%
 attr <- demox %>%
   filter(kanyawara_member_flag == 1) %>%
   select(chimp_id, sex, date_of_birth_corrected, date_last_seen, mother_id, father_id) %>%
-  mutate(dobc = as.Date(date_of_birth_corrected))
+  mutate(dobc = as.Date(date_of_birth_corrected)) %>%
+  mutate_if(is.factor, as.character)
 
 #attr %<>% # 1.15.2020
 # mutate(dobc = as.Date(dobc), date_last_seen = as.Date(date_last_seen), chimp_id = as.character(chimp_id))
-
 
 attr[is.na(attr$chimp_id), "chimp_id"] <- "NX" #change ngamba to NX
 attr[attr$chimp_id == "NPT", "chimp_id"] <- "NT"
@@ -693,7 +693,7 @@ proc.time()-pc
 year_scans[[18]]
 
 
-save(year_scans, file ="annual scan summary data.Rdata")
+#save(year_scans, file ="annual scan summary data.Rdata")
 
 #look at how zarin calculates time spent in same party in access
 #could possibly filter at step 1 to only include relevant IDs
