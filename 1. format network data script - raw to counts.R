@@ -156,8 +156,8 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
 add_age <- function(df) {
   b <- df %>%
     mutate(mid_year = as.Date(paste(year,"-06-01", sep="")), 
-           age_year_start_ID1 =  as.numeric(mid_year - dobc_ID1)/365.25,
-           age_year_start_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25)
+           age_mid_year_ID1 =  as.numeric(mid_year - dobc_ID1)/365.25,
+           age_mid_year_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25)
   return(b)
 }  
 
@@ -166,10 +166,10 @@ add_age <- function(df) {
 #sex specific age filter
 filter_age <- function(df, Age_F = 12, Age_M = 15) {
   f <- df %>%
-    filter( ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F)) | #FF dyad
-              ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #MM dyad
-              ((sex_ID1 == "F" & age_year_start_ID1 >= Age_F) & (sex_ID2 == "M" & age_year_start_ID2 >= Age_M)) | #FM dyad
-              ((sex_ID1 == "M" & age_year_start_ID1 >= Age_M) & (sex_ID2 == "F" & age_year_start_ID2 >= Age_F))) # MF dyad
+    filter( ((sex_ID1 == "F" & age_mid_year_ID1 >= Age_F) & (sex_ID2 == "F" & age_mid_year_ID2 >= Age_F)) | #FF dyad
+              ((sex_ID1 == "M" & age_mid_year_ID1 >= Age_M) & (sex_ID2 == "M" & age_mid_year_ID2 >= Age_M)) | #MM dyad
+              ((sex_ID1 == "F" & age_mid_year__ID1 >= Age_F) & (sex_ID2 == "M" & age_mid_year_ID2 >= Age_M)) | #FM dyad
+              ((sex_ID1 == "M" & age_mid_year_ID1 >= Age_M) & (sex_ID2 == "F" & age_mid_year_ID2 >= Age_F))) # MF dyad
   return(f)
 }
 
