@@ -126,10 +126,12 @@ grooming_raw <- groomingx %>%
 ## 2. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
 
 # add dyad member sexes and birthdates
-add_dyad_attr <- function(df, ID1, ID2, ...){
+add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
   load("data/attribute data alone.Rdata")
+  
   names(df)[names(df) == ID1] <- "ID1"
-  names(df)[names(df) == ID2] <- "ID2"
+  names(df)[names(df) == ID2] <- "ID2"  
+
   #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
   #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
   a <- df %>%
@@ -140,14 +142,7 @@ add_dyad_attr <- function(df, ID1, ID2, ...){
   return(a)
 }
 
-# 1. ATTEMPTING TO MAKE ADD DYAD ATTR MORE GENERALIZABLE SO CAN ADD ATTRIBUTES TO ANY DF NOT JUST THOSE W COLUMN ID1 ID2
-foc_part %>%
-  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>% names()
 
-# 2. THEN WANT USE ADD DYAD ATTR TO THEN EXTRACT TYPOS IN CHIMP ID COLS... CHIMPS WITHOUT ATTRIBUTES (E.G. SEX OR DOBC) CAN
-# BE PASSED TO A FUNCTION - INCORRECT IDS ARE EXTRACTED, QUOTED, AND MADE INTO A LOOKUP TABLE THAT HAS "ORIGINAL" AND "CORRECTED" VERSIONS - 
-# WHERE CORRECTED VERSION IS EACH ELEMENT OF THE VECTOR WITHOUT ANy SPACES
-# TEST THIS ON FOC PART DATA
 
 #create ages on june 1 of observation year
 add_age <- function(df) {
@@ -171,7 +166,42 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 }
 
 
-#save(add_dyad_attr, add_age, filter_age, file = "functions/functions - add dyad attributes, age, filter age.Rdata")
+# remove spaces from any IDs
+fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2", remove_attr = FALSE){
+  
+  df_to_check <- df %>%
+    add_dyad_attr(ID1, ID2) 
+  df_fixed <- df_to_check
+  
+  loc_ID1 <- is.na(df_to_check$sex_ID1) #locations of mistyped codes in ID1
+  ID1_whack <- df_to_check[loc_ID1, "ID1"] 
+  ID1_fixed <- gsub(" ", "", ID1_whack)
+  df_fixed[loc_ID1, "ID1"] <- ID1_fixed
+  
+  loc_ID2 <- is.na(df_to_check$sex_ID2) #locations of mistyped codes in ID2
+  ID2_whack <- df_to_check[loc_ID2, "ID2"]
+  ID2_fixed <- gsub(" ", "", ID2_whack)
+  df_fixed[loc_ID2, "ID2"] <- ID2_fixed
+  
+  if(remove_attr == TRUE){
+    df_fixed <- df_fixed %>%
+      select(-ends_with("_ID1"), -ends_with("_ID2"))
+  }
+  
+  return(df_fixed)
+  
+}
+
+
+a <- foc_part %>%
+  fix_ID_errors(ID1 = "focal", ID2 = "partner", remove_attr = TRUE)
+
+a %>%
+  add_dyad_attr() %>%
+  filter(is.na(sex_ID1))
+
+
+save(add_dyad_attr, add_age, filter_age, fix_ID_errors, file = "functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata")
 
 
 ## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
@@ -186,22 +216,9 @@ foc_part <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F,
 foc_part$focal[foc_part$focal == "NPT"] <- "NT"
 foc_part$partner[foc_part$partner == "NPT"] <- "NT"
 
-testID1 %>%
-  arrange(ID1)
-
-testID1 %>%
-  filter(ID1 == "BL  ")
-
-load("functions/functions - add dyad attributes, age, filter age.Rdata", verbose = T)
-a <- foc_part %>%
-  add_dyad_attr(ID1 = "focal", ID2 = "partner") %>% names()
-  filter(is.na(dobc_ID1))
-  
+fix_ID_errors(foc_part, ID1 = "focal")
 
 
-#fix spaces in partner names
-#save(testID1, testID2, file = "data/test files that show where individuals don't have attributes bc mispelled.Rdata")
-load("data/test files that show where individuals don't have attributes bc mispelled.Rdata", verbose = TRUE)
 
 # ----- create total AB party -----
 
