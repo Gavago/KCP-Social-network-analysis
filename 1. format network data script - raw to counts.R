@@ -568,7 +568,7 @@ tail(total_5m)
 total_5m %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 total_5m %>%
-  filter(total_5m == 0) %>% nrow() #809, 1764 dyad-years w 0 time in 5d
+  filter(total_5m == 0) %>% nrow() #521 dyad-years w 0 time in 5d
 
 #save(total_5m, file = "count time in 5m.Rdata")
 
