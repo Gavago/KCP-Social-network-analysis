@@ -104,6 +104,17 @@ head(male_gmdi)
 unique(fem_gmi$ID1) %>% length() #more females than males...
 unique(male_gmi$ID1) %>% length()
 
+total_gm_gmd_index$dyad_sex <- "any combo"
+total_gmd_index$dyad_sex <- "any combo"
+total_gm_index$dyad_sex <- "any combo"
+
+fem_gmgmdi$dyad_sex <- "female"
+fem_gmdi$dyad_sex <- "female"
+fem_gmi$dyad_sex <- "female"
+
+male_gmgmdi$dyad_sex <- "male"
+male_gmdi$dyad_sex <- "male"
+male_gmi$dyad_sex <- "male"
 
 save(total_gm_gmd_index, total_gm_index, total_gmd_index,
         fem_gmgmdi, male_gmgmdi,
@@ -177,4 +188,3 @@ nrow(female_prox5i) #1062
 nrow(male_prox5i) #421
 
 #save(female_prox5i, male_prox5i, index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
-load("annual dyadic 5m proximity indices.Rdata", verbose = T)
