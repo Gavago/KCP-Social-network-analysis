@@ -104,9 +104,9 @@ head(male_gmdi)
 unique(fem_gmi$ID1) %>% length() #more females than males...
 unique(male_gmi$ID1) %>% length()
 
-total_gm_gmd_index$dyad_sex <- "any combo"
-total_gmd_index$dyad_sex <- "any combo"
-total_gm_index$dyad_sex <- "any combo"
+total_gm_gmd_index$dyad_sex <- "any_combo"
+total_gmd_index$dyad_sex <- "any_combo"
+total_gm_index$dyad_sex <- "any_combo"
 
 fem_gmgmdi$dyad_sex <- "female"
 fem_gmdi$dyad_sex <- "female"
@@ -122,7 +122,7 @@ male_gmi$dyad_sex <- "male"
 
 
 # ----- Explore annual grooming indices ####
-lsoad("data/annual possible focal dyads.Rdata", verbose = T)
+load("data/annual possible focal dyads.Rdata", verbose = T)
 load("data/annual dyadic grooming indices.Rdata", verbose = T)
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 nrow(total_gm_gmd_index) #2759, 2968
