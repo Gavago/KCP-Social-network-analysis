@@ -105,15 +105,15 @@ unique(fem_gmi$ID1) %>% length() #more females than males...
 unique(male_gmi$ID1) %>% length()
 
 
-# save(total_gm_gmd_index, total_gm_index, total_gmd_index,
-#         fem_gmgmdi, male_gmgmdi, 
-#         fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "annual dyadic grooming indices.Rdata")
+save(total_gm_gmd_index, total_gm_index, total_gmd_index,
+        fem_gmgmdi, male_gmgmdi,
+        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/annual dyadic grooming indices.Rdata")
 
 
 # ----- Explore annual grooming indices ####
-load("annual possible focal dyads.Rdata", verbose = T)
-load("annual dyadic grooming indices.Rdata", verbose = T)
-load("functions - add dyad attributes, age, filter age.Rdata", verbose = T)
+load("data/annual possible focal dyads.Rdata", verbose = T)
+load("data/annual dyadic grooming indices.Rdata", verbose = T)
+load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 nrow(total_gm_gmd_index) #2759, 2968
 
 # unique female and male dyads by year
@@ -150,11 +150,11 @@ total_gm_gmd_index %>%
 
 # 2. Prox indices ----
 # ----- Assemble time in 5m index #####
-load("dyadic focal party and total focal counts.Rdata", verbose = T)
-load("count time in 5m.Rdata", verbose = T)
+load("data/dyadic focal party and total focal counts.Rdata", verbose = T)
+load("data/count time in 5m.Rdata", verbose = T)
 
 names(total_5m)
-nrow(total_5m) #2779, 3873
+nrow(total_5m) #2936
 names(total_AB_party)
 
 index_5m <- total_5m %>%
@@ -163,7 +163,7 @@ index_5m <- total_5m %>%
   mutate(prox5i = ifelse(total_AB_party == 0, 0, total_5m/total_AB_party)) %>% # if total AB party is zero, avoid NaN of 0/0
   select(ID1, ID2, year, total_5m, total_AB_party, prox5i, everything())
 
-nrow(index_5m) #2779, 3873 w possible dyads, 2116 before
+nrow(index_5m) #2936
 names(index_5m)
 
 # ----- Sex specific 5m ####
@@ -173,8 +173,8 @@ female_prox5i <- index_5m %>%
 male_prox5i <- index_5m %>%
   filter(sex_ID1 == "M", sex_ID2 == "M")
 
-nrow(female_prox5i) #1018, 1072
-nrow(male_prox5i) #391, 822
+nrow(female_prox5i) #1062
+nrow(male_prox5i) #421
 
-#save(female_prox5i, male_prox5i, index_5m, file = "annual dyadic 5m proximity indices.Rdata")
+#save(female_prox5i, male_prox5i, index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
 load("annual dyadic 5m proximity indices.Rdata", verbose = T)
