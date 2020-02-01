@@ -5,7 +5,7 @@ library(magrittr)
 # 1. annual dyadic grooming indices.Rdata
 # 2. annual dyadic 5m proximity indices.Rdata
 # to pass to next script with sna measures function with outputs of sociograms and dataframes
-
+# 3. save dyadic indices data in list columns for 
 
 # 1. Grooming indices ----
 # ----- Assemble grooming indices #####
@@ -138,6 +138,51 @@ names(index_5m)
 
 
 #save(index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
+
+
+# 3. Save dyadic indices data as list columns for purrr -------
+load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
+load("data/annual dyadic grooming indices.Rdata", verbose = T)
+load("data/annual dyadic 5m proximity indices.Rdata", verbose = T)
+
+
+names(total_gm_gmd_index)
+names(index_5m)
+
+
+# where dyad ids and their indices are separate dataframes for each year year and dyad_sex
+g_data_gm_sex_sep <- total_gm_gmd_index %>%
+  select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
+  filter(dyad_sex != "mixed") %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, gmgmdi)) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
+  arrange(dyad_sex, year) 
+
+
+g_data_prox_sex_sep <- index_5m %>%
+  select(year, dyad_sex, ID1,ID2, prox5i) %>%
+  filter(dyad_sex != "mixed") %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, prox5i)) %>%
+  arrange(dyad_sex, year) 
+
+
+g_data_gm_sex_comb <- total_gm_gmd_index %>%
+  mutate(dyad_sex = "any_combo") %>%
+  select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, gmgmdi)) %>%
+  arrange(year)
+
+g_data_prox_sex_comb <- index_5m %>%
+  mutate(dyad_sex = "any_combo") %>%
+  select(year, dyad_sex, ID1,ID2, prox5i) %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, prox5i)) %>%
+  arrange(year)
+
+
+#save(g_data_gm_sex_comb, g_data_prox_sex_comb, g_data_gm_sex_sep, g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
 
 
 # graveyard ----
