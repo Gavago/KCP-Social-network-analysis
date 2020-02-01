@@ -26,7 +26,8 @@ total_gm_gmd_index <- total_gm_gmd %>%
   mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
   mutate(gmgmdi = (total_AB_gm_gmd / total_AB_party) * 100) %>% # gm gmd index, percentage of time in party spent grooming each other
   mutate(gmgmdi = ifelse(is.nan(gmgmdi), 0, gmgmdi)) %>% # for 0/0
-  select(ID1, ID2, year, total_AB_gm_gmd, total_AB_party, gmgmdi, sex_ID1, sex_ID2, everything())
+  select(ID1, ID2, year, total_AB_gm_gmd, total_AB_party, gmgmdi, sex_ID1, sex_ID2, everything()) %>%
+  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
 nrow(total_gm_gmd_index) #2914
 head(total_gm_gmd_index)
 
@@ -36,7 +37,8 @@ total_gm_index <- total_gm %>%
   mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
   mutate(gmi = (total_AB_gm / total_AB_party) * 100) %>% # gm gmd index, percentage of time in party spent grooming each other
   mutate(gmi = ifelse(is.nan(gmi), 0, gmi)) %>% #for 0/0
-  select(ID1, ID2, year, total_AB_gm, total_AB_party, gmi, sex_ID1, sex_ID2)
+  select(ID1, ID2, year, total_AB_gm, total_AB_party, gmi, sex_ID1, sex_ID2) %>%
+  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
 nrow(total_gm_index) #5826
 
 total_gmd_index <- total_gmd %>%
@@ -45,7 +47,8 @@ total_gmd_index <- total_gmd %>%
   mutate_at(vars(ends_with("_party")), .funs = list(function(x) ifelse(is.na(x), 0, x))) %>%
   mutate(gmdi = (total_AB_gmd / total_AB_party) * 100) %>% # gm gmd index, percentage time in party spent grooming each other
   mutate(gmdi = ifelse(is.nan(gmdi), 0, gmdi)) %>% #for 0/0
-  select(ID1, ID2, year, total_AB_gmd, total_AB_party, gmdi, sex_ID1, sex_ID2)
+  select(ID1, ID2, year, total_AB_gmd, total_AB_party, gmdi, sex_ID1, sex_ID2) %>%
+  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
 nrow(total_gmd_index) #5826
 head(total_gmd_index)
 
@@ -65,56 +68,10 @@ total_gm %>%
   filter(is.na(total_AB_party))
 
 
-# ----- Sex specific networks of indices ####
-
-fem_gmgmdi <- total_gm_gmd_index %>%
-  filter(sex_ID1 == "F", sex_ID2 == "F")
-nrow(fem_gmgmdi) #1054
-head(fem_gmgmdi)
-
-male_gmgmdi <- total_gm_gmd_index %>%
-  filter(sex_ID1 == "M", sex_ID2 == "M")
-nrow(male_gmgmdi) #421
-head(male_gmgmdi)
-
-fem_gmi <- total_gm_index %>%
-  filter(sex_ID1 == "F", sex_ID2 == "F")
-nrow(fem_gmi) #2108 rows w non-grooming dyads included, 401 w out
-head(fem_gmi)
-
-male_gmi <- total_gm_index %>%
-  filter(sex_ID1 == "M", sex_ID2 == "M")
-nrow(male_gmi) #842 rows w non-grooming dyads included
-head(male_gmi)
-
-fem_gmdi <- total_gmd_index %>%
-  filter(sex_ID1 == "F", sex_ID2 == "F")
-nrow(fem_gmdi) #2108 rows w non-grooming dyads included, 84 w out
-head(fem_gmdi)
-
-male_gmi %>%
-  filter(total_AB_gm != 0) %>% nrow() 
-
-male_gmdi <- total_gmd_index %>%
-  filter(sex_ID1 == "M", sex_ID2 == "M")
-nrow(male_gmdi) #782 rows w non-grooming dyads included,405 without
-head(male_gmdi)
-
 
 unique(fem_gmi$ID1) %>% length() #more females than males...
 unique(male_gmi$ID1) %>% length()
 
-total_gm_gmd_index$dyad_sex <- "any_combo"
-total_gmd_index$dyad_sex <- "any_combo"
-total_gm_index$dyad_sex <- "any_combo"
-
-fem_gmgmdi$dyad_sex <- "female"
-fem_gmdi$dyad_sex <- "female"
-fem_gmi$dyad_sex <- "female"
-
-male_gmgmdi$dyad_sex <- "male"
-male_gmdi$dyad_sex <- "male"
-male_gmi$dyad_sex <- "male"
 
 #save(total_gm_gmd_index, total_gm_index, total_gmd_index,
 #        fem_gmgmdi, male_gmgmdi,
@@ -172,10 +129,52 @@ index_5m <- total_5m %>%
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
   mutate(total_AB_party = ifelse(is.na(total_AB_party), 0 , total_AB_party)) %>% #NAs of total AB party are dyads never seen in groups
   mutate(prox5i = ifelse(total_AB_party == 0, 0, total_5m/total_AB_party)) %>% # if total AB party is zero, avoid NaN of 0/0
-  select(ID1, ID2, year, total_5m, total_AB_party, prox5i, everything())
+  select(ID1, ID2, year, total_5m, total_AB_party, prox5i, everything()) %>%
+  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
+  
 
 nrow(index_5m) #2936
 names(index_5m)
+
+
+#save(index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
+
+
+# graveyard ----
+# ----- Sex specific networks of indices ####
+
+fem_gmgmdi <- total_gm_gmd_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmgmdi) #1054
+head(fem_gmgmdi)
+
+male_gmgmdi <- total_gm_gmd_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmgmdi) #421
+head(male_gmgmdi)
+
+fem_gmi <- total_gm_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmi) #2108 rows w non-grooming dyads included, 401 w out
+head(fem_gmi)
+
+male_gmi <- total_gm_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmi) #842 rows w non-grooming dyads included
+head(male_gmi)
+
+fem_gmdi <- total_gmd_index %>%
+  filter(sex_ID1 == "F", sex_ID2 == "F")
+nrow(fem_gmdi) #2108 rows w non-grooming dyads included, 84 w out
+head(fem_gmdi)
+
+male_gmi %>%
+  filter(total_AB_gm != 0) %>% nrow() 
+
+male_gmdi <- total_gmd_index %>%
+  filter(sex_ID1 == "M", sex_ID2 == "M")
+nrow(male_gmdi) #782 rows w non-grooming dyads included,405 without
+head(male_gmdi)
 
 # ----- Sex specific 5m ####
 female_prox5i <- index_5m %>%
@@ -191,7 +190,3 @@ nrow(male_prox5i) #421
 index_5m$dyad_sex <- "any_combo"
 female_prox5i$dyad_sex <- "female"
 male_prox5i$dyad_sex <- "male"
-
-
-
-save(female_prox5i, male_prox5i, index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
