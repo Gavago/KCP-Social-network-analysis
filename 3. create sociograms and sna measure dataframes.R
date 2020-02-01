@@ -25,7 +25,7 @@ select <- dplyr::select
 # the output of the function can be a data frame of observations of individual network score by year, or a sociogram ("graph")
 # that produces a visualization of the network, with the sna measure defining the size of the vertex 
 
-sna_measures_undir <- function(g, year = NULL, network_sex = c("male", "female", "any_combination"), output = c("graph", "data.frame")){
+sna_measures_undir <- function(g,year = NULL, network_sex = NULL, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
   
   if( grepl("gm", edge_attr(g) %>% names())){
     behavior <- "total_grooming"  
@@ -51,9 +51,14 @@ sna_measures_undir <- function(g, year = NULL, network_sex = c("male", "female",
   if(output == "data.frame"){
     
     df <- data.frame(chimp_id = names(gb), year, network_sex, behavior, network_type = "undirected", bt = gb, ec = ge, deg = gd, trans = gt)
+    #? remove year & dyad sex, see if in final can just remove list cols "data" and "graph" and then unnest the df that remains
     return(df)
     }
 }
+
+#test
+#g <- x$graph[[1]]
+#sna_measures_undir(g, output = "data.frame")
 
 
 # Function 2 -- plotting -------
@@ -118,68 +123,22 @@ plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
 #save(sna_measures_undir, plot_graph, file = "functions/functions - SNA measures and graph plotting.Rdata")
 
 # 1. Calculate SNA measures -----
-# -- 1a. Prep dyadic data as list columns -------
+
+# -- 1a. Transform list column data into igraphs for each either year or sex-year ------
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("data/annual dyadic grooming indices.Rdata", verbose = T)
-load("data/annual dyadic 5m proximity indices.Rdata", verbose = T)
-
-
-names(total_gm_gmd_index)
-names(index_5m)
-
-
-# where dyad ids and their indices are separate dataframes for each year year and dyad_sex
-g_data_gm_sex_sep <- total_gm_gmd_index %>%
-  select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
-  filter(dyad_sex != "mixed") %>%
-  # nest all dyad ids and indices within year and dyad sex
-  nest(data = c(ID1,ID2, gmgmdi)) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
-  arrange(dyad_sex, year) 
-
-
-g_data_prox_sex_sep <- index_5m %>%
-  select(year, dyad_sex, ID1,ID2, prox5i) %>%
-  filter(dyad_sex != "mixed") %>%
-  # nest all dyad ids and indices within year and dyad sex
-  nest(data = c(ID1,ID2, prox5i)) %>%
-  arrange(dyad_sex, year) 
-  
-
-g_data_gm_sex_comb <- total_gm_gmd_index %>%
-  mutate(dyad_sex = "any_combo") %>%
-  select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
-  # nest all dyad ids and indices within year and dyad sex
-  nest(data = c(ID1,ID2, gmgmdi)) %>%
-  arrange(year)
-
-g_data_prox_sex_comb <- index_5m %>%
-  mutate(dyad_sex = "any_combo") %>%
-  select(year, dyad_sex, ID1,ID2, prox5i) %>%
-  # nest all dyad ids and indices within year and dyad sex
-  nest(data = c(ID1,ID2, prox5i)) %>%
-  arrange(year)
-
-
-
-#save(g_data_gm_sex_comb, g_data_prox_sex_comb, g_data_gm_sex_sep, g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
-
-
-# -- 1b. Transform list column data into igraphs for each either year or sex-year ------
-load("functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
+load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
 # see data where "data" column is a list of dataframes of dyadic association indices from either that year (sex_comb for sexes combined)
 # of for dyads of a given sex (sex_sep for sexes separated) in a given year
 
 names(g_data_gm_sex_sep)
 names(g_data_gm_sex_comb)
 
+
 gdf_gm_sex_sep <- g_data_gm_sex_sep %>%
   #list cols graph
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
   #add sna attributes to vertices
-  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph")) %>%
-  #save sna measures as a df
-  mutate(sna_measures = map(graph, sna_measures_undir, year = year, network_sex = dyad_sex, output = "data.frame"))
+  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
 x <- gdf_gm_sex_sep %>%
 filter(year == 2017 & dyad_sex == "male") %>%
