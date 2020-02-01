@@ -116,13 +116,13 @@ male_gmgmdi$dyad_sex <- "male"
 male_gmdi$dyad_sex <- "male"
 male_gmi$dyad_sex <- "male"
 
-save(total_gm_gmd_index, total_gm_index, total_gmd_index,
-        fem_gmgmdi, male_gmgmdi,
-        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/annual dyadic grooming indices.Rdata")
+#save(total_gm_gmd_index, total_gm_index, total_gmd_index,
+#        fem_gmgmdi, male_gmgmdi,
+#        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/annual dyadic grooming indices.Rdata")
 
 
 # ----- Explore annual grooming indices ####
-load("data/annual possible focal dyads.Rdata", verbose = T)
+lsoad("data/annual possible focal dyads.Rdata", verbose = T)
 load("data/annual dyadic grooming indices.Rdata", verbose = T)
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 nrow(total_gm_gmd_index) #2759, 2968
@@ -187,4 +187,11 @@ male_prox5i <- index_5m %>%
 nrow(female_prox5i) #1062
 nrow(male_prox5i) #421
 
-#save(female_prox5i, male_prox5i, index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
+
+index_5m$dyad_sex <- "any_combo"
+female_prox5i$dyad_sex <- "female"
+male_prox5i$dyad_sex <- "male"
+
+
+
+save(female_prox5i, male_prox5i, index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
