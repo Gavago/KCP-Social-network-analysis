@@ -5,14 +5,6 @@ library(viridis)
 select <- dplyr::select
 
 
-load("annual dyadic grooming indices.Rdata", verbose = T)
-load("annual dyadic 5m proximity indices.Rdata", verbose = T)
-
-
-names(total_gm_gmd_index)
-names(index_5m)
-
-
 # options for shiny plots
 # sexes
 # year(s)
@@ -63,20 +55,6 @@ sna_measures_undir <- function(g, year = NULL, network_sex = c("male", "female",
     }
 }
 
-# test function's data.frame output
-g <- gdf_gm_sex_sep$graph[[12]]
-year <- gdf_gm_sex_sep$year[[12]]
-network_sex <- gdf_gm_sex_sep$dyad_sex[[12]]
-
-sna_measures_undir(g, year, network_sex, output = "data.frame")
-
-# test edge filter
-x <- g_data_gm_sex_sep$data[[12]] %>% graph_from_data_frame(d = ., directed = FALSE)
-remove <- edge_attr(x)[[1]] == 0
-keep <- edge_attr(x)[[1]] != 0
-E(x)
-delete_edges(x, E(x)[remove]) # this removes edges == 0 to leave those != 0
-E(x)[keep] # does same thing, selects != 0 edges to keep
 
 # Function 2 -- plotting -------
 
@@ -137,45 +115,53 @@ plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
   
 }
 
-#save(sna_measures_undir, plot_graph, file = "functions - SNA measures and graph plotting.Rdata")
+#save(sna_measures_undir, plot_graph, file = "functions/functions - SNA measures and graph plotting.Rdata")
 
 # 1. Calculate SNA measures -----
 # -- 1a. Prep dyadic data as list columns -------
+load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
+load("data/annual dyadic grooming indices.Rdata", verbose = T)
+load("data/annual dyadic 5m proximity indices.Rdata", verbose = T)
+
+
+names(total_gm_gmd_index)
+names(index_5m)
+
+
 # where dyad ids and their indices are separate dataframes for each year year and dyad_sex
 g_data_gm_sex_sep <- total_gm_gmd_index %>%
-  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" ))) %>%
   select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
   filter(dyad_sex != "mixed") %>%
   # nest all dyad ids and indices within year and dyad sex
-  nest(ID1,ID2, gmgmdi) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
+  nest(data = c(ID1,ID2, gmgmdi)) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
   arrange(dyad_sex, year) 
 
+
 g_data_prox_sex_sep <- index_5m %>%
-  mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" ))) %>%
   select(year, dyad_sex, ID1,ID2, prox5i) %>%
   filter(dyad_sex != "mixed") %>%
   # nest all dyad ids and indices within year and dyad sex
-  nest(ID1,ID2, prox5i) %>%
+  nest(data = c(ID1,ID2, prox5i)) %>%
   arrange(dyad_sex, year) 
   
 
 g_data_gm_sex_comb <- total_gm_gmd_index %>%
-  mutate(dyad_sex = "any_combination") %>%
+  mutate(dyad_sex = "any_combo") %>%
   select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
   # nest all dyad ids and indices within year and dyad sex
-  nest(ID1,ID2, gmgmdi) %>%
+  nest(data = c(ID1,ID2, gmgmdi)) %>%
   arrange(year)
 
 g_data_prox_sex_comb <- index_5m %>%
-  mutate(dyad_sex = "any_combination") %>%
+  mutate(dyad_sex = "any_combo") %>%
   select(year, dyad_sex, ID1,ID2, prox5i) %>%
   # nest all dyad ids and indices within year and dyad sex
-  nest(ID1,ID2, prox5i) %>%
+  nest(data = c(ID1,ID2, prox5i)) %>%
   arrange(year)
 
 
 
-#save(g_data_gm_sex_comb, g_data_prox_sex_comb, g_data_gm_sex_sep, g_data_prox_sex_sep, file = "list column dyadic data prox & gm by year & dyad-sex year.Rdata")
+#save(g_data_gm_sex_comb, g_data_prox_sex_comb, g_data_gm_sex_sep, g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
 
 
 # -- 1b. Transform list column data into igraphs for each either year or sex-year ------
@@ -221,12 +207,12 @@ gdf_prox_sex_comb <- g_data_prox_sex_comb %>%
 
 gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 
-#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "graph dataframes with sna measures ready for plot and analysis.Rdata")
+#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "data/graph dataframes with sna measures ready for plot and analysis.Rdata")
 
 
 # 2. SNA measure data frames ----
-load("functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
+load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
+load("data/graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
 
 #create master data frame with all individual sna measures by year
 
@@ -255,8 +241,8 @@ all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list)
 #save(all_sna_measure_df, file = "all sna measures for behavior and dyad sex types.Rdata")
 
 # 3. Create pdf sociograms from igraphs in list column  ----
-load("graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
-load("functions - SNA measures and graph plotting.Rdata", verbose = T)
+load("data/graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
+load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
 #problem here is that pdf function comes before calling the graph requires object
