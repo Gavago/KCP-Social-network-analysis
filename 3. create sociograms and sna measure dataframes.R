@@ -166,7 +166,7 @@ gdf_prox_sex_comb <- g_data_prox_sex_comb %>%
 
 gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 
-#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "data/graph dataframes with sna measures ready for plot and analysis.Rdata")
+#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata")
 
 
 # 2. SNA measure data frames ----
@@ -197,10 +197,10 @@ for(j in 1:length(graph_list)){
 
 all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list)
 
-#save(all_sna_measure_df, file = "all sna measures for behavior and dyad sex types.Rdata")
+#save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
 
 # 3. Create pdf sociograms from igraphs in list column  ----
-load("data/graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
+load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = TRUE)
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
