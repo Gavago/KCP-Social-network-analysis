@@ -210,44 +210,49 @@ load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 # outside of loop, set graph dataframe to visualize / save
 gdf <- gdf_gm_sex_sep
 gdf <- gdf_gm_sex_comb
-behavior <- "grooming"
 gdf <- gdf_prox_sex_sep
 gdf <- gdf_prox_sex_comb
-behavior <- "prox"
-dyads <- "sexes separate"
 
-#settings for title and plot graph function
-# ec bt trans deg
+
+#list of list column dfs
+#for each df, go through each year and print
+
+# socs <- gdf_prox_sex_comb %>%
+#   mutate( behavior = ifelse( grepl("gm", names(.data$data[[1]][,3])), "total_grooming", "prox")) %>%
+#    map(graph_w_sna, plot_graph, year = year, behavior = behavior, layout = "nicely", size_centrality = "ec")
+
+
+#each element of this list is list col data of given behavior and dyad sexes for each year of focal data
+gm_prox_graph_list<- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf_prox_sex_comb)
+
+
+#settings for title and plot graph function, ec bt trans deg
 size_centrality_x <- "bt"
 layout_setting <- "nicely"
 
 
-for (i in seq(nrow(gdf))) {
+for (i in seq(length(gm_prox_list))){ # for each graph type
   
-  #saving plot of sociogram
-  pdf(paste("sociograms/MM_FF_separate/", behavior, dyads, gdf$year[[i]], size_centrality_x, ".pdf", sep = ""))
+  gdf <- gm_prox_graph_list[[i]] # choose graph df (w list col of annual graphs)
+  behavior = ifelse( grepl("gm", names(gdf$data[[1]][,3])), "total_grooming", "prox") #determine behavior type
+  subfolder = ifelse( "any_combo" %in% gdf$dyad_sex, "MF_combined/", "MM_FF_separate/") #and save location
+
+for (j in seq(nrow(gdf))) { #for each sex-year graph
+
+    #and plot sociogram
+  title <- paste( gdf$dyad_sex[[j]], gdf$year[[j]], behavior, size_centrality_x, sep = "_")
+  pdf(paste0("sociograms/",subfolder, title, ".pdf"))
   
-  gdf$graph_w_sna[[i]] %>% plot_graph(., behavior = behavior, dyads = dyads,
-                                      year = gdf$year[[i]], size_centrality = size_centrality_x, layout = layout_setting,
+  gdf$graph_w_sna[[j]] %>% plot_graph(., behavior = behavior, dyads = gdf$dyad_sex[[j]],
+                                      year = gdf$year[[j]], size_centrality = size_centrality_x, layout = layout_setting,
                                       scale_edge_weight = 1, scale_vertex_size = 1)
   dev.off()
   
   }
-
-
-
-
-for ( i in seq(nrow(gdf))){
-  df <- sna_measures_undir(gdf$graph_w_sna[[i]], year = gdf$year[[i]], network_sex = gdf$dyad_sex[[i]] , output = "data.frame")
-  
 }
 
 
-# try the same with purr? search plot w purr
-
-gdf$graph_w_sna[[12]] %>% vertex_attr()
-
-# peak inside all tings
+# peak inside all tings - handy igraph functions -----
 g1 <- gdf$graph_w_sna[[1]]
 edge_attr(g1) %>% names()
 vertex_attr(g1)
