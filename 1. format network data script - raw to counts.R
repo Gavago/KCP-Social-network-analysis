@@ -131,6 +131,13 @@ grooming_raw <- groomingx %>%
 
 #save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
 
+# ----- Format and agg and action look up
+load("data/raw aggression.Rdata", verbose = T)
+load("data/action lookup.Rdata", verbose = T)
+action
+unique(agg$Behaviour) # what do these mean?
+
+
 ## 2. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
 
 # add dyad member sexes and birthdates
@@ -572,7 +579,6 @@ total_5m %>%
 
 #save(total_5m, file = "data/count time in 5m.Rdata")
 
-#####
 # graveyard #####
 # SCAN ####
 
