@@ -9,8 +9,8 @@ library(magrittr)
 
 # 1. Grooming indices ----
 # ----- Assemble grooming indices #####
-load("data/annual dyadic grooming counts.Rdata", verbose = T)
-load("data/dyadic focal party and total focal counts.Rdata", verbose = T)
+load("data/counts - annual dyadic grooming.Rdata", verbose = T)
+load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
 
 #total grooming index - AB gm_gmd / AB total time in party where one was focal
 
@@ -73,14 +73,14 @@ unique(fem_gmi$ID1) %>% length() #more females than males...
 unique(male_gmi$ID1) %>% length()
 
 
-#save(total_gm_gmd_index, total_gm_index, total_gmd_index,
+# save(total_gm_gmd_index, total_gm_index, total_gmd_index,
 #        fem_gmgmdi, male_gmgmdi,
-#        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/annual dyadic grooming indices.Rdata")
+#        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/indices - annual dyadic grooming.Rdata")
 
 
 # ----- Explore annual grooming indices ####
 load("data/annual possible focal dyads.Rdata", verbose = T)
-load("data/annual dyadic grooming indices.Rdata", verbose = T)
+load("data/indices - annual dyadic grooming.Rdata", verbose = T)
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 nrow(total_gm_gmd_index) #2759, 2968
 
@@ -118,8 +118,8 @@ total_gm_gmd_index %>%
 
 # 2. Prox indices ----
 # ----- Assemble time in 5m index #####
-load("data/dyadic focal party and total focal counts.Rdata", verbose = T)
-load("data/count time in 5m.Rdata", verbose = T)
+load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
+load("data/counts - time in 5m.Rdata", verbose = T)
 
 names(total_5m)
 nrow(total_5m) #2936
@@ -137,13 +137,12 @@ nrow(index_5m) #2936
 names(index_5m)
 
 
-#save(index_5m, file = "data/annual dyadic 5m proximity indices.Rdata")
-
+#save(index_5m, file = "data/indices - annual dyadic 5m proximity.Rdata")
 
 # 3. Save dyadic indices data as list columns for purrr -------
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("data/annual dyadic grooming indices.Rdata", verbose = T)
-load("data/annual dyadic 5m proximity indices.Rdata", verbose = T)
+load("data/indices - annual dyadic grooming.Rdata", verbose = T)
+load("data/indices - annual dyadic 5m proximity.Rdata", verbose = T)
 
 
 names(total_gm_gmd_index)
