@@ -59,9 +59,11 @@ agg <- sqlFetch(connection, "AGGRESSION")
 
 #various action codes, e.g. grooming types
 action <- sqlFetch(connection, "ACTION_LOOKUP")
+agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
+  separate(`Key:`, into = c("code", "meaning"), sep = "=|-") %>%
+  filter(!is.na(code))
 
-
-#save(agg, file = "data/raw aggression.Rdata")
+#save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
 #save(action, file = "data/action lookup.Rdata")
 
 # ----- Format attribute data #####
@@ -134,8 +136,7 @@ grooming_raw <- groomingx %>%
 # ----- Format and agg and action look up
 load("data/raw aggression.Rdata", verbose = T)
 load("data/action lookup.Rdata", verbose = T)
-action
-unique(agg$Behaviour) # what do these mean?
+
 
 
 ## 2. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
