@@ -35,111 +35,7 @@ ymd_hms <- lubridate::ymd_hms
 # count time in 5m.Rdata
 # counts are to pass to indices in 2
 
-## 1. Upload data from access database DSN ####
-connection <- odbcConnect("Kanyawara social")
-
-#demography data
-demox <- sqlFetch(connection, "DEMOGRAPHY")
-i <- sapply(demox, is.factor)
-demox[i] <- lapply(demox[i], as.character)
-
-#grooming records from focal data
-groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date)))
-i <- sapply(groomingx, is.factor)
-groomingx[i] <- lapply(groomingx[i], as.character)
-
-
-#5 m records from focal data
-focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
-focal_5m1 %<>% mutate_if(is.factor, as.character)
-
-#aggression 
-agg <- sqlFetch(connection, "AGGRESSION")
-
-#various action codes, e.g. grooming types
-action <- sqlFetch(connection, "ACTION_LOOKUP")
-agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
-  separate(`Key:`, into = c("code", "meaning"), sep = "=|-") %>%
-  filter(!is.na(code))
-
-#save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
-#save(action, file = "data/action lookup.Rdata")
-
-# ----- Format attribute data #####
-names(demox)
-#demox %>%
-#  filter(chimp_name == "Ngamba") %>% View()
-# Ngamba the female was first seen in 2004, last seen feb 7 2007, before focal obs started
-# her code name "NA" needs correcting only when dealing with scan data from <= 2007
-
-
-attr <- demox %>%
-  filter(kanyawara_member_flag == 1) %>%
-  select(chimp_id, sex, date_of_birth_corrected, date_last_seen, mother_id, father_id) %>%
-  mutate(dobc = as.Date(date_of_birth_corrected)) %>%
-  mutate_if(is.factor, as.character)
-
-#attr %<>% # 1.15.2020
-# mutate(dobc = as.Date(dobc), date_last_seen = as.Date(date_last_seen), chimp_id = as.character(chimp_id))
-
-attr[is.na(attr$chimp_id), "chimp_id"] <- "NX" #change ngamba to NX
-attr[attr$chimp_id == "NPT", "chimp_id"] <- "NT"
-
-#save(attr, file = "data/attribute data alone.Rdata")
-
-# ----- Format prox in 5 #####
-names(focal_5m1)
-names(attr)
-
-focal_5m1 %>%
-  filter(Exclude == T)
-
-focal_5m_raw <- focal_5m1 %>%
-  rename(ID1 = Focal, ID2 = w5) %>%
-  mutate_if(is.factor, as.character) %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date))) %>%
-  filter(ID1 != ID2) %>% # removes 50 cases, removes 59 cases
-  fix_ID_errors()
-
-focal_5m_raw$ID1[grepl(" ", focal_5m_raw$ID1)]
-focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
-
-nrow(focal_5m_raw) # 177686
-
-#save(attr, focal_5m_raw, file = "data/raw 5 m proximity.Rdata")
-
-#load("raw 5 m proximity.Rdata", verbose = T)
-
-# ----- Format grooming and add attribute data ####
-
-# fix a few typos of chimpid names
-names(groomingx)
-
-groomingx$Focal[grepl(" ", groomingx$Focal)]
-groomingx$Partner_ID[grepl(" ", groomingx$Partner_ID)]
-groomingx[groomingx$Focal == "TT ", "Focal"] <- "TT"
-
-groomingx[groomingx$Partner_ID == "NPT", "Partner_ID"] <- "NT"
-groomingx[groomingx$Partner_ID == "OP(DEAD)", "Partner_ID"] <- "OP"
-
-names(groomingx)
-
-grooming_raw <- groomingx %>%
-  rename(ID1 = Focal, ID2 = Partner_ID) %>% 
-  filter(ID2 != "UNK") %>%
-  filter(ID1 != ID2)
-# to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
-
-#save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
-
-# ----- Format and agg and action look up
-load("data/raw aggression.Rdata", verbose = T)
-load("data/action lookup.Rdata", verbose = T)
-
-
-
-## 2. Create functions - adding sexes & ages to df, apply sex specific filter ages -------
+## 1. Create functions - adding sexes & ages to df, apply sex specific filter ages, fix ID errors -------
 
 # add dyad member sexes and birthdates
 add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
@@ -147,7 +43,7 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
   
   names(df)[names(df) == ID1] <- "ID1"
   names(df)[names(df) == ID2] <- "ID2"  
-
+  
   #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
   #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
   a <- df %>%
@@ -206,6 +102,111 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
 
 #save(add_dyad_attr, add_age, filter_age, fix_ID_errors, file = "functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata")
 
+
+
+## 2. Upload data from access database DSN ####
+load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
+
+connection <- odbcConnect("Kanyawara social")
+
+#demography data
+demox <- sqlFetch(connection, "DEMOGRAPHY")
+i <- sapply(demox, is.factor)
+demox[i] <- lapply(demox[i], as.character)
+
+#grooming records from focal data
+groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
+  mutate(year = year(ymd(Date)), month = month(ymd(Date)))
+i <- sapply(groomingx, is.factor)
+groomingx[i] <- lapply(groomingx[i], as.character)
+
+
+#5 m records from focal data
+focal_5m1 <- sqlFetch(connection, "FOCAL PROXIMITY within 5")
+focal_5m1 %<>% mutate_if(is.factor, as.character)
+
+#aggression 
+agg <- sqlFetch(connection, "AGGRESSION")
+
+#various action codes, e.g. grooming types
+action <- sqlFetch(connection, "ACTION_LOOKUP")
+agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
+  separate(`Key:`, into = c("code", "meaning"), sep = "=|-") %>%
+  filter(!is.na(code))
+
+#save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
+#save(action, file = "data/action lookup.Rdata")
+
+
+
+# ----- Format attribute data #####
+names(demox)
+#demox %>%
+#  filter(chimp_name == "Ngamba") %>% View()
+# Ngamba the female was first seen in 2004, last seen feb 7 2007, before focal obs started
+# her code name "NA" needs correcting only when dealing with scan data from <= 2007
+
+
+attr <- demox %>%
+  filter(kanyawara_member_flag == 1) %>%
+  select(chimp_id, sex, date_of_birth_corrected, date_last_seen, mother_id, father_id) %>%
+  mutate(dobc = as.Date(date_of_birth_corrected)) %>%
+  mutate_if(is.factor, as.character)
+
+#attr %<>% # 1.15.2020
+# mutate(dobc = as.Date(dobc), date_last_seen = as.Date(date_last_seen), chimp_id = as.character(chimp_id))
+
+attr[is.na(attr$chimp_id), "chimp_id"] <- "NX" #change ngamba to NX
+attr[attr$chimp_id == "NPT", "chimp_id"] <- "NT"
+
+#save(attr, file = "data/attribute data alone.Rdata")
+
+# ----- Format prox in 5 #####
+names(focal_5m1)
+names(attr)
+
+focal_5m1 %>%
+  filter(Exclude == T)
+
+focal_5m_raw <- focal_5m1 %>%
+  rename(ID1 = Focal, ID2 = w5) %>%
+  mutate_if(is.factor, as.character) %>%
+  mutate(year = year(ymd(Date)), month = month(ymd(Date))) %>%
+  filter(ID1 != ID2) %>% # removes 50 cases, removes 59 cases
+  fix_ID_errors()
+
+focal_5m_raw$ID1[grepl(" ", focal_5m_raw$ID1)] #check, each should be 0
+focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
+
+nrow(focal_5m_raw) # 177686
+
+#save(attr, focal_5m_raw, file = "data/raw 5 m proximity.Rdata")
+
+# ----- Format grooming and add attribute data ####
+
+# fix a few typos of chimpid names
+names(groomingx)
+
+groomingx$Focal[grepl(" ", groomingx$Focal)]
+groomingx$Partner_ID[grepl(" ", groomingx$Partner_ID)]
+groomingx[groomingx$Focal == "TT ", "Focal"] <- "TT"
+
+groomingx[groomingx$Partner_ID == "NPT", "Partner_ID"] <- "NT"
+groomingx[groomingx$Partner_ID == "OP(DEAD)", "Partner_ID"] <- "OP"
+
+names(groomingx)
+
+grooming_raw <- groomingx %>%
+  rename(ID1 = Focal, ID2 = Partner_ID) %>% 
+  filter(ID2 != "UNK") %>%
+  filter(ID1 != ID2)
+# to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
+
+#save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
+
+# ----- Format and agg and action look up
+load("data/raw aggression.Rdata", verbose = T)
+load("data/action lookup.Rdata", verbose = T)
 
 ## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
@@ -275,8 +276,7 @@ total_focal <- foc_part %>%
 nrow(total_focal) #267 
 
 
-#save(total_AB_party, total_focal, file = "data/dyadic focal party and total focal counts.Rdata")
-
+#save(total_AB_party, total_focal, file = "data/counts - dyadic focal party and total focal.Rdata")
 
 # ----- create possible dyads per year #####
 #start using met's file 1/2020
@@ -518,7 +518,7 @@ nrow(total_gmd) #5826 w total possible dyads, 825
 total_gmd1 %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
-#save(total_gm_gmd, total_gm, total_gmd, file = "data/annual dyadic grooming counts.Rdata")
+#save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
 
 
 ## 5. Focal 5 meter (where to find 5 m data?) ####
@@ -578,7 +578,8 @@ total_5m %>%
 total_5m %>%
   filter(total_5m == 0) %>% nrow() #521 dyad-years w 0 time in 5d
 
-#save(total_5m, file = "data/count time in 5m.Rdata")
+#save(total_5m, file = "data/counts -  time in 5m.Rdata")
+
 
 # graveyard #####
 # SCAN ####
