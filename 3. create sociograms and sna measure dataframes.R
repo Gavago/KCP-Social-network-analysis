@@ -172,6 +172,7 @@ gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 # 2. SNA measure data frames ----
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 load("data/graph dataframes with sna measures ready for plot and analysis.Rdata", verbose = T)
+load("data/attribute data alone.Rdata", verbose = T)
 
 #create master data frame with all individual sna measures by year
 
@@ -195,7 +196,10 @@ for(j in 1:length(graph_list)){
   all_sna_measure_df_list[[j]] <- df
 }
 
-all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list)
+all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
+  left_join(attr, by = "chimp_id") %>%
+  select(-date_of_birth_corrected)
+  
 
 #save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
 

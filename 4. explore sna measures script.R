@@ -1,7 +1,7 @@
 library(tidyverse)
 library(magrittr)
-load("all sna measures for behavior and dyad sex types.Rdata", verbose = T)
-load("attribute data alone.Rdata", verbose = T)
+load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+load("data/attribute data alone.Rdata", verbose = T)
 
 
 # how many years  are diff individuals present
@@ -22,7 +22,6 @@ load("attribute data alone.Rdata", verbose = T)
 # sex & agee
 # stability/variation in sna measures (adjusted for observation time)
 # magnitude of various sna variables
-
 
 # Explore sna ----
 names(all_sna_measure_df)
