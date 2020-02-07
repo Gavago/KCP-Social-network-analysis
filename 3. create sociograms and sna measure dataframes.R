@@ -198,7 +198,8 @@ for(j in 1:length(graph_list)){
 
 all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
   left_join(attr, by = "chimp_id") %>%
-  select(-date_of_birth_corrected)
+  select(-date_of_birth_corrected) %>%
+  add_age(dyad = FALSE)
   
 
 #save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
