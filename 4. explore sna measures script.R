@@ -23,7 +23,7 @@ load("data/attribute data alone.Rdata", verbose = T)
 # stability/variation in sna measures (adjusted for observation time)
 # magnitude of various sna variables
 
-# Explore sna ----
+# 1. Descriptives and Focal subjects for age analysis ----
 names(all_sna_measure_df)
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$behavior)
@@ -55,4 +55,71 @@ years_pres %>%
   filter(is.na(age_disappeared)) %>%
   arrange(desc(n), desc(age_mid_2018)) %>%
   View()
+
+
+# 2. Look at very simple correlations w age within networks (no RE for individual...) -----
+
+unique(all_sna_measure_df$network_sex)
+unique(all_sna_measure_df$network_type)
+
+# female
+all_sna_measure_df %>%
+filter(network_sex == "female", behavior == "total_grooming") %$% 
+  cor.test(deg, age_mid_year) # neg ec and deg
+  
+all_sna_measure_df %>%
+  filter(network_sex == "female", behavior == "prox") %$% 
+  cor.test(deg, age_mid_year) #nada
+
+# male
+all_sna_measure_df %>%
+  filter(network_sex == "male", behavior == "total_grooming") %$% 
+  cor.test(trans, age_mid_year) # pos deg ec
+
+all_sna_measure_df %>%
+  filter(network_sex == "male", behavior == "prox") %$% 
+  cor.test(trans, age_mid_year) #nada
+
+# all
+all_sna_measure_df %>%
+  filter(network_sex == "any_combo", behavior == "total_grooming") %$% 
+  cor.test(deg, age_mid_year) # pos trans, ec
+
+all_sna_measure_df %>%
+  filter(network_sex == "any_combo", behavior == "prox") %$% 
+  cor.test(bt, age_mid_year) #neg trans 
+
+# 3. correlations between network measures ----
+library(ggcorrplot)
+
+names(all_sna_measure_df)
+
+df <- all_sna_measure_df
+df <- all_sna_measure_df %>%
+  filter(network_sex == "female", behavior == "total_grooming") 
+df <- all_sna_measure_df %>%
+  filter(network_sex == "male", behavior == "total_grooming") 
+df <- all_sna_measure_df %>%
+  filter(network_sex == "female", behavior == "prox") 
+df <- all_sna_measure_df %>%
+  filter(network_sex == "male", behavior == "prox") 
+
+
+# total
+cors <- df %>%
+  select(bt, ec, deg, trans) %>%
+  cor(., method = "spearman" , use = "pairwise.complete.obs") %>%
+  round(., 2)
+p_cors <- df %>%
+  select(bt, ec, deg, trans) %>%
+  round(cor_pmat(., method = "spearman" , use = "pairwise.complete.obs"),2)
+1 * (p_cors < 0.05)
+1 * (cors > 0 & p_cors < 0.05)
+
+#in every network, all measures are positively and significantly correlated except for trans and bt 8|
+
+
+# corrs differ for prox and gm networks
+# 2a. create heat map of corr
+  
 
