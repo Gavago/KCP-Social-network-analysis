@@ -1,0 +1,41 @@
+---
+title: "SNA methods draft"
+author: "nic"
+date: "2/7/2020"
+output: html_document
+---
+
+## Study site and data collection
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data processing
+
+We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence.
+
+Focal animal sampling began in Aug 2009. However, as few animals were focaled in this year, we excluded these initial data as we expect they did not result in a representative social networks.
+
+```{r individuals focaled in 2009}
+summary(cars)
+```
+
+We excluded network members who were present in the community for < 6 months of a given observation year. 
+
+```{r who was not present in community > 6 mo in given year?}
+
+
+
+```
+
+Each network member was observed as a focal subject for an annual average +/- sd of hours.
+An average of X network members per year were never observed as a focal.
+
+```{r average obs time}
+
+```
+
+We calculated affiliation
