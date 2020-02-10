@@ -415,23 +415,21 @@ total_gmd <- total_gmd1 %>%
   add_age() %>% 
   filter_age()
 
-head(total_gm)
+names(total_gmd)
 nrow(total_gmd) #5826 w total possible dyads, 825
 
 total_gmd1 %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
 #save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
-
-
-load("data/counts - annual dyadic grooming.Rdata", verbose = T)
+#load("data/counts - annual dyadic grooming.Rdata", verbose = T)
 
 ## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
 load("data/raw 5 m proximity.Rdata", verbose = T) #this is stephs, only goees up to 2016
 load("data/annual possible focal dyads.Rdata", verbose = T)
 
-names(attr)
+
 names(focal_5m_raw)
 nrow(focal_5m_raw) #177686
 str(focal_5m_raw)
@@ -479,6 +477,7 @@ head(total_5m)
 tail(total_5m)
 
 total_5m %>%
+  select(-starts_with("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 total_5m %>%
   filter(total_5m == 0) %>% nrow() #521 dyad-years w 0 time in 5d
