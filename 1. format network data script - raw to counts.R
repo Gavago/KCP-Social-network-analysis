@@ -9,7 +9,7 @@ mdy <- lubridate::mdy
 month <- lubridate::month
 year <- lubridate::year
 ymd_hms <- lubridate::ymd_hms
-load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
+load("functions/functions - data preparation.Rdata", verbose = T)
 
 # Open Database Connectivity (ODBC) is a protocol 
 # that you can use to connect a Microsoft Access database to an external data source such as Microsoft SQL Server. 
@@ -142,7 +142,6 @@ load("data/raw aggression.Rdata", verbose = T)
 load("data/action lookup.Rdata", verbose = T)
 
 ## 2. Focal party data and possible dyadsfrom MET (starts 2009) ####
-load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 
 foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
   rename(date = "V1", time = "V2", f_obs = "V3", focal = "V4", kpc_obs = "V5", partner = "V6") %>%
@@ -251,8 +250,6 @@ nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" c
 #used grooming table made in Access "FOCAL GROOMING SCANS"
 load("data/grooming raw and dyad attributes.Rdata", verbose = T)
 load("data/annual possible focal dyads.Rdata", verbose = T)
-load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
-
 
 # focal codes for grooming between adults: G (grooming), MG (mutual grooming), BG (being groomed), "BG,F", HGC, HCG, GC (grooming chain, focal grooming ID2 and being groomed by ID3)
 # see others in "ACTION LOOKUP" table in Access
