@@ -35,87 +35,8 @@ ymd_hms <- lubridate::ymd_hms
 # count time in 5m.Rdata
 # counts are to pass to indices in 2
 
-## 1. Create functions - adding sexes & ages to df, apply sex specific filter ages, fix ID errors -------
 
-# add dyad member sexes and birthdates
-add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
-  load("data/attribute data alone.Rdata")
-  
-  names(df)[names(df) == ID1] <- "ID1"
-  names(df)[names(df) == ID2] <- "ID2"  
-  
-  #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
-  #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
-  a <- df %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID1" = "chimp_id")) %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc,...), by = c("ID2" = "chimp_id")) %>%
-    rename_at(vars(contains(".x")), list( ~ sub("\\.x", "_ID1", .))) %>%
-    rename_at(vars(contains(".y")), list( ~ sub(".y", "_ID2", .)))
-  return(a)
-}
-
-
-
-#create ages on june 1 of observation year
-add_age <- function(df, dyad = TRUE) {
-  
-  if(dyad == TRUE){
-    b <- df %>%
-      mutate(mid_year = as.Date(paste(year,"-06-01", sep="")), 
-             age_mid_year_ID1 =  as.numeric(mid_year - dobc_ID1)/365.25,
-             age_mid_year_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25)
-    return(b)  
-  }
-  
-  if(dyad == FALSE){
-    b <- df %>%
-      mutate(mid_year = as.Date(paste(year,"-06-01", sep="")), 
-             age_mid_year =  as.numeric(mid_year - dobc)/365.25)
-    return(b)  
-  }
-  
-}  
-
-
-
-#sex specific age filter
-filter_age <- function(df, Age_F = 12, Age_M = 15) {
-  f <- df %>%
-    filter( ((sex_ID1 == "F" & age_mid_year_ID1 >= Age_F) & (sex_ID2 == "F" & age_mid_year_ID2 >= Age_F)) | #FF dyad
-              ((sex_ID1 == "M" & age_mid_year_ID1 >= Age_M) & (sex_ID2 == "M" & age_mid_year_ID2 >= Age_M)) | #MM dyad
-              ((sex_ID1 == "F" & age_mid_year_ID1 >= Age_F) & (sex_ID2 == "M" & age_mid_year_ID2 >= Age_M)) | #FM dyad
-              ((sex_ID1 == "M" & age_mid_year_ID1 >= Age_M) & (sex_ID2 == "F" & age_mid_year_ID2 >= Age_F))) # MF dyad
-  return(f)
-}
-
-
-# remove spaces from any IDs
-fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
-  
-  names(df)[names(df) == ID1] <- "ID1"
-  names(df)[names(df) == ID2] <- "ID2" 
-  
-  df_fixed <- df
-  
-  loc_ID1 <- grepl(" ", df$ID1) #locations of mistyped codes in ID1
-  ID1_whack <- df[loc_ID1, "ID1"] 
-  ID1_fixed <- gsub(" ", "", ID1_whack)
-  df_fixed[loc_ID1, "ID1"] <- ID1_fixed
-  
-  loc_ID2 <- grepl(" ", df$ID2) #locations of mistyped codes in ID2
-  ID2_whack <- df[loc_ID2, "ID2"]
-  ID2_fixed <- gsub(" ", "", ID2_whack)
-  df_fixed[loc_ID2, "ID2"] <- ID2_fixed
-  
-  return(df_fixed)
-  
-}
-
-#save(add_dyad_attr, add_age, filter_age, fix_ID_errors, file = "functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata")
-
-
-
-## 2. Upload data from access database DSN ####
+## 1. Upload data from access database DSN ####
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 
 connection <- odbcConnect("Kanyawara social")
@@ -161,8 +82,9 @@ names(demox)
 attr <- demox %>%
   filter(kanyawara_member_flag == 1) %>%
   select(chimp_id, sex, date_of_birth_corrected, date_last_seen, mother_id, father_id) %>%
-  mutate(dobc = as.Date(date_of_birth_corrected)) %>%
-  mutate_if(is.factor, as.character)
+  mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen)) %>%
+  mutate_if(is.factor, as.character) %>%
+  select(-date_of_birth_corrected, -date_last_seen)
 
 #attr %<>% # 1.15.2020
 # mutate(dobc = as.Date(dobc), date_last_seen = as.Date(date_last_seen), chimp_id = as.character(chimp_id))
@@ -191,7 +113,7 @@ focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
 
 nrow(focal_5m_raw) # 177686
 
-#save(attr, focal_5m_raw, file = "data/raw 5 m proximity.Rdata")
+#save(focal_5m_raw, file = "data/raw 5 m proximity.Rdata")
 
 # ----- Format grooming and add attribute data ####
 
@@ -213,14 +135,13 @@ grooming_raw <- groomingx %>%
   filter(ID1 != ID2)
 # to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
 
-#save(attr, grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
+#save(grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
 
-<<<<<<< HEAD
-# ----- Format and agg and action look up
+# ----- Format and agg and action look up ------
 load("data/raw aggression.Rdata", verbose = T)
 load("data/action lookup.Rdata", verbose = T)
-=======
-## 3. Focal party data and possible dyadsfrom MET (starts 2009) ####
+
+## 2. Focal party data and possible dyadsfrom MET (starts 2009) ####
 load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
 
 foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F, stringsAsFactors = F) %>%
@@ -324,7 +245,7 @@ nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" c
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 
-## 4. Create dyadic annual grooming counts (starts 2009)  ####
+## 3. Create dyadic annual grooming counts (starts 2009)  ####
 # ----- load grooming data #####
 
 #used grooming table made in Access "FOCAL GROOMING SCANS"
@@ -533,7 +454,7 @@ total_gmd1 %>%
 #save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
 
 
-## 5. Focal 5 meter (where to find 5 m data?) ####
+## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
 load("data/raw 5 m proximity.Rdata", verbose = T) #this is stephs, only goees up to 2016
 load("data/annual possible focal dyads.Rdata", verbose = T)
