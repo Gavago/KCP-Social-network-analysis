@@ -9,6 +9,8 @@ mdy <- lubridate::mdy
 month <- lubridate::month
 year <- lubridate::year
 ymd_hms <- lubridate::ymd_hms
+load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
+
 # Open Database Connectivity (ODBC) is a protocol 
 # that you can use to connect a Microsoft Access database to an external data source such as Microsoft SQL Server. 
 # help: https://www.statmethods.net/input/dbinterface.html
@@ -37,8 +39,6 @@ ymd_hms <- lubridate::ymd_hms
 
 
 ## 1. Upload data from access database DSN ####
-load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
-
 connection <- odbcConnect("Kanyawara social")
 
 #demography data
@@ -262,10 +262,10 @@ gm <- c("GC", "MG")
 
 
 # how much MG? explore
-grooming_raw %>%
-  filter(Activity == "MG") %>%
-  nrow() #358, 264
-358/nrow(grooming_raw) #4.4% grooming is mutual
+#grooming_raw %>%
+#   filter(Activity == "MG") %>%
+#   nrow() #358, 264
+# 358/nrow(grooming_raw) #4.4% grooming is mutual
 
 nrow(grooming_raw) #8817
 nrow(undir_annual_dyads) #12018
@@ -317,9 +317,6 @@ total_gm_gmd <- total_gm_gmd1 %>%
 
 nrow(total_gm_gmd) #2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
-
-
-str(total_gm_gmd)
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 
@@ -327,33 +324,6 @@ grooming_raw%>%
   filter(apply(.,1, function(x) any(is.na(x))))
 
 
-View(total_gm_gmd)
-
-x <- total_gm_gmd1 %>%
-  select(-ID1, -ID2) %>%
-  cbind(IDs, .) %>%
-  distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads 
-  add_dyad_attr() %>% # add their attributes, sex, dobc...
-  add_age() 
-
-x %>%
-  filter_age() %>%
-  filter(ID1 == "LK") %>%
-  distinct(year)
-
-x %>%
-  filter(sex_ID1 == "M" & sex_ID2 == "M") %>%
-  nrow()
-total_gm_gmd %>%
-  filter(sex_ID1 == "M" & sex_ID2 == "M") %>%
-  nrow()
-
-x %>%
-  filter(sex_ID1 == "F" & sex_ID2 == "F") %>%
-  nrow()
-total_gm_gmd %>%
-  filter(sex_ID1 == "F" & sex_ID2 == "F") %>%
-  nrow()
 
 
 # ----- A groom B counts, directed ####
@@ -453,6 +423,8 @@ total_gmd1 %>%
 
 #save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
 
+
+load("data/counts - annual dyadic grooming.Rdata", verbose = T)
 
 ## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
