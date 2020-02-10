@@ -1,6 +1,3 @@
-
-
-
 # Create functions - adding sexes & ages to df, apply sex specific filter ages, fix ID errors
 
 # add dyad member sexes and birthdates
