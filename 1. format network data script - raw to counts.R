@@ -32,7 +32,6 @@ load("functions/functions - data preparation.Rdata", verbose = T)
 # grooming raw and dyad attributes.Rdata
 # dyadic focal party and total focal counts.Rdata
 # annual possible focal dyads.Rdata
-# functions - add dyad attributes, age, filter age.Rdataa
 # annual dyadic grooming counts.Rdata
 # count time in 5m.Rdata
 # counts are to pass to indices in 2
@@ -309,12 +308,14 @@ total_gm_gmd <- total_gm_gmd1 %>%
   distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads 
   add_dyad_attr() %>% # add their attributes, sex, dobc...
   add_age() %>% # and ages
-  filter_age()
+  filter_age() %>%
+  mark_short_time_pres()
 
 
 nrow(total_gm_gmd) #2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
+  select(-contains("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 
 grooming_raw%>%
@@ -356,7 +357,8 @@ total_gm <- total_gm1 %>%
   arrange(ID1, year, ID2) %>%
   add_dyad_attr() %>%
   add_age() %>%
-  filter_age() 
+  filter_age() %>%
+  mark_short_time_pres()
 
 nrow(total_gm) # 5826, 825 without possibl dyads, 1382 before age filter
 
@@ -375,8 +377,9 @@ a %>% filter(sex_ID1 == "M" & sex_ID2 == "F") %>% nrow() # 1208 - sex
 a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1269 - appeasement? protection?
 a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 2024 - family?
 
-total_gm1 %>%
-  filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
+total_gm %>%
+  select(-contains("dls")) %>%
+  filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow()
 
 # ----- A groomed by B counts, directed ####
 
@@ -410,16 +413,18 @@ total_gmd <- total_gmd1 %>%
   arrange(ID1, year, ID2) %>%
   add_dyad_attr() %>% 
   add_age() %>% 
-  filter_age()
+  filter_age() %>%
+  mark_short_time_pres()
 
 names(total_gmd)
 nrow(total_gmd) #5826 w total possible dyads, 825
 
-total_gmd1 %>%
+total_gmd %>%
+  select(-contains("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
-#save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
-#load("data/counts - annual dyadic grooming.Rdata", verbose = T)
+# save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
+# load("data/counts - annual dyadic grooming.Rdata", verbose = T)
 
 ## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
