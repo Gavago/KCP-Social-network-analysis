@@ -10,8 +10,8 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
   #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
   #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
   a <- df %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc, dls, starts_with("immigration"), ...), by = c("ID1" = "chimp_id")) %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc, dls, starts_with("immigration"),...), by = c("ID2" = "chimp_id")) %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c("ID1" = "chimp_id")) %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"),...), by = c("ID2" = "chimp_id")) %>%
     rename_at(vars(contains(".x")), list( ~ sub(".x$", "_ID1", .))) %>%
     rename_at(vars(contains(".y")), list( ~ sub(".y$", "_ID2", .)))
   return(a)
@@ -51,22 +51,25 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 # mark what individuals are present for < X number of weeks in year
 #load gm df for testing
 #load(data/counts - annual dyadic grooming.Rdata", verbose = T)
-#df <- total_gm
+df <- total_gm_gmd
 
-mark_short_time_pres <- function(df, year = year, weeks_of_year = 26) {
+mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = TRUE) {
 
     t <- df %>%
     #create year start and end
     mutate(year_start = as.Date(paste0(year,"-01-01")),
            year_end = as.Date(paste0(year,"-12-31"))) %>%
-    #temporary calc of weeks present from start of year
+      #temporary calc of weeks present from start of year
       mutate(temp_wks_pres_start_ID1 = as.numeric(difftime(dls_ID1, year_start, units = "weeks"))) %>%
       mutate(temp_wks_pres_start_ID2 = as.numeric(difftime(dls_ID2, year_start, units = "weeks"))) %>%
-    #if date last seen is NA then present 52 weeks, if dls not na but later than end of year also 52, 
-    #else difference bt start and dls  
+      #temporary calc of weeks present from end of year
+      mutate(temp_wks_pres_end_ID1 = as.numeric(difftime(immigration_date_ID1, year_start, units = "weeks"))) %>%
+      mutate(temp_wks_pres_end_ID2 = as.numeric(difftime(immigration_date_ID2, year_start, units = "weeks"))) %>%
+    #if date last seen is NA then present 52 weeks, if dls not na but later than end of year also 52
     mutate(weeks_pres_ID1 = case_when(
-      is.na(dls_ID1) ~ 52,
+      is.na(dls_ID1) ~ 52, #ADD CONDITION FOR TEMP WKS PRES END
       (!is.na(dls_ID1) & (dls_ID1 > year_end)) ~ 52,
+      !is.na(temp_wks_pres_end_ID1) ~
       (!is.na(dls_ID1) & (dls_ID1 < year_end)) ~ temp_weeks_pres_ID1)) %>%
     mutate(weeks_pres_ID2 = case_when(
       is.na(dls_ID2) ~ 52,
@@ -77,7 +80,14 @@ mark_short_time_pres <- function(df, year = year, weeks_of_year = 26) {
     mutate(short_presence_ID2 = ifelse(weeks_pres_ID2 < weeks_of_year, 1, 0)) %>%
     select(-year_start, -starts_with("temp"))
   
+    if(filter == TRUE){
+      t %>%
+        filter(short_presence_ID1 == 0, short_presence_ID2 == 0)
+    }
+    
+    
   return(t)
+    
 }
 
 # filter immigrants
