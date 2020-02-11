@@ -66,13 +66,12 @@ agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
 #save(demox, file = "data/raw demography.Rdata")
 
 # ----- Format attribute data #####
+load("data/raw demography.Rdata")
 names(demox)
 #demox %>%
 #  filter(chimp_name == "Ngamba") %>% View()
 # Ngamba the female was first seen in 2004, last seen feb 7 2007, before focal obs started
 # her code name "NA" needs correcting only when dealing with scan data from <= 2007
-
-immigrants
 
 #df of those that immigrated since 2009, used to mark immigrants in attribute file
 immigrants <- demox %>% 
