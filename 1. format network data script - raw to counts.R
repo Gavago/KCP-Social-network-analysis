@@ -151,7 +151,7 @@ grooming_raw <- groomingx %>%
   filter(ID1 != ID2)
 # to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
 
-#save(grooming_raw, file = "data/grooming raw and dyad attributes.Rdata")
+#save(grooming_raw, file = "data/grooming raw.Rdata")
 
 # ----- Format and agg and action look up ------
 load("data/raw aggression.Rdata", verbose = T)
@@ -264,7 +264,7 @@ nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" c
 # ----- load grooming data #####
 
 #used grooming table made in Access "FOCAL GROOMING SCANS"
-load("data/grooming raw and dyad attributes.Rdata", verbose = T)
+load("data/grooming raw.Rdata", verbose = T)
 load("data/annual possible focal dyads.Rdata", verbose = T)
 
 # focal codes for grooming between adults: G (grooming), MG (mutual grooming), BG (being groomed), "BG,F", HGC, HCG, GC (grooming chain, focal grooming ID2 and being groomed by ID3)
@@ -273,12 +273,11 @@ all_gm <- c("G", "MG", "BG", "BG,F", "HGC", "HCG")
 gmd <- c("BG", "BG,F", "MG") #counting mutual groom towards both giving and receiving grooming indices, not counting twice aka separate instances in total gm
 gm <- c("GC", "MG")
 
-
-# how much MG? explore
+# how much mutual grooming? explore
 #grooming_raw %>%
 #   filter(Activity == "MG") %>%
 #   nrow() #358, 264
-# 358/nrow(grooming_raw) #4.4% grooming is mutual
+# 358/nrow(grooming_raw) #4.4% grooming is mutual - am counting as regular gm interaction in undirected
 
 nrow(grooming_raw) #8817
 nrow(undir_annual_dyads) #12018
@@ -295,7 +294,7 @@ nrow(AB) # 1935
 
 total_gm_gmd1 <- AB %>% 
   #join obs where focal A gms with B and focal B gms with A (gms with = gms or is gmd by)
-  left_join(., AB, by = c("ID1" = "ID2", "ID2" = "ID1", "year"), all = T) %>%
+  full_join(., AB, by = c("ID1" = "ID2", "ID2" = "ID1", "year"), all = T) %>%
   rename(n_AB = n.x, n_BA = n.y) %>%
   mutate(n_AB = ifelse(is.na(n_AB), 0, n_AB), n_BA = ifelse(is.na(n_BA), 0, n_BA)) %>%
   mutate(total_AB_gm_gmd = n_AB + n_BA) %>%
@@ -305,6 +304,7 @@ total_gm_gmd1 <- AB %>%
   replace(., is.na(.), 0)
 #rename_if(starts_with("n_"), .funs = list(function(x) paste(x, "party", sep = "_")))
 
+#add behavior to N count col name
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
 names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))] <- paste(x, "gmgmd", sep = "_")
 
@@ -325,20 +325,16 @@ total_gm_gmd <- total_gm_gmd1 %>%
   distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads 
   add_dyad_attr() %>% # add their attributes, sex, dobc...
   add_age() %>% # and ages
-  filter_age() #%>%
-  #mark_short_time_pres()
+  filter_age() %>% #sex specific age filter 
+  mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-
-nrow(total_gm_gmd) #2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #2657 filter short obs; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
-  select(-contains("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 
 grooming_raw%>%
   filter(apply(.,1, function(x) any(is.na(x))))
-
-
 
 
 # ----- A groom B counts, directed ####
@@ -374,10 +370,10 @@ total_gm <- total_gm1 %>%
   arrange(ID1, year, ID2) %>%
   add_dyad_attr() %>%
   add_age() %>%
-  filter_age() %>%
-  mark_short_time_pres()
+  filter_age() %>% 
+  mark_short_time_pres(filter_n_clean = TRUE)
 
-nrow(total_gm) # 5826, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) # 5312 when 514 short obs removed; 5826, 825 without possibl dyads, 1382 before age filter
 
 
 # describe non grooming
@@ -395,7 +391,6 @@ a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1269 - appeasement? p
 a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 2024 - family?
 
 total_gm %>%
-  select(-contains("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow()
 
 # ----- A groomed by B counts, directed ####
@@ -431,16 +426,15 @@ total_gmd <- total_gmd1 %>%
   add_dyad_attr() %>% 
   add_age() %>% 
   filter_age() %>%
-  mark_short_time_pres()
+  mark_short_time_pres(filter_n_clean = TRUE)
 
 names(total_gmd)
-nrow(total_gmd) #5826 w total possible dyads, 825
+nrow(total_gmd) #5312 w short obs removed, 5826 w total possible dyads, 825
 
 total_gmd %>%
-  select(-contains("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
-# save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
+#save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
 
 ## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
@@ -465,6 +459,7 @@ total_5m1 <- total_5m2 %>%
   mutate(total_5m = n_AB + n_BA)
 nrow(total_5m1) #14740, 4254
 
+#add behavior to N count col name
 x <- names(total_5m1)[grepl("^n_", names(total_5m1))]
 names(total_5m1)[grepl("^n_", names(total_5m1))] <- paste(x, "prox5", sep = "_")
 
