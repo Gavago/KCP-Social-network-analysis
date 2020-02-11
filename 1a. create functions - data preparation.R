@@ -7,8 +7,6 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
   names(df)[names(df) == ID1] <- "ID1"
   names(df)[names(df) == ID2] <- "ID2"  
   
-  #ID1 <- rlang::enquo(ID1) %>% rlang::as_name() # tried these with !! and setNames but can't make them = "chimp_id"
-  #ID2 <- rlang::as_name(ID2) %>% rlang::as_name() 
   a <- df %>%
     left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c("ID1" = "chimp_id")) %>%
     left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"),...), by = c("ID2" = "chimp_id")) %>%
@@ -55,7 +53,7 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 #load(data/counts - annual dyadic grooming.Rdata", verbose = T)
 df <- total_gm_gmd
 
-mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = FALSE) {
+mark_short_time_pres <- function(df, year = year, wks_of_yr_cutoff = 26, filter = FALSE) {
 
     t <- df %>%
     #create year start and end
@@ -88,22 +86,19 @@ mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = F
         #if date last seen is in this year then present for difftime from start to date last seen
         (!is.na(dls_ID2) & (year_last_seen_ID2 == year)) ~ temp_wks_pres_start_ID2)) %>%
     #is individ pres < half of year? then mark for removal
-    mutate(short_presence_ID1 = ifelse(weeks_pres_ID1 < weeks_of_year, 1, 0)) %>%
-    mutate(short_presence_ID2 = ifelse(weeks_pres_ID2 < weeks_of_year, 1, 0)) %>%
+    mutate(short_presence_ID1 = ifelse(weeks_pres_ID1 < wks_of_yr_cutoff, 1, 0)) %>%
+    mutate(short_presence_ID2 = ifelse(weeks_pres_ID2 < wks_of_yr_cutoff, 1, 0)) %>%
     select(-year_start, -year_end, -starts_with("temp"))
   
     if(filter == TRUE){
       t <- t %>%
-        filter_at(starts_with("short"), all_vars(. == 0))
+        filter_at(vars(starts_with("short")), all_vars(. == 0))
     }
     
     
   return(t)
     
 }
-
-# filter immigrants
-
 
 
 # remove spaces from any IDs
