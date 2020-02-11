@@ -24,14 +24,16 @@ add_age <- function(df, dyad = TRUE) {
     b <- df %>%
       mutate(mid_year = as.Date(paste0(year,"-07-01")), 
              age_mid_year_ID1 =  as.numeric(mid_year - dobc_ID1)/365.25,
-             age_mid_year_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25)
+             age_mid_year_ID2 =  as.numeric(mid_year - dobc_ID2)/365.25) %>%
+      select(-mid_year)
     return(b)  
   }
   
   if(dyad == FALSE){
     b <- df %>%
       mutate(mid_year = as.Date(paste0(year,"-07-01")), 
-             age_mid_year =  as.numeric(mid_year - dobc)/365.25)
+             age_mid_year =  as.numeric(mid_year - dobc)/365.25) %>%
+      select(-mid_year)
     return(b)  
   }
   
