@@ -128,7 +128,6 @@ index_5m <- total_5m %>%
 nrow(index_5m) #2679, 2936
 names(index_5m)
 
-
 #save(index_5m, file = "data/indices - annual dyadic 5m proximity.Rdata")
 
 # 3. Save dyadic indices data as list columns for purrr -------
