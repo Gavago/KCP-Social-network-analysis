@@ -67,21 +67,13 @@ total_gm_gmd %>%
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
   filter(is.na(total_AB_party)) %>% nrow()
 
-
-
-unique(fem_gmi$ID1) %>% length() #more females than males...
-unique(male_gmi$ID1) %>% length()
-
-
-# save(total_gm_gmd_index, total_gm_index, total_gmd_index,
-#        fem_gmgmdi, male_gmgmdi,
-#        fem_gmi, male_gmi, fem_gmdi, male_gmdi, file = "data/indices - annual dyadic grooming.Rdata")
+#save(total_gm_gmd_index, total_gm_index, total_gmd_index, file = "data/indices - annual dyadic grooming.Rdata")
 
 
 # ----- Explore annual grooming indices ####
 load("data/annual possible focal dyads.Rdata", verbose = T)
 load("data/indices - annual dyadic grooming.Rdata", verbose = T)
-load("functions/functions - add dyad attributes, age, filter age, fix ID errors.Rdata", verbose = T)
+load("functions/functions - data preparation.Rdata", verbose = T)
 nrow(total_gm_gmd_index) #2759, 2968
 
 # unique female and male dyads by year
@@ -122,7 +114,7 @@ load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
 load("data/counts - time in 5m.Rdata", verbose = T)
 
 names(total_5m)
-nrow(total_5m) #2936
+nrow(total_5m) #2679, 2936
 names(total_AB_party)
 
 index_5m <- total_5m %>%
@@ -133,7 +125,7 @@ index_5m <- total_5m %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
   
 
-nrow(index_5m) #2936
+nrow(index_5m) #2679, 2936
 names(index_5m)
 
 
