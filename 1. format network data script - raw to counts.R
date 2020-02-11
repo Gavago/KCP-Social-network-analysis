@@ -302,7 +302,6 @@ total_gm_gmd1 <- AB %>%
   full_join(undir_annual_dyads, ., by = c("ID1", "ID2", "year")) %>%
   #replace NA in gm time w 0, emerge after add undir dyads, meaning dyad was never seen to groom.
   replace(., is.na(.), 0)
-#rename_if(starts_with("n_"), .funs = list(function(x) paste(x, "party", sep = "_")))
 
 #add behavior to N count col name
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
@@ -319,13 +318,14 @@ IDs <- total_gm_gmd1 %>%
   data.frame(., stringsAsFactors = F) %>%
   rename(ID1 = X1, ID2 = X2) # because undirected
 
-total_gm_gmd <- total_gm_gmd1 %>%
+total_gm_gmdx <- total_gm_gmd1 %>%
   select(-ID1, -ID2) %>%
   cbind(IDs, .) %>%
-  distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads 
+  distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads, revealed after IDs were alphabetized 
   add_dyad_attr() %>% # add their attributes, sex, dobc...
   add_age() %>% # and ages
-  filter_age() %>% #sex specific age filter 
+  filter_age() 
+total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
 nrow(total_gm_gmd) #2657 filter short obs; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
@@ -472,40 +472,47 @@ IDs <- total_5m1 %>%
   rename(ID1 = X1, ID2 = X2)
 nrow(IDs) #14740, 4254
 
-total_5m <- total_5m1 %>%
+total_5mx <- total_5m1 %>%
   select(-ID1, -ID2) %>%
   cbind(IDs, .) %>%
+  distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads, revealed after IDs were alphabetized
   full_join(undir_annual_dyads, ., by = c("ID1", "ID2", "year")) %>%
   #here replace NA in non-grooming dyads
   replace(., is.na(.), 0) %>%
   add_dyad_attr() %>%
   add_age() %>%
-  filter_age() %>%
-  mark_short_time_pres() %>%
-  distinct(ID1, ID2, year, .keep_all = T)
+  filter_age()
+
+total_5m <- total_5mx %>%
+  mark_short_time_pres(filter_n_clean = TRUE) 
 
 
 names(total_5m)
-nrow(total_5m) #2936
+nrow(total_5m) # 2679 after 257 short pres removed; 2936
 head(total_5m)
 tail(total_5m)
 
 total_5m %>%
-  select(-starts_with("dls")) %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 total_5m %>%
   filter(total_5m == 0) %>% nrow() #521 dyad-years w 0 time in 5d
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
-# 5.Explore short presence -----
-load("data/counts - time in 5m.Rdata", verbose = T)
-load("data/counts - annual dyadic grooming.Rdata", verbose = T)
+# 5. view those removed for low time pres
+#save(total_5mx, total_gm_gmdx, file = "data/counts - gm and prox counts before removing short pres individs.Rdata")
+load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
 
-total_gm_gmd %>%
-filter(short_presence_ID1 == 1) %>% distinct(year, ID1, weeks_pres_ID1) %>% arrange()  #is same as ID2
+total_gm_gmdx %>%
+  mark_short_time_pres() %>% 
+  filter(short_presence_ID1 == 1) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
 
-# 10 ID years w short presences
+total_5mx %>%
+  mark_short_time_pres() %>%
+  filter(short_presence_ID1 == 1) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+
 
 # graveyard #####
 # SCAN ####
