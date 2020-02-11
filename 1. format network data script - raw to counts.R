@@ -19,10 +19,6 @@ load("functions/functions - data preparation.Rdata", verbose = T)
 # https://support.office.com/en-us/article/administer-odbc-data-sources-b19f856b-5b9b-48c9-8b93-07484bfab5a7
 
 
-# Timing issues to take care of:
-# create new variable for time present or seen during year...?, if individual is not present for >= 6 months in a year, is removed from year
-# create date first and last seen lookup table, add this on to all final network dfs
-
 
 # Rdata files output from this file are
 # action lookup.Rdata
@@ -44,6 +40,17 @@ connection <- odbcConnect("Kanyawara social")
 demox <- sqlFetch(connection, "DEMOGRAPHY")
 i <- sapply(demox, is.factor)
 demox[i] <- lapply(demox[i], as.character)
+
+#df of those that immigrated since 2009
+immigrants <- demox %>% 
+  filter(!is.na(date_first_seen)) %>% 
+  filter(kanyawara_member_flag == 1) %>%
+  filter((date_of_birth_corrected + lubridate::days(31)) < date_first_seen) %>% #filters out babies
+  filter(sex == "F") %>%
+  mutate(year_first_seen = lubridate::year(date_first_seen)) %>%
+  filter(year_first_seen >= 2009) %>%
+  select(chimp_id, sex, date_first_seen, year_first_seen) %>%
+  rename(immigration_date = date_first_seen, immigration_year = year_first_seen)
 
 #grooming records from focal data
 groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
@@ -67,7 +74,7 @@ agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
 
 #save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
 #save(action, file = "data/action lookup.Rdata")
-
+#save(immigrants, file = "data/females immigrated since 2009.Rdata")
 
 
 # ----- Format attribute data #####
@@ -77,13 +84,20 @@ names(demox)
 # Ngamba the female was first seen in 2004, last seen feb 7 2007, before focal obs started
 # her code name "NA" needs correcting only when dealing with scan data from <= 2007
 
+immigrants
 
 attr <- demox %>%
   filter(kanyawara_member_flag == 1) %>%
-  select(chimp_id, sex, date_of_birth_corrected, date_last_seen, mother_id, father_id) %>%
-  mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen)) %>%
+  select(chimp_id, sex, date_of_birth_corrected, date_last_seen, date_first_seen, mother_id, father_id) %>%
+  mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen),
+         dfs = as.Date(date_first_seen), year_first_seen = lubridate::year(date_first_seen)) %>%
+  left_join(attr, immigrants, by = c("chimp_id", "sex")) %>%
+  mutate(immigration_date = structure(immigration_date, class = "Date")) %>%
   mutate_if(is.factor, as.character) %>%
   select(-date_of_birth_corrected, -date_last_seen)
+
+#attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_date <- immigrants$date_first_seen
+#attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_year <- immigrants$year_first_seen
 
 #attr %<>% # 1.15.2020
 # mutate(dobc = as.Date(dobc), date_last_seen = as.Date(date_last_seen), chimp_id = as.character(chimp_id))
@@ -424,7 +438,6 @@ total_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
 # save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
-# load("data/counts - annual dyadic grooming.Rdata", verbose = T)
 
 ## 4. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
@@ -470,6 +483,7 @@ total_5m <- total_5m1 %>%
   add_dyad_attr() %>%
   add_age() %>%
   filter_age() %>%
+  mark_short_time_pres() %>%
   distinct(ID1, ID2, year, .keep_all = T)
 
 
@@ -486,6 +500,14 @@ total_5m %>%
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
+# 5.Explore short presence -----
+load("data/counts - time in 5m.Rdata", verbose = T)
+load("data/counts - annual dyadic grooming.Rdata", verbose = T)
+
+total_gm_gmd %>%
+filter(short_presence_ID1 == 1) %>% distinct(year, ID1, weeks_pres_ID1) %>% arrange()  #is same as ID2
+
+# 10 ID years w short presences
 
 # graveyard #####
 # SCAN ####
@@ -697,3 +719,10 @@ nrow(total_gmd_index)
 
 # ^^^^ remove this after adding sex at the level of original grooming data
 # vvvv then can replace sex df's down there to regular total_gm_gmd_index etc
+
+#Failed case when with NA date
+#mutate(immigration_date = case_when(
+#       chimp_id %in% immigrants$chimp_id ~ immigrants$date_first_seen),
+#       TRUE ~ as.Date(NA)) %>% 
+#mutate(immigration_date = if_else(chimp_id %in% immigrants$chimp_id, immigrants$date_first_seen, as.Date(NA)),
+#immigration_year = if_else(chimp_id %in% immigrants$chimp_id, immigrants$year_first_seen, as.Date(NA))) %>%
