@@ -53,7 +53,7 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 #load(data/counts - annual dyadic grooming.Rdata", verbose = T)
 df <- total_gm_gmd
 
-mark_short_time_pres <- function(df, year = year, wks_of_yr_cutoff = 26, filter = FALSE) {
+mark_short_time_pres <- function(df, year = year, wks_of_yr_cutoff = 26, filter_n_clean = FALSE) {
 
     t <- df %>%
     #create year start and end
@@ -90,9 +90,10 @@ mark_short_time_pres <- function(df, year = year, wks_of_yr_cutoff = 26, filter 
     mutate(short_presence_ID2 = ifelse(weeks_pres_ID2 < wks_of_yr_cutoff, 1, 0)) %>%
     select(-year_start, -year_end, -starts_with("temp"))
   
-    if(filter == TRUE){
+    if(filter_n_clean == TRUE){
       t <- t %>%
-        filter_at(vars(starts_with("short")), all_vars(. == 0))
+        filter_at(vars(starts_with("short")), all_vars(. == 0)) %>%
+        select(ID1, ID2, year, sex_ID1, sex_ID2, starts_with("n_"), starts_with("total"), starts_with("age"), starts_with("weeks"))
     }
     
     
