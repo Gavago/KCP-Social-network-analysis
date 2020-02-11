@@ -90,7 +90,9 @@ attr <- demox %>%
   filter(kanyawara_member_flag == 1) %>%
   select(chimp_id, sex, date_of_birth_corrected, date_last_seen, date_first_seen, mother_id, father_id) %>%
   mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen),
-         dfs = as.Date(date_first_seen), year_first_seen = lubridate::year(date_first_seen)) %>%
+         dfs = as.Date(date_first_seen), 
+         year_last_seen = lubridate::year(date_last_seen),
+         year_first_seen = lubridate::year(date_first_seen)) %>%
   left_join(., immigrants, by = c("chimp_id", "sex")) %>%
   mutate_if(is.factor, as.character) %>%
   select(-date_of_birth_corrected, -date_last_seen)
@@ -321,8 +323,8 @@ total_gm_gmd <- total_gm_gmd1 %>%
   distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads 
   add_dyad_attr() %>% # add their attributes, sex, dobc...
   add_age() %>% # and ages
-  filter_age() %>%
-  mark_short_time_pres()
+  filter_age() #%>%
+  #mark_short_time_pres()
 
 
 nrow(total_gm_gmd) #2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
