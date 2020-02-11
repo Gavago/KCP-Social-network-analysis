@@ -28,7 +28,7 @@ total_gm_gmd_index <- total_gm_gmd %>%
   mutate(gmgmdi = ifelse(is.nan(gmgmdi), 0, gmgmdi)) %>% # for 0/0
   select(ID1, ID2, year, total_AB_gm_gmd, total_AB_party, gmgmdi, sex_ID1, sex_ID2, everything()) %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
-nrow(total_gm_gmd_index) #2914
+nrow(total_gm_gmd_index) #2657, 2914
 head(total_gm_gmd_index)
 
 total_gm_index <- total_gm %>%
@@ -39,7 +39,7 @@ total_gm_index <- total_gm %>%
   mutate(gmi = ifelse(is.nan(gmi), 0, gmi)) %>% #for 0/0
   select(ID1, ID2, year, total_AB_gm, total_AB_party, gmi, sex_ID1, sex_ID2) %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
-nrow(total_gm_index) #5826
+nrow(total_gm_index) # 5312,5826
 
 total_gmd_index <- total_gmd %>%
   merge(., total_AB_party, by = c("ID1", "ID2", "year"), all.x = T) %>%
@@ -49,7 +49,7 @@ total_gmd_index <- total_gmd %>%
   mutate(gmdi = ifelse(is.nan(gmdi), 0, gmdi)) %>% #for 0/0
   select(ID1, ID2, year, total_AB_gmd, total_AB_party, gmdi, sex_ID1, sex_ID2) %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
-nrow(total_gmd_index) #5826
+nrow(total_gmd_index) #5312,5826
 head(total_gmd_index)
 
 total_gm_gmd_index %>%
@@ -61,11 +61,11 @@ total_gm_index %>%
 total_gmd_index %>%
   filter(apply(., 1, function(x) any(is.na(x))))
 
-#of 5826 possible dyads, 408 never observed within same party during a focal follow
-nrow(total_gm)
-total_gm %>%
+#of 2657 total dyads 123 never observed within same party during a focal follow in ~ 10 yrs
+nrow(total_gm_gmd)
+total_gm_gmd %>%
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
-  filter(is.na(total_AB_party))
+  filter(is.na(total_AB_party)) %>% nrow()
 
 
 
