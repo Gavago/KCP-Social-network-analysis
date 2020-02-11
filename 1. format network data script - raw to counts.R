@@ -41,17 +41,6 @@ demox <- sqlFetch(connection, "DEMOGRAPHY")
 i <- sapply(demox, is.factor)
 demox[i] <- lapply(demox[i], as.character)
 
-#df of those that immigrated since 2009
-immigrants <- demox %>% 
-  filter(!is.na(date_first_seen)) %>% 
-  filter(kanyawara_member_flag == 1) %>%
-  filter((date_of_birth_corrected + lubridate::days(31)) < date_first_seen) %>% #filters out babies
-  filter(sex == "F") %>%
-  mutate(year_first_seen = lubridate::year(date_first_seen)) %>%
-  filter(year_first_seen >= 2009) %>%
-  select(chimp_id, sex, date_first_seen, year_first_seen) %>%
-  rename(immigration_date = date_first_seen, immigration_year = year_first_seen)
-
 #grooming records from focal data
 groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
   mutate(year = year(ymd(Date)), month = month(ymd(Date)))
@@ -74,8 +63,7 @@ agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
 
 #save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
 #save(action, file = "data/action lookup.Rdata")
-#save(immigrants, file = "data/females immigrated since 2009.Rdata")
-
+#save(demox, file = "data/raw demography.Rdata")
 
 # ----- Format attribute data #####
 names(demox)
@@ -86,16 +74,30 @@ names(demox)
 
 immigrants
 
+#df of those that immigrated since 2009, used to mark immigrants in attribute file
+immigrants <- demox %>% 
+  filter(kanyawara_member_flag == 1) %>%
+  #dfs is long after birth, filters out babies that are first seen
+  filter((date_of_birth_corrected + lubridate::days(31)) < date_first_seen) %>%
+  filter(sex == "F") %>%
+  mutate(year_first_seen = lubridate::year(date_first_seen)) %>%
+  #only want females after 2009 (some previous are just those already present when obs started)
+  filter(year_first_seen >= 2009) %>% 
+  select(chimp_id, sex, date_first_seen, year_first_seen) %>%
+  rename(immig_date = date_first_seen, immig_year = year_first_seen)
+immigrants
+
 attr <- demox %>%
   filter(kanyawara_member_flag == 1) %>%
   select(chimp_id, sex, date_of_birth_corrected, date_last_seen, date_first_seen, mother_id, father_id) %>%
-  mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen),
-         dfs = as.Date(date_first_seen), 
-         year_last_seen = lubridate::year(date_last_seen),
-         year_first_seen = lubridate::year(date_first_seen)) %>%
+  mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen), dfs = as.Date(date_first_seen)) %>%
+  mutate(year_last_seen = lubridate::year(dls)) %>%
   left_join(., immigrants, by = c("chimp_id", "sex")) %>%
   mutate_if(is.factor, as.character) %>%
   select(-date_of_birth_corrected, -date_last_seen)
+
+
+
 
 #attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_date <- immigrants$date_first_seen
 #attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_year <- immigrants$year_first_seen
