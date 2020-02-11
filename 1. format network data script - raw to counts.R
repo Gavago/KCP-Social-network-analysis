@@ -91,8 +91,7 @@ attr <- demox %>%
   select(chimp_id, sex, date_of_birth_corrected, date_last_seen, date_first_seen, mother_id, father_id) %>%
   mutate(dobc = as.Date(date_of_birth_corrected), dls = as.Date(date_last_seen),
          dfs = as.Date(date_first_seen), year_first_seen = lubridate::year(date_first_seen)) %>%
-  left_join(attr, immigrants, by = c("chimp_id", "sex")) %>%
-  mutate(immigration_date = structure(immigration_date, class = "Date")) %>%
+  left_join(., immigrants, by = c("chimp_id", "sex")) %>%
   mutate_if(is.factor, as.character) %>%
   select(-date_of_birth_corrected, -date_last_seen)
 
