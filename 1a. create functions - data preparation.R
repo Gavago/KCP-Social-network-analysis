@@ -53,7 +53,7 @@ filter_age <- function(df, Age_F = 12, Age_M = 15) {
 #load(data/counts - annual dyadic grooming.Rdata", verbose = T)
 df <- total_gm_gmd
 
-mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = TRUE) {
+mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = FALSE) {
 
     t <- df %>%
     #create year start and end
@@ -63,26 +63,36 @@ mark_short_time_pres <- function(df, year = year, weeks_of_year = 26, filter = T
       mutate(temp_wks_pres_start_ID1 = as.numeric(difftime(dls_ID1, year_start, units = "weeks"))) %>%
       mutate(temp_wks_pres_start_ID2 = as.numeric(difftime(dls_ID2, year_start, units = "weeks"))) %>%
       #temporary calc of weeks present from end of year
-      mutate(temp_wks_pres_end_ID1 = as.numeric(difftime(immigration_date_ID1, year_start, units = "weeks"))) %>%
-      mutate(temp_wks_pres_end_ID2 = as.numeric(difftime(immigration_date_ID2, year_start, units = "weeks"))) %>%
-    #if date last seen is NA then present 52 weeks, if dls not na but later than end of year also 52
+      mutate(temp_wks_pres_end_ID1 = as.numeric(difftime(year_end, immig_date_ID1, units = "weeks"))) %>%
+      mutate(temp_wks_pres_end_ID2 = as.numeric(difftime(year_end, immig_date_ID2, units = "weeks"))) %>%
+    #weeks present for ID1
     mutate(weeks_pres_ID1 = case_when(
-      is.na(dls_ID1) ~ 52, #ADD CONDITION FOR TEMP WKS PRES END
-      (!is.na(dls_ID1) & (dls_ID1 > year_end)) ~ 52,
-      !is.na(temp_wks_pres_end_ID1) ~
-      (!is.na(dls_ID1) & (dls_ID1 < year_end)) ~ temp_weeks_pres_ID1)) %>%
+      #if year of immigration is this year then wks present is difftime immig date to end of year
+      immig_year_ID1 == year ~ temp_wks_pres_end_ID1,
+      #if date last seen is NA then present 52 weeks, baseline
+      is.na(dls_ID1) ~ 52,
+      #if date last seen is in other year then present 52 weeks
+      (!is.na(dls_ID1) & (year_last_seen_ID1 != year)) ~ 52,
+      #if date last seen is in this year then present for difftime from start to date last seen
+      (!is.na(dls_ID1) & (year_last_seen_ID1 == year)) ~ temp_wks_pres_start_ID1)) %>%
+    #weeks present for ID1
     mutate(weeks_pres_ID2 = case_when(
-      is.na(dls_ID2) ~ 52,
-      (!is.na(dls_ID2) & (dls_ID2 > year_end)) ~ 52,
-      (!is.na(dls_ID2) & (dls_ID2 < year_end)) ~ temp_weeks_pres_ID2)) %>%
+        #if year of immigration is this year then wks present is difftime immig date to end of year
+        immig_year_ID2 == year ~ temp_wks_pres_end_ID2,
+        #if date last seen is NA then present 52 weeks, baseline
+        is.na(dls_ID2) ~ 52,
+        #if date last seen is in other year then present 52 weeks
+        (!is.na(dls_ID2) & (year_last_seen_ID2 != year)) ~ 52,
+        #if date last seen is in this year then present for difftime from start to date last seen
+        (!is.na(dls_ID2) & (year_last_seen_ID2 == year)) ~ temp_wks_pres_start_ID2)) %>%
     #is individ pres < half of year? then mark for removal
     mutate(short_presence_ID1 = ifelse(weeks_pres_ID1 < weeks_of_year, 1, 0)) %>%
     mutate(short_presence_ID2 = ifelse(weeks_pres_ID2 < weeks_of_year, 1, 0)) %>%
-    select(-year_start, -starts_with("temp"))
+    select(-year_start, -year_end, -starts_with("temp"))
   
     if(filter == TRUE){
-      t %>%
-        filter(short_presence_ID1 == 0, short_presence_ID2 == 0)
+      t <- t %>%
+        filter_at(starts_with("short"), all_vars(. == 0))
     }
     
     
