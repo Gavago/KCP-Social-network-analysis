@@ -99,7 +99,7 @@ all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
   add_age(dyad = FALSE)
 
 all_sna_measure_df
-nrow(all_sna_measure_df) # 897
+nrow(all_sna_measure_df) # 883
 
 #save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
 
