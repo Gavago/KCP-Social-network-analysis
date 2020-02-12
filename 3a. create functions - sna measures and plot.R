@@ -60,18 +60,13 @@ plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
   
   #set vertex size
   if(size_centrality == "ec" & scale_vertex_size == 1){
-    scale_vertex_size <- 20
+    scale_vertex_size <- 10
   }
   size <- g %>% vertex_attr() %>% .[[size_centrality]]*scale_vertex_size
   #set edge weight
   w <- g %>% edge_attr() %>% .[[1]]/scale_edge_weight 
   
-  #set up components of figure title
-  if("dyad_sex" != "any_combination"){
-    dyads <- gdf$dyad_sex[[i]]
-  } else {
-    dyads <- "sexes combined"
-  }
+ # extract behavior for plot title
   if( grepl("gm", edge_attr(gdf$graph[[1]]) %>% names())){
     behavior <- "total_grooming"  
   }
