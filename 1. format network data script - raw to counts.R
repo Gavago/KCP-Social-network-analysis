@@ -489,7 +489,6 @@ total_5mx <- total_5m1 %>%
 total_5m <- total_5mx %>%
   mark_short_time_pres(filter_n_clean = TRUE) 
 
-
 names(total_5m)
 nrow(total_5m) # 2623 after 257 short pres removed; 2936
 head(total_5m)
