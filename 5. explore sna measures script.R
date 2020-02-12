@@ -59,8 +59,15 @@ priorities_alive_2018 <- years_pres %>%
   arrange(desc(n), desc(age_mid_2018)) %>%
   filter(n == 8) %>%
   pull(chimp_id)
-
 priorities_alive_2018
+
+
+years_pres %>%
+  left_join(final_ages, by = "chimp_id") %>%
+  filter(!is.na(age_last_seen)) %>%
+  arrange(desc(n), desc(age_last_seen)) %>%
+  filter(age_last_seen > 40) %>%
+  pull(chimp_id)
 
 priorities %>%
   filter(n == 8) %>%
@@ -75,29 +82,30 @@ unique(all_sna_measure_df$network_type)
 # female
 all_sna_measure_df %>%
 filter(network_sex == "female", behavior == "total_grooming") %$% 
-  cor.test(deg, age_mid_year) # neg ec and deg
+  cor.test(trans, age_mid_year) # strong neg ec, bt, deg
   
 all_sna_measure_df %>%
   filter(network_sex == "female", behavior == "prox") %$% 
-  cor.test(deg, age_mid_year) #nada
+  cor.test(trans, age_mid_year) #nada
 
 # male
 all_sna_measure_df %>%
   filter(network_sex == "male", behavior == "total_grooming") %$% 
-  cor.test(trans, age_mid_year) # pos deg ec
+  cor.test(deg, age_mid_year) # pos ec
 
 all_sna_measure_df %>%
   filter(network_sex == "male", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada
 
 # all
+#group this by male and female within full network
 all_sna_measure_df %>%
   filter(network_sex == "any_combo", behavior == "total_grooming") %$% 
-  cor.test(deg, age_mid_year) # pos trans, ec
+  cor.test(trans, age_mid_year) #nada
 
 all_sna_measure_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %$% 
-  cor.test(bt, age_mid_year) #neg trans 
+  cor.test(trans, age_mid_year) #nada 
 
 # 3. correlations between network measures ----
 library(ggcorrplot)
@@ -122,10 +130,13 @@ cors <- df %>%
   round(., 2)
 p_cors <- df %>%
   select(bt, ec, deg, trans) %>%
-  round(cor_pmat(., method = "spearman" , use = "pairwise.complete.obs"),2)
+  cor_pmat(., method = "spearman") %>%
+  round(.,2)
 1 * (p_cors < 0.05)
 1 * (cors > 0 & p_cors < 0.05)
 
+cors
+p_cors
 #in every network, all measures are positively and significantly correlated except for trans and bt 8|
 
 
