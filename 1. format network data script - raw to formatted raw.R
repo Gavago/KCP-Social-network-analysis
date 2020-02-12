@@ -165,6 +165,8 @@ foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F
   select(-trash) %>%
   mutate(year = year(mdy(date)), month = month(mdy(date))) 
 
+names(foc_part1)
+
 foc_part1$focal[foc_part1$focal == "NPT"] <- "NT"
 foc_part1$partner[foc_part1$partner == "NPT"] <- "NT"
 
@@ -172,6 +174,7 @@ foc_part1[grepl(" ", foc_part1$focal), "focal"]
 foc_part1[grepl(" ", foc_part1$partner), "partner"]
 
 foc_part <- fix_ID_errors(foc_part1, ID1 = "focal", ID2 = "partner")
+
 
 # test fix id errors worked
 # foc_part[grepl(" ", foc_part$ID1), "ID1"]
@@ -258,7 +261,7 @@ undir_annual_dyads <- dir_annual_dyads %>%
 nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" column is 3856
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
-
+save(foc_part, file = "data/focal party scans formatted.Rdata")
 
 # graveyard #####
 # SCAN ####
