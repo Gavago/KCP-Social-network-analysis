@@ -29,9 +29,9 @@ unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$behavior)
 
 # relevant ages
-attr %<>%
-  mutate(age_mid_2018 = (as.Date("2018-06-01") - dobc)/365.25, age_disappeared = (date_last_seen - dobc)/365.25)
-str(attr)
+final_ages <- attr %>%
+  transmute(chimp_id = chimp_id, age_mid_2018 = as.numeric(as.Date("2018-06-01") - dobc)/365.25, age_last_seen = as.numeric(dls - dobc)/365.25)
+final_ages
 
 # mean n sd of sna measures by what sexes are included in the network
 all_sna_measure_df %>%
@@ -44,17 +44,27 @@ all_sna_measure_df %>%
 years_pres <- all_sna_measure_df %>%
   filter(behavior == "total_grooming") %>%
   filter(year != 2009) %>%
-  filter(network_sex == "any_combination") %>%
+  filter(network_sex == "any_combo") %>%
   group_by(chimp_id) %>%
-  tally()
+  tally() %>%
+  ungroup()
+
+years_pres
 
 #identify priority individuals for OS - those who are oldest in the middle of sample collection 
 #and simultaneously have been focal followed longest.
-years_pres %>%
-  left_join(attr, by = "chimp_id") %>%
-  filter(is.na(age_disappeared)) %>%
+priorities_alive_2018 <- years_pres %>%
+  left_join(final_ages, by = "chimp_id") %>%
+  filter(is.na(age_last_seen)) %>%
   arrange(desc(n), desc(age_mid_2018)) %>%
-  View()
+  filter(n == 8) %>%
+  pull(chimp_id)
+
+priorities_alive_2018
+
+priorities %>%
+  filter(n == 8) %>%
+  summarise( mean = mean(age_mid_2018), sd = sd(age_mid_2018), min = )
 
 
 # 2. Look at very simple correlations w age within networks (no RE for individual...) -----
