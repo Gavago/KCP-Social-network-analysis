@@ -261,7 +261,7 @@ undir_annual_dyads <- dir_annual_dyads %>%
 nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" column is 3856
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
-save(foc_part, file = "data/focal party scans formatted.Rdata")
+#save(foc_part, file = "data/focal party scans formatted.Rdata")
 
 # graveyard #####
 # SCAN ####
