@@ -498,19 +498,34 @@ total_5m %>%
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
-# 5. view those removed for low time pres
+# 5. view those removed for low time pres & check for ghosts (mis-ID's) -----
 #save(total_5mx, total_gm_gmdx, file = "data/counts - gm and prox counts before removing short pres individs.Rdata")
 load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
 
 total_gm_gmdx %>%
-  mark_short_time_pres() %>% 
+  mark_short_time_pres() %>%
   filter(short_presence_ID1 == 1) %>%
   distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+
+total_gm_gmdx %>%
+  mark_short_time_pres() %>% 
+  filter(weeks_pres_ID1 < 52) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1, short_presence_ID1) %>%
+  arrange(year, short_presence_ID1)
 
 total_5mx %>%
   mark_short_time_pres() %>%
   filter(short_presence_ID1 == 1) %>%
   distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+
+#ghosts
+names(foc_part)
+foc_part %>%
+  filter(ID1 == "ST" & year > 2013)
+
+total_5m  %>%
+  filter((ID2 == "ST" & year > 2013) | (ID1 == "ST" & year > 2013))
+
 
 
 # graveyard #####
