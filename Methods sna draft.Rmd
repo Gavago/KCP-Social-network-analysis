@@ -22,16 +22,68 @@ all_sna_measure_df %>%
 
 ## Data processing
 
-Focal animal sampling began in Aug 2009. However, as few animals were focaled in this year, we excluded these initial data as we expect they did not result in a representative social networks.
+Focal animal sampling began in Aug 2009. While 2009 was a short observation year, individuals were still sufficiently and evenly sampled to create a representative network.
 
 ```{r individuals focaled in 2009}
 load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
 
 total_focal %>%
   group_by(year) %>%
-  summarise( mean = mean(n), sd = sd(n))
+  summarise( mean = mean(n), sd = sd(n), spread_relative = sd/mean)
 
 ```
+
+Excluded individuals not observed either as a focal or within a party with a focal for > 100 hours 
+
+
+```{r obs time as focal or in party, eval = FALSE}
+load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
+
+# Low time as focal
+total_focal %>%
+  summarise(min = min(n), max = max(n))
+
+lo_focal <- total_focal %>%
+  mutate(hours = n/4) %>% #scan every 15 minutes
+  filter(hours < 100)
+lo_focal
+# many in 2009, possibly more reason to exclude that year
+
+# Low time in party
+load("data/focal party scans formatted.Rdata", verbose = T)
+
+total_party_member <- foc_part %>%
+  count(ID2, year) 
+lo_party_memb <- total_party_member %>%
+  mutate(hours = n/4) %>%
+  filter(hours < 100)
+
+# Remove low time in party that overlaps w low focal
+inner_join(lo_focal[,c("ID1","year")], lo_party_memb[,c("ID2","year")], by = c("ID1" = "ID2", "year"))
+# only CA, and already removed...
+
+#whether obs time correlates with network integration
+library(ggcorrplot)
+load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+
+mat <- all_sna_measure_df %>%
+  left_join(.,total_focal, by = c("chimp_id" = "ID1","year")) %>%
+  mutate(hours_focal = n/4, hours_focal_hi = ifelse(n/4 > 500, n/4, NA)) %>%
+  select(-n) %>%
+  left_join(., total_party_member, by = c("chimp_id" = "ID2", "year")) %>%
+  mutate(hours_party_member = n/4, hours_party_member_hi = ifelse(n/4 > 500, n/4, NA)) %>%
+  select(-n) %>%
+  select(ec,bt,deg, trans, hours_focal, hours_party_member, hours_focal_hi, hours_party_member_hi) 
+mat %>%
+  cor(,  method = "spearman", use = "pairwise.complete.obs")
+mat %>%
+  cor_pmat() %>%
+  round(,2)
+
+#seems like observation time is always correlated with network integration...
+
+```
+
 
 We excluded network members who were present in the community for < 6 months of a given observation year. 
 
