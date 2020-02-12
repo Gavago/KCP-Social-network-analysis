@@ -125,7 +125,7 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
 }
 
 clean_ghosts <- function(df){
-total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL")
+total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH")
   f <- df %>%  
     filter(!(ID1 %in% total_ghosts_n_non_members) & !(ID2 %in% total_ghosts_n_non_members)) %>% # turn this into data prep function eventually?
     filter(!(year > 2013 & ID1 == "ST") & !(year > 2013 & ID2 == "ST")) %>% # mis-ID'd after death
