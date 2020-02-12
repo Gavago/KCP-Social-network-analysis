@@ -95,9 +95,10 @@ for(j in 1:length(graph_list)){
 }
 
 all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
-  left_join(attr, by = "chimp_id") %>%
-  select(-date_of_birth_corrected) %>%
+  left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
   add_age(dyad = FALSE)
+
+all_sna_measure_df
 
 #save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
 
@@ -106,22 +107,8 @@ load("data/sna graphs -  name & sna measures as vector attributes, index as edge
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
-#problem here is that pdf function comes before calling the graph requires object
-
-
-# outside of loop, set graph dataframe to visualize / save
-gdf <- gdf_gm_sex_sep
-gdf <- gdf_gm_sex_comb
-gdf <- gdf_prox_sex_sep
-gdf <- gdf_prox_sex_comb
-
-
 #list of list column dfs
 #for each df, go through each year and print
-
-# socs <- gdf_prox_sex_comb %>%
-#   mutate( behavior = ifelse( grepl("gm", names(.data$data[[1]][,3])), "total_grooming", "prox")) %>%
-#    map(graph_w_sna, plot_graph, year = year, behavior = behavior, layout = "nicely", size_centrality = "ec")
 
 
 #each element of this list is list col data of given behavior and dyad sexes for each year of focal data
@@ -129,28 +116,30 @@ gm_prox_graph_list<- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf
 
 
 #settings for title and plot graph function, ec bt trans deg
-size_centrality_x <- "bt"
+size_centrality_x <- "ec"
 layout_setting <- "nicely"
 
 
-for (i in seq(length(gm_prox_list))){ # for each graph type
+for (i in seq(length(gm_prox_graph_list))){ # for each graph type
   
   gdf <- gm_prox_graph_list[[i]] # choose graph df (w list col of annual graphs)
   behavior = ifelse( grepl("gm", names(gdf$data[[1]][,3])), "total_grooming", "prox") #determine behavior type
-  subfolder = ifelse( "any_combo" %in% gdf$dyad_sex, "MF_combined/", "MM_FF_separate/") #and save location
-
+  sex = ifelse( "any_combo" %in% gdf$dyad_sex, "Sexes_combined", "Sexes_separate")
+  #subfolder = ifelse( "any_combo" %in% gdf$dyad_sex, "MF_combined/", "MM_FF_separate/") #and save location
+  
+  title <- paste(sex, behavior, size_centrality_x, sep = "_")
+  pdf(paste0("sociograms/", title, ".pdf"))
+  
 for (j in seq(nrow(gdf))) { #for each sex-year graph
 
     #and plot sociogram
-  title <- paste( gdf$dyad_sex[[j]], gdf$year[[j]], behavior, size_centrality_x, sep = "_")
-  pdf(paste0("sociograms/",subfolder, title, ".pdf"))
+  #plot_title <- paste( gdf$dyad_sex[[j]], gdf$year[[j]], behavior, size_centrality_x, sep = "_")
   
   gdf$graph_w_sna[[j]] %>% plot_graph(., behavior = behavior, dyads = gdf$dyad_sex[[j]],
                                       year = gdf$year[[j]], size_centrality = size_centrality_x, layout = layout_setting,
                                       scale_edge_weight = 1, scale_vertex_size = 1)
-  dev.off()
-  
   }
+  dev.off()
 }
 
 
@@ -168,6 +157,13 @@ gsize(g1)
 
 
 # g yard ----
+
+# map for ploting fail
+# socs <- gdf_prox_sex_comb %>%
+#   mutate( behavior = ifelse( grepl("gm", names(.data$data[[1]][,3])), "total_grooming", "prox")) %>%
+#    map(graph_w_sna, plot_graph, year = year, behavior = behavior, layout = "nicely", size_centrality = "ec")
+
+
 
 
 # adding attributes piecemeal ------
