@@ -7,26 +7,53 @@ output: html_document
 
 ## Study site and data collection
 
-
+We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. X unique subject-years
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+
+all_sna_measure_df %>%
+  distinct(chimp_id, sex, year) %>%
+  group_by(sex) %>%
+  tally()
+
+
 ```
 
 ## Data processing
 
-We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence.
-
 Focal animal sampling began in Aug 2009. However, as few animals were focaled in this year, we excluded these initial data as we expect they did not result in a representative social networks.
 
 ```{r individuals focaled in 2009}
-summary(cars)
+load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
+
+total_focal %>%
+  group_by(year) %>%
+  summarise( mean = mean(n), sd = sd(n))
+
 ```
 
 We excluded network members who were present in the community for < 6 months of a given observation year. 
 
 ```{r who was not present in community > 6 mo in given year?}
+load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
+load("functions/functions - data preparation.Rdata", verbose = T)
 
+total_gm_gmdx %>%
+  mark_short_time_pres() %>%
+  filter(short_presence_ID1 == 1) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+
+total_gm_gmdx %>%
+  mark_short_time_pres() %>% 
+  filter(weeks_pres_ID1 < 52) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1, short_presence_ID1) %>%
+  arrange(year, short_presence_ID1)
+
+total_5mx %>%
+  mark_short_time_pres() %>%
+  filter(short_presence_ID1 == 1) %>%
+  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
 
 
 ```
