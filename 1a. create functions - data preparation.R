@@ -124,4 +124,14 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
   
 }
 
-#save(add_dyad_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, file = "functions/functions - data preparation.Rdata")
+clean_ghosts <- function(df){
+total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL")
+  f <- df %>%  
+    filter(!(ID1 %in% total_ghosts_n_non_members) & !(ID2 %in% total_ghosts_n_non_members)) %>% # turn this into data prep function eventually?
+    filter(!(year > 2013 & ID1 == "ST") & !(year > 2013 & ID2 == "ST")) %>% # mis-ID'd after death
+    filter(!(year > 2013 & ID1 == "PG") & !(year > 2013 & ID2 == "PG")) # mis-ID'd after death
+return(f)
+    }
+
+
+#save(add_dyad_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts, file = "functions/functions - data preparation.Rdata")
