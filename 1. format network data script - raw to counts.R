@@ -323,11 +323,12 @@ total_gm_gmdx <- total_gm_gmd1 %>%
   distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads, revealed after IDs were alphabetized 
   add_dyad_attr() %>% # add their attributes, sex, dobc...
   add_age() %>% # and ages
-  filter_age() 
+  filter_age() %>%
+  clean_ghosts()
 total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-nrow(total_gm_gmd) #2657 filter short obs; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #2611 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
@@ -370,9 +371,10 @@ total_gm <- total_gm1 %>%
   add_dyad_attr() %>%
   add_age() %>%
   filter_age() %>% 
-  mark_short_time_pres(filter_n_clean = TRUE)
+  mark_short_time_pres(filter_n_clean = TRUE) %>%
+  clean_ghosts()
 
-nrow(total_gm) # 5312 when 514 short obs removed; 5826, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) # 5220 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
 
 
 # describe non grooming
@@ -425,7 +427,8 @@ total_gmd <- total_gmd1 %>%
   add_dyad_attr() %>% 
   add_age() %>% 
   filter_age() %>%
-  mark_short_time_pres(filter_n_clean = TRUE)
+  mark_short_time_pres(filter_n_clean = TRUE) %>%
+  clean_ghosts()
 
 names(total_gmd)
 nrow(total_gmd) #5312 w short obs removed, 5826 w total possible dyads, 825
@@ -480,14 +483,15 @@ total_5mx <- total_5m1 %>%
   replace(., is.na(.), 0) %>%
   add_dyad_attr() %>%
   add_age() %>%
-  filter_age()
+  filter_age() %>%
+  clean_ghosts()
 
 total_5m <- total_5mx %>%
   mark_short_time_pres(filter_n_clean = TRUE) 
 
 
 names(total_5m)
-nrow(total_5m) # 2679 after 257 short pres removed; 2936
+nrow(total_5m) # 2623 after 257 short pres removed; 2936
 head(total_5m)
 tail(total_5m)
 

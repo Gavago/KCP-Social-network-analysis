@@ -20,7 +20,6 @@ str(total_gm_gmd)
 str(total_AB_party)
 
 total_gm_gmd_index <- total_gm_gmd %>%
-  filter(ID1 != "CA" & ID2 != "CA") %>% #never really acheived community member status
   #join count data w total number of times individuals A and B were in same party as one was being focaled
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>% 
   #replace NAs for dyads never observed in same party during focal follow
@@ -64,7 +63,7 @@ total_gm_index %>%
 total_gmd_index %>%
   filter(apply(., 1, function(x) any(is.na(x))))
 
-#of 2657 total dyads 123 never observed within same party during a focal follow in ~ 10 yrs
+#of 2611 total dyads 91 never observed within same party during a focal follow in ~ 10 yrs
 nrow(total_gm_gmd)
 total_gm_gmd %>%
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
@@ -120,9 +119,7 @@ names(total_5m)
 nrow(total_5m) #2679, 2936
 names(total_AB_party)
 
-
 index_5m <- total_5m %>%
-  filter(!(year > 2013 & ID1 == "ST") & !(year > 2013 & ID2 == "ST")) %>% # mis-ID'd after death
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
   mutate(total_AB_party = ifelse(is.na(total_AB_party), 0 , total_AB_party)) %>% #NAs of total AB party are dyads never seen in groups
   mutate(prox5i = ifelse(total_AB_party == 0, 0, total_5m/total_AB_party)) %>% # if total AB party is zero, avoid NaN of 0/0
@@ -130,7 +127,7 @@ index_5m <- total_5m %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
   
 
-nrow(index_5m) #2677, 2679, 2936
+nrow(index_5m) #2623, 2679, 2936
 names(index_5m)
 
 #save(index_5m, file = "data/indices - annual dyadic 5m proximity.Rdata")
