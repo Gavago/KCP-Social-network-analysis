@@ -99,7 +99,7 @@ all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
   add_age(dyad = FALSE)
 
 all_sna_measure_df
-nrow(all_sna_measure_df) # 883
+nrow(all_sna_measure_df) # 879
 
 #save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
 
@@ -117,7 +117,7 @@ gm_prox_graph_list<- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf
 
 
 #settings for title and plot graph function, ec bt trans deg
-size_centrality_x <- "trans"
+size_centrality_x <- "bt"
 layout_setting <- "nicely"
 
 

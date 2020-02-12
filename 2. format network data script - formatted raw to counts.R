@@ -1,9 +1,11 @@
 # create count data from formatted raw
+library(tidyverse)
+library(magrittr)
+load("functions/functions - data preparation.Rdata", verbose = T)
 
 
 
-
-## 3. Create dyadic annual grooming counts (starts 2009)  ####
+## 1. Create dyadic annual grooming counts (starts 2009)  ####
 # ----- load grooming data #####
 
 #used grooming table made in Access "FOCAL GROOMING SCANS"
@@ -72,7 +74,7 @@ total_gm_gmdx <- total_gm_gmd1 %>%
 total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-nrow(total_gm_gmd) #2611 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
@@ -118,7 +120,7 @@ total_gm <- total_gm1 %>%
   mark_short_time_pres(filter_n_clean = TRUE) %>%
   clean_ghosts()
 
-nrow(total_gm) # 5220 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) # 5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
 
 
 # describe non grooming
@@ -175,14 +177,14 @@ total_gmd <- total_gmd1 %>%
   clean_ghosts()
 
 names(total_gmd)
-nrow(total_gmd) #5312 w short obs removed, 5826 w total possible dyads, 825
+nrow(total_gmd) #5168 w short obs removed, 5826 w total possible dyads, 825
 
 total_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
 
 #save(total_gm_gmd, total_gm, total_gmd, file = "data/counts - annual dyadic grooming.Rdata")
 
-## 4. Focal 5 meter (where to find 5 m data?) ####
+## 2. Focal 5 meter (where to find 5 m data?) ####
 # ----- All AB 5m prox counts ####
 load("data/raw 5 m proximity.Rdata", verbose = T) #this is stephs, only goees up to 2016
 load("data/annual possible focal dyads.Rdata", verbose = T)
@@ -234,7 +236,7 @@ total_5m <- total_5mx %>%
   mark_short_time_pres(filter_n_clean = TRUE) 
 
 names(total_5m)
-nrow(total_5m) # 2623 after 257 short pres removed; 2936
+nrow(total_5m) # 2597 after short pres removed and ghosts; 2936
 head(total_5m)
 tail(total_5m)
 
