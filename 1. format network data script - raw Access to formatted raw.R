@@ -222,7 +222,8 @@ head(total_AB_party)
 #total focal obs in given year
 total_focal <- foc_part %>%
   group_by(year, ID1) %>%
-  tally()
+  tally() %>%
+  ungroup()
 nrow(total_focal) #267 
 
 
