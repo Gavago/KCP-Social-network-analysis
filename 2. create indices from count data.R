@@ -116,7 +116,7 @@ load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
 load("data/counts - time in 5m.Rdata", verbose = T)
 
 names(total_5m)
-nrow(total_5m) #2679, 2936
+nrow(total_5m) #2623, 2936
 names(total_AB_party)
 
 index_5m <- total_5m %>%
