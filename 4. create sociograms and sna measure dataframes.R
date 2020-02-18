@@ -20,8 +20,7 @@ load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
 # 1. Calculate SNA measures -----
-
-# -- 1a. Transform list column data into igraphs for each either year or sex-year ------
+# Transform list column data into graph objects for each either year or sex-year ------
 load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
 # see data where "data" column is a list of dataframes of dyadic association indices from either that year (sex_comb for sexes combined)
 # of for dyads of a given sex (sex_sep for sexes separated) in a given year
@@ -106,7 +105,7 @@ nrow(all_sna_measure_df) # 879
 # 3. Create pdf sociograms from igraphs in list column  ----
 load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = TRUE)
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-
+load("functions/functions - data preparation.Rdata", verbose = T)
 
 #list of list column dfs
 #for each df, go through each year and print
