@@ -115,6 +115,7 @@ list_ran_sna_measure_df[[j]] <- ran_sna_measure_df
 
 }
 
+#save(list_ran_sna_measure_df, file = "data/sna dataframes - measures based on node randomized graphs.Rdata")
 
 # gyard -----------
 #check that sampling happens within years
