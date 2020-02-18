@@ -6,8 +6,9 @@
 # that produces a visualization of the network, with the sna measure defining the size of the vertex 
 
 sna_measures_undir <- function(g,year = NULL, network_sex = NULL, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
-  lapply(list("tidyverse","igraph"), require, character.only = TRUE)
-  
+  #lapply(list("tidyverse","igraph"), require, character.only = TRUE)
+  require(tidyverse)
+  require(igraph)
   
   if( grepl("gm", edge_attr(g) %>% names())){
     behavior <- "total_grooming"  
