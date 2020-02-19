@@ -10,9 +10,9 @@ library(igraph)
 load("data/attribute data alone.Rdata")
 load("data/indices - annual dyadic grooming.Rdata", verbose = T)
 load("data/indices - annual dyadic 5m proximity.Rdata", verbose = T)
+#load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = TRUE)
 load("functions/functions - data preparation.Rdata", verbose = T)
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = TRUE)
 
 
 #  Randomized undirected graphs -------
@@ -20,7 +20,8 @@ list_ran_sna_measure_df <- vector("list", length = 1000)
 
 # do this 1000 f'ing times
 
-for(j in seq(list_ran_sna_measure_df)){
+t <- Sys.time()
+for(k in seq(list_ran_sna_measure_df)){
   
   
 ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
@@ -29,7 +30,7 @@ ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex = "any_combo") %>%
+  mutate(dyad_sex = "any_combo") %>% #change from sex specific to anything combination
   select(year, dyad_sex, RID1, RID2, gmgmdi) %>%
   nest(data = c(RID1, RID2, gmgmdi)) %>%
   arrange(year) %>%
@@ -39,12 +40,12 @@ ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
 ran_gdf_gmgmd_sex_sep <- total_gm_gmd_index %>%
-  #sample/randomize individuals within years
-  group_by(year) %>%
+  #sample/randomize individuals within years and sex dyad type
+  filter(dyad_sex != "mixed") %>% #keep only sex matching dyads (o.g. filter in script 3.3)
+  group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex != "mixed") %>%
   select(year, dyad_sex, RID1, RID2, gmgmdi) %>%
   nest(data = c(RID1, RID2, gmgmdi)) %>%
   arrange(year) %>%
@@ -69,12 +70,12 @@ ran_gdf_prox_sex_comb <- index_5m %>%
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
 ran_gdf_prox_sex_sep <- index_5m %>%
-  #sample/randomize individuals within years
+  #sample/randomize individuals within years and dyad sexes
+  filter(dyad_sex != "mixed") %>% #keep only sex matching dyads (o.g. filter in script 3.3)
   group_by(year) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex != "mixed") %>%
   select(year, dyad_sex, RID1, RID2, prox5i) %>%
   nest(data = c(RID1, RID2, prox5i)) %>%
   arrange(year) %>%
@@ -82,7 +83,6 @@ ran_gdf_prox_sex_sep <- index_5m %>%
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
   # add sna attributes to vertices
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
-
 
 #create master data frame with all individual sna measures by year
 
@@ -111,9 +111,10 @@ ran_sna_measure_df <- do.call("rbind", ran_sna_measure_df_list) %>%
   arrange(year, network_sex, behavior, chimp_id)
 
 
-list_ran_sna_measure_df[[j]] <- ran_sna_measure_df
+list_ran_sna_measure_df[[k]] <- ran_sna_measure_df
 
 }
+#Sys.time() - t # takes about 6.9 minutes to create
 
 #save(list_ran_sna_measure_df, file = "data/sna dataframes - measures based on node randomized graphs.Rdata")
 
