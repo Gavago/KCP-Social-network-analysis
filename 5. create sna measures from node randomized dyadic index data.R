@@ -15,22 +15,30 @@ load("functions/functions - data preparation.Rdata", verbose = T)
 load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
-#  Randomized undirected graphs -------
+#  Randomized undirected graph data -------
 list_ran_sna_measure_df <- vector("list", length = 1000)
 
+#steps
+# 1 - permute/randomize nodes in index data:
+# --- adjust what sex combos of dyads are groupings
+# --- within years, randomly sample each ID1 and ID2
+
 # do this 1000 f'ing times
+set.seed <- 100
 
 t <- Sys.time()
 for(k in seq(list_ran_sna_measure_df)){
   
-  
+
 ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
+  mutate(dyad_sex = "any_combo") %>% #change from sex specific to any combination of sexes (orig in 3.3)
   #sample/randomize individuals within years
-  group_by(year) %>% #bc dealing w any sex combination of dyad, no grouping by sex
+  group_by(year) %>% #no grouping by sex, dyad designation is any combination of partner sexes
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>% # eep, do this a few times to remove instance of RID1 = RID2
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex = "any_combo") %>% #change from sex specific to any combination of sexes
   select(year, dyad_sex, RID1, RID2, gmgmdi) %>%
   nest(data = c(RID1, RID2, gmgmdi)) %>%
   arrange(year) %>%
@@ -39,11 +47,14 @@ ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   #add sna attributes to vertices
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
+
 ran_gdf_gmgmd_sex_sep <- total_gm_gmd_index %>%
   #sample/randomize individuals within years and sex dyad type
   filter(dyad_sex != "mixed") %>% #keep only sex matching dyads (o.g. filter in script 3.3)
   group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>% # eep, do this a few times to remove instance of RID1 = RID2
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
   select(year, dyad_sex, RID1, RID2, gmgmdi) %>%
@@ -55,12 +66,14 @@ ran_gdf_gmgmd_sex_sep <- total_gm_gmd_index %>%
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
 ran_gdf_prox_sex_comb <- index_5m %>%
+  mutate(dyad_sex = "any_combo") %>% #change from sex specific to any combination of sexes (orig in 3.3)
   #sample/randomize individuals within years
-  group_by(year) %>% #bc dealing w any sex combination of dyad, no grouping by sex
+  group_by(year) %>% #no grouping by sex, dyad designation is any combination of partner sexes
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>% # eep, do this a few times to remove instance of RID1 = RID2
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex = "any_combo") %>%
   select(year, dyad_sex, RID1, RID2, prox5i) %>%
   nest(data = c(RID1, RID2, prox5i)) %>%
   arrange(year) %>%
@@ -74,6 +87,9 @@ ran_gdf_prox_sex_sep <- index_5m %>%
   filter(dyad_sex != "mixed") %>% #keep only sex matching dyads (o.g. filter in script 3.3)
   group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>% # eep, do this a few times to remove instance of RID1 = RID2
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>%
+  mutate(RID2 = ifelse(RID2 == RID1, sample(ID2), RID2)) %>% # opportunity for recursion (if any ID1 & 2 still equal, then sample again)
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
   select(year, dyad_sex, RID1, RID2, prox5i) %>%
