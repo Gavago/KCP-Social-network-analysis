@@ -26,7 +26,7 @@ for(k in seq(list_ran_sna_measure_df)){
   
 ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   #sample/randomize individuals within years
-  group_by(year, dyad_sex) %>%
+  group_by(year) %>% #bc dealing w any sex combination of dyad, no grouping by sex
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
@@ -56,7 +56,7 @@ ran_gdf_gmgmd_sex_sep <- total_gm_gmd_index %>%
 
 ran_gdf_prox_sex_comb <- index_5m %>%
   #sample/randomize individuals within years
-  group_by(year, dyad_sex) %>%
+  group_by(year) %>% #bc dealing w any sex combination of dyad, no grouping by sex
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
