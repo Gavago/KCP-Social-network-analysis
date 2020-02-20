@@ -26,7 +26,7 @@ for(k in seq(list_ran_sna_measure_df)){
   
 ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   #sample/randomize individuals within years
-  group_by(year) %>%
+  group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
@@ -56,7 +56,7 @@ ran_gdf_gmgmd_sex_sep <- total_gm_gmd_index %>%
 
 ran_gdf_prox_sex_comb <- index_5m %>%
   #sample/randomize individuals within years
-  group_by(year) %>%
+  group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
@@ -72,7 +72,7 @@ ran_gdf_prox_sex_comb <- index_5m %>%
 ran_gdf_prox_sex_sep <- index_5m %>%
   #sample/randomize individuals within years and dyad sexes
   filter(dyad_sex != "mixed") %>% #keep only sex matching dyads (o.g. filter in script 3.3)
-  group_by(year) %>%
+  group_by(year, dyad_sex) %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
@@ -114,7 +114,7 @@ ran_sna_measure_df <- do.call("rbind", ran_sna_measure_df_list) %>%
 list_ran_sna_measure_df[[k]] <- ran_sna_measure_df
 
 }
-#Sys.time() - t # takes about 6.9 minutes to create
+Sys.time() - t # takes about 6.9 minutes to create
 
 #save(list_ran_sna_measure_df, file = "data/sna dataframes - measures based on node randomized graphs.Rdata")
 
