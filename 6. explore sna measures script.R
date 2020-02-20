@@ -23,7 +23,7 @@ load("data/attribute data alone.Rdata", verbose = T)
 # stability/variation in sna measures (adjusted for observation time)
 # magnitude of various sna variables
 
-# 1. Descriptives and Focal subjects for age analysis ----
+# i. Descriptives and Focal subjects for age analysis ----
 names(all_sna_measure_df)
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$behavior)
@@ -74,7 +74,7 @@ priorities %>%
   summarise( mean = mean(age_mid_2018), sd = sd(age_mid_2018), min = )
 
 
-# 2. Look at very simple correlations w age within networks (no RE for individual...) -----
+# ii. Look at very simple correlations w age within networks (no RE for individual...) -----
 
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$network_type)
@@ -107,7 +107,7 @@ all_sna_measure_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada 
 
-# 3. correlations between network measures ----
+# iii. correlations between network measures ----
 library(ggcorrplot)
 
 names(all_sna_measure_df)
@@ -144,3 +144,11 @@ p_cors
 # 2a. create heat map of corr
   
 
+
+# 1. CVs
+
+all_sna_measure_df %>%
+  filter(behavior == "total_grooming") %>%
+  filter(year != 2009) %>%
+  group_by(network_sex) %>%
+  summarise_at(vars(bt, ec, deg, trans), .funs = list(mean = mean, sd = sd))
