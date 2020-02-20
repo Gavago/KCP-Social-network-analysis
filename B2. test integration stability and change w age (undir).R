@@ -107,7 +107,7 @@ all_sna_measure_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada 
 
-# iii. correlations between network measures ----
+# iii. basic correlations between network measures ----
 library(ggcorrplot)
 
 names(all_sna_measure_df)
@@ -152,3 +152,31 @@ all_sna_measure_df %>%
   filter(year != 2009) %>%
   group_by(network_sex) %>%
   summarise_at(vars(bt, ec, deg, trans), .funs = list(mean = mean, sd = sd))
+
+# iv. PCA how do measures load together or apart?
+
+
+# 1. Calc observed individ CVs by network sex and behavior
+cv_obs <- all_sna_measure_df %>%
+  group_by(chimp_id, network_sex, behavior) %>%
+  summarise(cv_bt = sd(bt)/mean(bt)*100, 
+            cv_ec = sd(ec)/mean(ec)*100, 
+            cv_deg = sd(deg)/mean(deg)*100,
+            cv_trans = sd(trans)/mean(trans)*100) %>%
+  ungroup() %>%
+  select(chimp_id, network_sex, behavior, starts_with("cv"))
+
+
+# compare
+load("data/randomized distributions of sna CVs.Rdata", verbose = T)
+# what proportion
+
+#mixed sex bt
+msgmgmd <- ran_cv_dists %>% filter(network_sex == "any_combo", behavior == "total_grooming")
+
+
+# female prox
+# female groom
+# male prox
+# male groom
+
