@@ -30,7 +30,7 @@ ran_gdf_gmgmd_sex_comb <- total_gm_gmd_index %>%
   mutate(RID1 = sample(ID1), RID2 = sample(ID2)) %>%
   ungroup() %>%
   # nest dyadic data in list column (o.g. data script 3.3)
-  mutate(dyad_sex = "any_combo") %>% #change from sex specific to anything combination
+  mutate(dyad_sex = "any_combo") %>% #change from sex specific to any combination of sexes
   select(year, dyad_sex, RID1, RID2, gmgmdi) %>%
   nest(data = c(RID1, RID2, gmgmdi)) %>%
   arrange(year) %>%
