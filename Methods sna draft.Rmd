@@ -36,7 +36,7 @@ total_focal %>%
 Excluded individuals not observed either as a focal or within a party with a focal for > 100 hours 
 
 
-```{r obs time as focal or in party, eval = FALSE}
+```{r obs time as focal, eval = FALSE}
 load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
 
 # Low time as focal
@@ -48,6 +48,7 @@ lo_focal <- total_focal %>%
   filter(hours < 100)
 lo_focal
 # many in 2009, possibly more reason to exclude that year
+# otherwise is tripoli in 2012
 
 # Low time in party
 load("data/focal party scans formatted.Rdata", verbose = T)
