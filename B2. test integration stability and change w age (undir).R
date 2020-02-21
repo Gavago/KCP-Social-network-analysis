@@ -26,21 +26,24 @@ load("data/attribute data alone.Rdata", verbose = T)
 
 # 1. Calc observed individ CVs by network sex and behavior
 cv_obs <- all_sna_measure_df %>%
-  group_by(chimp_id, sex, network_sex, behavior) %>%
+  group_by(chimp_id, network_sex, behavior) %>%
   summarise(cv_bt = sd(bt)/mean(bt)*100, 
             cv_ec = sd(ec)/mean(ec)*100, 
             cv_deg = sd(deg)/mean(deg)*100,
             cv_trans = sd(trans)/mean(trans)*100) %>%
   ungroup() %>%
-  select(chimp_id, sex, network_sex, behavior, starts_with("cv")) %>%
+  select(chimp_id, network_sex, behavior, starts_with("cv")) %>%
   pivot_longer(cols = starts_with("cv"), names_to = "CV_type", values_to = "obs_CV") %>%
-  ADD years obs
-  ADD attr
-  add final age (make final age)
+  add_years_obs() %>%
+  add_individ_attr() %>%
+  add_final_age() %>%
+  select(-starts_with("immig"))
 
 nrow(cv_obs) # 620 chimp-network cvs
 
-save(cv_obs, file = "data/ cv")
+names(cv_obs)
+
+#save(cv_obs, file = "data/observed cvs integration.Rdata")
 
 
 # test for sig stability ------
