@@ -51,6 +51,8 @@ years_pres <- all_sna_measure_df %>%
 
 years_pres
 
+#save(years_pres, file = "data/years each subject pres in network data.Rdata")
+
 #identify priority individuals for OS - those who are oldest in the middle of sample collection 
 #and simultaneously have been focal followed longest.
 priorities_alive_2018 <- years_pres %>%
