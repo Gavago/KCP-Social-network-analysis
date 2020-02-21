@@ -24,7 +24,8 @@ load("data/attribute data alone.Rdata", verbose = T)
 # magnitude of various sna variables
 
 
-# 1. Calc observed individ CVs by network sex and behavior
+# 1. Integration stability, by obs centrality CV vs random
+# 1a. calc observed individ CVs by network sex and behavior --------
 cv_obs <- all_sna_measure_df %>%
   group_by(chimp_id, network_sex, behavior) %>%
   summarise(cv_bt = sd(bt)/mean(bt)*100, 
@@ -46,7 +47,7 @@ names(cv_obs)
 #save(cv_obs, file = "data/observed cvs integration.Rdata")
 
 
-# test for sig stability ------
+# 1b. calc sig stability ------
 load("data/randomized distributions of sna CVs.Rdata", verbose = T)
 
 # massive case when? to create sig_high (prop dist below) and sig_low (prop dist below)
@@ -80,30 +81,105 @@ sig_stability <- cv_obs %>%
 names(sig_stability)
 
 
-#does sig hi stability occur more often in particular networks?
+# 1c. explore sig stability -------
+
+load("data/years each subject pres in network data.Rdata", verbose = T)
+# size up years pres
+years_pres %>% arrange(n) %>% View()
+
+# is sig stability related to number of years seen? yes.
+# more variability (higher CV) as individuals are observed more years
+# correlation varies by centrality type (cv_type)
+# appears that betweenness most likely to fluctuate.
+# with > 2 yrs obs, all other centrality cvs stop correlating with yrs obs
+# corr disappears for bt when yrs obs > 6 or < 3
+# are 12 F and 6 M chimps pres for more than 6 years
+
+sig_stability  %$% 
+  cor.test(obs_CV, yrs_obs, method = "spearman")
+sig_stability %>% 
+  filter(yrs_obs > 3) %$% 
+  cor.test(obs_CV, yrs_obs, method = "spearman") 
+
+# cor by cv type
+p_val <- function(df){
+  a <- df  %$% 
+    cor.test(obs_CV, yrs_obs, method = "spearman")
+  return(a$p.value)
+}
+rho <- function(df){
+  a <- df  %$% 
+    cor.test(obs_CV, yrs_obs, method = "spearman")
+  return(a$estimate)
+}
+
+# window of years obs where corr bt years obs and cvs present
+# group_by doesn't test corr by cv type, so nest...
 sig_stability %>%
-  count(sex, network_sex, behavior) %>%
+  filter(yrs_obs > 6) %>% #change here
+  select(CV_type, obs_CV, yrs_obs) %>%
+  nest(c(obs_CV, yrs_obs)) %>%
+  mutate(rho = map(data, rho), p_val = map(data, p_val)) %>%
+  unnest(c(rho, p_val))
+
+# how many of each sex observed a given number of years
+years_pres %>%
+  filter(n > 6) %>%
+  add_individ_attr() %>%
+  count(sex)
+
+
+#does sig hi stability occur more often in particular networks? 
+
+# n is x4 bc 4 centralities for each network
+# total sex & network specific CVs =
+sig_stability %>%
+  filter(yrs_obs > 6) %>%
+  count(sex, network_sex, behavior)
+
+# which are sig stable
+sig_stability %>%
+  filter(yrs_obs > 6) %>%
   filter(stab_hi < 0.05) %>%
-  group_by(sex, network_sex, behavior) %>%
-  mutate()
-# where does non sig stability occur?
-sig_stability %>%
-  filter(stab_hi > 0.05) %>%
-  count(network_sex, behavior)
+  count(sex, network_sex, behavior)
+#both sexes less stable integration in gm vs prox
+#female less stable in same sex prox network than mixed sex
+#zero females stable in same sex gm network
 
 #no one has sig lo stability :-/
 sig_stability %>%
   filter(stab_lo < 0.05)
 
-#ok, who at least is stable more often than others
+# on individual level, in which networks do individual chimps have a higher proportion of centralities
+# that are stable...
 sig_stability %>%
+  filter(yrs_obs > 6) %>%
+  #number of networks a chimp is observed in
   add_count(chimp_id) %>%
+  #
   filter(stab_hi < 0.05) %>%
+  #proportion of networks a chimp is significantly stable
   group_by(chimp_id) %>%
-  mutate(n_sig = n(), prop_sig = n_sig/n) %>%
+  mutate(n_sig = n(), prop_cvs_sig_stable = n_sig/n) %>%
   ungroup() %>%
-  filter()
-  
+  #distill df to one obs per chimp, his or her proportion of observed networks in which its stable
+  distinct(chimp_id, .keep_all = T) %>%
+  filter(prop_cvs_sig_stable >= .75) %>%
+  filter(sex == "F")
+  count(sex)
+
+sig_stability %>%
+  distinct(chimp_id, .keep_all = T) %>%
+  count(sex)
+# all study males are stable in 75% of the networks and integrations measures
+# they are measured in. but only 1 female is so stable. (all females are stable in at least 50% tho)
+
+
+
+
+
+
+
 
 
 
