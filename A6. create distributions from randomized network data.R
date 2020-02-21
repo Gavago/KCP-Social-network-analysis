@@ -29,12 +29,39 @@ ran_cv_dists <- ran_cv_dists1 %>%
  
 names(ran_cv_dists)
 ran_cv_dists_long <- ran_cv_dists %>%
-  pivot_longer(cols = starts_with("cv"), names_to = "CV_type", values_to = CV)
+  pivot_longer(cols = starts_with("cv"), names_to = "CV_type", values_to = "CV") %>% 
+  select(-chimp_id) %>%
+  #nest for joining
+  nest(distributions = CV) #not necessary to have chimpid pres except for checking purposes
 
 #save(ran_cv_dists, ran_cv_dists_long, file = "data/randomized distributions of sna CVs.Rdata")
 
+# c. View random distributions -----------
 
-# c. check dimensions of cv file --------------
+# any combo
+ran_cv_dists %>%
+  filter(network_sex == "any_combo", behavior == "prox") %>%
+  pull(cv_bt) %>%
+  hist(main = "random: any_combo prox bt")
+
+ran_cv_dists %>%
+  filter(network_sex == "any_combo", behavior == "total_grooming") %>%
+  pull(cv_bt) %>%
+  hist(main = "random: any_combo grooming bt")
+
+ran_cv_dists %>%
+  filter(network_sex == "any_combo", behavior == "prox") %>%
+  pull(cv_ec) %>%
+  hist(main = "random: any_combo prox ec")
+
+ran_cv_dists %>%
+  filter(network_sex == "any_combo", behavior == "total_grooming") %>%
+  pull(cv_ec) %>%
+  hist(main = "random: any_combo grooming ec")
+
+
+
+# d. check dimensions and filters of ran CV file --------------
 nrow(ran_cv_dists1) #155000
 nrow(ran_cv_dists) #169701, 24042 rows removed
 
