@@ -124,6 +124,7 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
   
 }
 
+# remove individuals from analysis
 clean_ghosts <- function(df){
 total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH")
   f <- df %>%  
@@ -133,5 +134,30 @@ total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH")
 return(f)
     }
 
+# add years observed
+add_years_obs <- function(df) {
+load("data/years each subject pres in network data.Rdata")
+  
+years_pres %<>% rename(yrs_obs = n)
+ y <- df %>%
+  left_join(years_pres, by = "chimp_id")
+ 
+ return(y) 
+ 
+ }
+  
 
-#save(add_dyad_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts, file = "functions/functions - data preparation.Rdata")
+
+# add final age - 2018 or age last seen
+add_final_age <- function(df) {
+  f <- df %>%
+    mutate(final_age = ifelse(is.na(dls),
+                              as.numeric(as.Date("2018-07-01") - dobc)/365.25,
+                              as.numeric(dls - dobc)/365.25))
+  }
+
+
+
+
+#save(add_dyad_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts,
+# add_years_obs, add_final_age, file = "functions/functions - data preparation.Rdata")
