@@ -15,6 +15,15 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
   return(a)
 }
 
+# add individual attribute
+add_individ_attr <- function(df, ID1 = "ID1", ...){
+  load("data/attribute data alone.Rdata")
+  a <- df %>%
+    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = "chimp_id")
+  return(a)
+}
+
+
 #create ages on june 1 of observation year
 add_age <- function(df, dyad = TRUE) {
   
@@ -154,10 +163,11 @@ add_final_age <- function(df) {
     mutate(final_age = ifelse(is.na(dls),
                               as.numeric(as.Date("2018-07-01") - dobc)/365.25,
                               as.numeric(dls - dobc)/365.25))
+  return(f)
   }
 
 
 
 
-#save(add_dyad_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts,
-# add_years_obs, add_final_age, file = "functions/functions - data preparation.Rdata")
+save(add_dyad_attr, add_individ_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts,
+ add_years_obs, add_final_age, file = "functions/functions - data preparation.Rdata")
