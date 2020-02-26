@@ -1,8 +1,10 @@
 library(tidyverse)
 library(magrittr)
+library(lmerTest)
+
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/attribute data alone.Rdata", verbose = T)
-
+z. <- function(x) scale(x)
 
 # how many years  are diff individuals present
 # how much do 
@@ -19,7 +21,7 @@ load("data/attribute data alone.Rdata", verbose = T)
 # (model selection)
 # hardship index - years w amputation from snare injury, number of severe injuries?, loss of mother before age x(?)
 # average dominance rank during observation * sex
-# sex & agee
+# sex & age
 # stability/variation in sna measures (adjusted for observation time)
 # magnitude of various sna variables
 
@@ -177,6 +179,187 @@ sig_stability %>%
 
 
 
+
+
+
+
+
+
+
+# 2. Age sex models predicting integration -----
+
+names(all_sna_measure_df)
+
+# -- age - sex functions -------
+age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans"), 
+                               beh = c("total_grooming", "prox"), 
+                               net_sex = c("any_combo", "female", "male"), 
+                               sex_age_int = FALSE, summary = FALSE){
+  
+  if(sex_age_int == TRUE){
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + sex + sex*z.(age_mid_year) + (1|chimp_id))
+  } else {
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + sex + (1|chimp_id))
+  }
+  
+  d <- data %>%
+    filter(behavior == beh, network_sex %in% net_sex)
+  mod <- tryCatch({glmer(f, family = Gamma(link = "log") , data = d)}, error = function(e) e) 
+  if(summary == TRUE & !inherits(mod, "error")){
+    mod <- summary(mod)
+  }
+  if(inherits(mod, "error")){mod <- "Error: model does not converge"}
+
+  return(mod)
+  
+}
+
+
+#for all sna measures
+age_sex_fun_all <- function(data, 
+                            beh = c("total_grooming", "prox"), 
+                            net_sex = c("any_combo", "female", "male"), 
+                            sex_age_int = FALSE, summary = TRUE){
+  
+  sna_measures <-  c("bt", "ec", "deg", "trans")
+  mods <- vector("list", length = length(sna_measures))
+  names(mods) <- sna_measures
+  if(sex_age_int == TRUE){
+    names(mods) <- paste0(sna_measures,"_int")
+  }
+  
+  
+  for (i in seq(sna_measures)){
+    if(sex_age_int == TRUE){
+      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + sex*z.(age_mid_year) + (1|chimp_id))
+    } else {
+      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + (1|chimp_id))
+    }
+    
+    d <- data %>%
+      filter(behavior == beh, network_sex %in% net_sex)
+    mod <- tryCatch({glmer(f, family = Gamma(link = "log") , data = d)}, error = function(e) e) 
+    if(summary == TRUE & !inherits(mod, "error")){
+      mod <- summary(mod)
+    }
+    if(inherits(mod, "error")){mod <- "Error: model does not converge"}
+    
+    mods[[i]] <- mod
+  }
+  
+  return(mods)
+  
+}
+
+#NOTE - could apply function to each sna col for output and workaround from error
+
+# age in same sex networks
+age_fun_all <- function(data, 
+                        beh = c("total_grooming", "prox"), 
+                        net_sex = c("any_combo", "female", "male"), 
+                        summary = TRUE){
+  
+  sna_measures <-  c("bt", "ec", "deg", "trans")
+  mods <- vector("list", length = length(sna_measures))
+  names(mods) <- sna_measures
+  
+  for (i in seq(sna_measures)){
+    
+    f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + (1|chimp_id))
+    
+    s <- data %>%
+      filter(behavior == beh, network_sex %in% net_sex) %>%
+      tryCatch({glmer(f, family = Gamma(link = "log") , data = .)}, error = function(e) e) 
+    
+    d <- data %>%
+      filter(behavior == beh, network_sex %in% net_sex)
+    mod <- tryCatch({glmer(f, family = Gamma(link = "log") , data = d)}, error = function(e) e) 
+    if(summary == TRUE & !inherits(mod, "error")){
+      mod <- summary(mod)
+    }
+    if(inherits(mod, "error")){mod <- "Error: model does not converge"}
+    
+    mods[[i]] <- mod
+  }
+  
+  return(mods)
+  
+}
+
+# 2a. age sex effects in mixed network-----------
+
+# -- mixed sex gm - predict bt ec deg trans ----
+
+#age_sex_fun_single(all_sna_measure_df, sna_measure = "bt", beh = "total_grooming",
+#                     net_sex = "any_combo", sex_age_int = T , summary = TRUE)
+
+gm_mixed <- age_sex_fun_all(all_sna_measure_df, beh = "total_grooming", 
+                                net_sex = "any_combo", sex_age_int = F, summary = T )
+gm_mixed_int <- age_sex_fun_all(all_sna_measure_df, beh = "total_grooming", 
+                net_sex = "any_combo", sex_age_int = T, summary = T )
+gm_mixed
+gm_mixed_int
+# Mixed network results
+# bt gm: inc w age, higher for males; pos int - if male slope age more pos than females
+# ec gm: no effect age, higher for males; no int
+# deg gm: dec age, higher for males; no int
+# trans gm: no effects; no int
+
+# -- mixed sex prox - predict bt ec deg trans -----
+prox_mixed <- age_sex_fun_all(all_sna_measure_df, beh = "prox", 
+                            net_sex = "any_combo", sex_age_int = F, summary = T )
+prox_mixed_int <- age_sex_fun_all(all_sna_measure_df, beh = "prox", 
+                                net_sex = "any_combo", sex_age_int = T, summary = T )
+prox_mixed
+prox_mixed_int
+# Mixed network results - not informative
+# bt prox: no age effect, males higher bt than; no int
+# ec prox: no effects; no int
+# deg prox: no effects; no int
+# trans prox: no effects; no int
+
+
+# 2b. age sex effects in same-sex networks -----------
+
+# -- same sex gm - predict bt ec deg trans ----
+
+# NOTE - sex in these models just controlling for network type - e.g. diff in size bt m n f,
+# not real comparison bt male and female social tendencies - but removed it bc too often mods weren't converging, analysis was weird
+
+gm_same <- age_sex_fun_all(all_sna_measure_df, beh = "total_grooming", 
+                            net_sex = c("female", "male"), summary = T)
+gm_same_int <- age_sex_fun_all(all_sna_measure_df, beh = "total_grooming", 
+                         net_sex = c("female", "male"), sex_age_int = T, summary = T)
+
+gm_same # does not converge bc so many females w 0 betweenness (see B1 ii)
+gm_same_int # this works bc at least are many males w betweenness
+
+# are bt probs
+age_sex_fun_single(all_sna_measure_df,  sna_measure = "trans", beh = "total_grooming", net_sex = c("female","male"), sex_age_int = F, summary = T)
+
+
+# summary same sex networks -
+# bt gm: bt dec w age in same sex networks, not diff by sex.
+# ec gm: ec changes w age in both networks, dec fem and inc male
+# deg gm: same as ec
+# trans gm: is different bt networks, but no age effects.
+
+# -- same sex prox - predict bt ec deg trans -----
+
+prox_same <- age_sex_fun_all(all_sna_measure_df, beh = "prox", net_sex = c("female","male"), summary = T ) 
+prox_same_int <- age_sex_fun_all(all_sna_measure_df, beh = "prox", net_sex = c("female","male"), sex_age_int = T,summary = T ) 
+
+#many males have bt of 0 in same sex prox network, bc so saturated... see B1 ii
+
+#bt don't converge, others ok
+age_sex_fun_single(all_sna_measure_df,  sna_measure = "bt",beh = "prox", net_sex = c("female","male"), sex_age_int = T, summary = T)
+
+
+# summary same sex networks in prox - not very informative.... -
+# bt gm: no and int doesn't converge....
+# ec gm: no, no int
+# deg gm: lower among males - just a product of network size, no int
+# trans gm: no effects, no int
 
 
 
