@@ -63,6 +63,9 @@ lo_party_memb <- total_party_member %>%
 inner_join(lo_focal[,c("ID1","year")], lo_party_memb[,c("ID2","year")], by = c("ID1" = "ID2", "year"))
 # only CA, and already removed...
 
+```
+
+```{r}
 #whether obs time correlates with network integration
 library(ggcorrplot)
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
@@ -76,13 +79,12 @@ mat <- all_sna_measure_df %>%
   select(-n) %>%
   select(ec,bt,deg, trans, hours_focal, hours_party_member, hours_focal_hi, hours_party_member_hi) 
 mat %>%
-  cor(,  method = "spearman", use = "pairwise.complete.obs")
+  cor(.,  method = "spearman", use = "pairwise.complete.obs")
 mat %>%
   cor_pmat() %>%
   round(,2)
 
 #seems like observation time is always correlated with network integration...
-
 ```
 
 
