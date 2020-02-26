@@ -318,9 +318,51 @@ prox_mixed_int
 # deg prox: no effects; no int
 # trans prox: no effects; no int
 
+# -- viz - mixed sex gm age sex ------
+all_sna_measure_df %>%
+  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, bt, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, ec, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, trans, color = sex)) +
+  geom_smooth( method = "lm")
+
+# -- viz - mixed sex prox age sex ------
+
+all_sna_measure_df %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, bt, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, ec, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg, color = sex)) +
+  geom_smooth( method = "lm")
+
+all_sna_measure_df %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, trans, color = sex)) +
+  geom_smooth( method = "lm")
+
 
 # 2b. age sex effects in same-sex networks -----------
-
 # -- same sex gm - predict bt ec deg trans ----
 
 # NOTE - sex in these models just controlling for network type - e.g. diff in size bt m n f,
