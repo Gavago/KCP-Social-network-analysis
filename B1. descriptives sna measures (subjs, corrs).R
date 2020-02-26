@@ -1,5 +1,8 @@
 library(tidyverse)
 library(magrittr)
+library(fitdistrplus)
+library(psych) #for KMO
+library(paran) #parallel analysis
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/attribute data alone.Rdata", verbose = T)
 
@@ -7,23 +10,7 @@ load("data/attribute data alone.Rdata", verbose = T)
 # how many years  are diff individuals present
 # how much do 
 
-# part 1
-# description stability and change w age - 
-# will require node permutations of networks within each year to get random sna measures pr year, 
-# and distribution of age coefficients from randomized networks
-# similarly, individual CVs of network measures will be significantly high or low in reference to their CVs calculated from randomized networks
-
-# part 2
-# Response: OS status by quarter, 2017 - 2019 (12 points per individual? - average of 3 per quarter?)
-# Predictors of OS status:
-# (model selection)
-# hardship index - years w amputation from snare injury, number of severe injuries?, loss of mother before age x(?)
-# average dominance rank during observation * sex
-# sex & agee
-# stability/variation in sna measures (adjusted for observation time)
-# magnitude of various sna variables
-
-# i. Descriptives and Focal subjects for age analysis ----
+# i. descriptives - subjects ----
 names(all_sna_measure_df)
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$behavior)
@@ -76,7 +63,54 @@ priorities %>%
   summarise( mean = mean(age_mid_2018), sd = sd(age_mid_2018), min = )
 
 
-# ii. Look at very simple correlations w age within networks (no RE for individual...) -----
+# ii. distributions - sna measures -----
+all_sna_measure_df %>%
+  filter(network_sex == "female") %>%
+  filter(behavior == "prox") %$%
+  descdist(deg)
+#bt & ec are pretty gamma-fied in any network,
+#maybe good to model trans as beta bc bt 0 -- 1
+
+# prop 0's sna measures in mixed sex gm
+all_sna_measure_df %>%
+  filter(network_sex == "any_combo", behavior == "total_grooming") %>%
+  group_by(sex) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
+  ungroup() %>%
+  mutate(prop_z_bt = bt_zeros/bt_N, prop_z_ec = ec_zeros/ec_N, prop_z_deg = deg_zeros/deg_N, prop_z_trans = trans_zeros/trans_N) %>%
+  select(sex, starts_with("prop"))
+
+# prop 0's sna measures in same sex gm
+all_sna_measure_df %>%
+  filter(network_sex %in% c("male", "female"), behavior == "total_grooming") %>%
+  group_by(sex) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
+  ungroup() %>%
+  mutate(prop_z_bt = bt_zeros/bt_N, prop_z_ec = ec_zeros/ec_N, prop_z_deg = deg_zeros/deg_N, prop_z_trans = trans_zeros/trans_N) %>%
+  select(sex, starts_with("prop"))
+  #wow k, a lot of females have 0 betweenness and transitivity in same sex gm networks. hence same sex gm models don't work
+
+# prop 0's sna measures in mixed sex prox
+all_sna_measure_df %>%
+  filter(network_sex == "any_combo", behavior == "prox") %>%
+  group_by(sex) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
+  ungroup() %>%
+  mutate(prop_z_bt = bt_zeros/bt_N, prop_z_ec = ec_zeros/ec_N, prop_z_deg = deg_zeros/deg_N, prop_z_trans = trans_zeros/trans_N) %>%
+  select(sex, starts_with("prop"))
+
+# prop 0's sna measures in same sex prox
+all_sna_measure_df %>%
+  filter(network_sex %in% c("male", "female"), behavior == "prox") %>%
+  group_by(sex) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
+  ungroup() %>%
+  mutate(prop_z_bt = bt_zeros/bt_N, prop_z_ec = ec_zeros/ec_N, prop_z_deg = deg_zeros/deg_N, prop_z_trans = trans_zeros/trans_N) %>%
+  select(sex, starts_with("prop"))
+  #bc prox network is so saturated, you have a lot of males w zero betweenness in prox network, same sex prox models don't work in B2
+
+
+# iii. Look at very simple correlations w age within networks (no RE for individual...) -----
 
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$network_type)
@@ -110,8 +144,6 @@ all_sna_measure_df %>%
   cor.test(trans, age_mid_year) #nada 
 
 # iii. basic correlations between network measures ----
-library(ggcorrplot)
-
 names(all_sna_measure_df)
 
 df <- all_sna_measure_df
@@ -142,4 +174,127 @@ p_cors
 #in every network, all measures are positively and significantly correlated except for trans and bt 8|
 
 
-# iv. PCA how do measures load together or apart?
+# iv. PCA how do measures load together or apart? ------
+
+# both sexes
+sna_comp <- all_sna_measure_df %>% # keeping all the various networks, mixed and sex specific
+  filter(complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans)
+# females in mixed network
+sna_comp_fem_mixed <- all_sna_measure_df %>%
+  filter(sex == "F", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans)
+# females in same sex
+sna_comp_fem_same <- all_sna_measure_df %>%
+  filter(sex == "F", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans)
+# males in mixed network
+sna_comp_male_mixed <- all_sna_measure_df %>%
+  filter(sex == "M", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans)
+# males in mixed network
+sna_comp_male_same <- all_sna_measure_df %>%
+  filter(sex == "M", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans)
+
+
+
+nrow(sna_comp) #879
+nrow(sna_comp_fem_mixed) # 266
+nrow(sna_comp_fem_same) #265
+
+nrow(sna_comp_male_mixed) # 174
+nrow(sna_comp_male_same) # 174
+
+df <- sna_comp
+
+df <- sna_comp_fem_mixed
+df <- sna_comp_fem_same
+
+df <- sna_comp_male_mixed
+df<- sna_comp_male_same 
+
+
+# bartlett's and KMO
+bart<-function(dat){ #dat is your raw data
+  R<-cor(dat)
+  p<-ncol(dat)
+  n<-nrow(dat)
+  chi2<- -((n-1)-((2*p)+5)/6 ) * log(det(R)) #this is the formula
+  df<-(p*(p-1)/2)
+  crit<-qchisq(.95,df) #critical value
+  p<-pchisq(chi2,df,lower.tail=F) #pvalue
+  cat("Bartlett's test of sphericity: X2(",
+      df,")=",chi2,", p=",
+      round(p,3),sep="" )   
+}
+
+bart(df)
+KMO(df) # KMO is higher for F in same sex network, KMO not as high for males
+
+pc <- prcomp(scale(df)) # should scale
+
+
+pc$rotation # var loadings
+# with both sexes: PC1 kinda captures traditional "integration", i.e. connections of connections - 
+# ec deg trans high pos load and bt no
+# PC2 captures inverse relationship between betweenness and local clustering, 
+# high neg load bt and medium pos loading trans.
+# loadings diff when just considering certain sexes within mixed network?
+# looking at males in mixed sex network - PC1 captures inverse bt and trans. PC2 is centrality, 
+# high neg loading of bt ec and deg, but males in all male network, they follow above pattern too, PC1
+# bt low and ec deg trans high pos, PC2, bt high neg and trans on flip side.
+# looking at females - PC1 and PC2 follow the above, females probably contribute lots to that signal,
+# bc they have the majority of observations in the dataset. is same in same-sex female networks.
+# Should not use 1 size fits all for PCs, or shouldn't use PCs at all...
+# maybe need to focus on different kinds of networks and centrality within them based on specific
+# questions/hypotheses.
+# bc relationship bt sna measures (i.e. patterns of correlations and loadings) is different for 
+# males in mixed vs same sex network, maybe don't use PCA to reduce dimensionality of integration.
+
+
+pc$sd^2 # kaiser rule, eigenvalue > 1
+summary(pc) #cum value
+plot(pc) #screeplot
+paran(sna_comp, iterations = 5000, centile = 0, quietly = FALSE, #paran says 2
+      status = TRUE, all = TRUE, cfa = TRUE, graph = TRUE, color = TRUE, 
+      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
+
+biplot(pc, choices = c(1,2))
+
+all_sna_measure_df %>%
+  select(chimp_id, sex, year, age_mid_year) %>%
+  cbind(., predict(pc)[,1:2]) 
+
+
+# gyard ------
+a <- sna_comp_fem_mixed %>% pull(chimp_id) %>% unique() %>% sort()
+b <- sna_comp_fem_same %>% pull(chimp_id) %>% unique() %>% sort()
+a[!(a %in% b)]
+
+
+# for some reason, GS does not appear in all female gm network
+# maybe she's not in annual possible dyads - nope! and that means she's seen to gm w males in 2011 but never females
+nrow(sna_comp_fem_mixed) # has one more line than 
+nrow(sna_comp_fem_same)
+# that's bc GS
+sna_comp_fem_same %>%
+  filter(chimp_id == "GS")
+sna_comp_fem_mixed %>%
+  filter(chimp_id == "GS")
+
+#check number of chimp obs per year, 
+all_sna_measure_df %>%
+  filter(chimp_id == "GS")
+
+#of whole data set GS 2011 is only one missing from either obs or poss dyads. good catch.
+all_sna_measure_df %>% 
+  group_by(chimp_id, year) %>%
+  tally() %>%
+  filter(n < 4)
+
+
+load("data/annual possible focal dyads.Rdata", verbose = T)
+undir_annual_dyads %>%
+  filter(ID1 == "GS" | ID2 == "GS")
