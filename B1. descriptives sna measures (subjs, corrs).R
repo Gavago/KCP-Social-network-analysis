@@ -3,14 +3,13 @@ library(magrittr)
 library(fitdistrplus)
 library(psych) #for KMO
 library(paran) #parallel analysis
+load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/attribute data alone.Rdata", verbose = T)
+select <- dplyr::select
 
 
-# how many years  are diff individuals present
-# how much do 
-
-# i. descriptives - subjects ----
+# a. descriptives - subjects ----
 names(all_sna_measure_df)
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$behavior)
@@ -63,13 +62,55 @@ priorities %>%
   summarise( mean = mean(age_mid_2018), sd = sd(age_mid_2018), min = )
 
 
-# ii. distributions - sna measures -----
+# b. distributions & averages -- indices -----
+g_data_gm_sex_comb %>%
+  unnest(c(data)) %>%
+  group_by(year) %>%
+  summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi))
+g_data_prox_sex_comb %>%
+  unnest(c(data)) %>%
+  group_by(year) %>%
+  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i))
+
+g_data_gm_sex_sep %>%
+  unnest(c(data)) %>%
+  group_by(year, dyad_sex) %>%
+  summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
+  arrange(dyad_sex, year)
+g_data_prox_sex_sep %>%
+  unnest(c(data)) %>%
+  group_by(year, dyad_sex) %>%
+  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i))
+
+
+
+
+# c. distributions & averages -- sna measures -----
 all_sna_measure_df %>%
   filter(network_sex == "female") %>%
   filter(behavior == "prox") %$%
   descdist(deg)
 #bt & ec are pretty gamma-fied in any network,
 #maybe good to model trans as beta bc bt 0 -- 1
+
+#mean sd
+all_sna_measure_df %>% # overall
+  group_by(network_sex, behavior) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
+  select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
+
+all_sna_measure_df %>% # for every year
+  group_by(network_sex, behavior, year) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
+  ungroup() %>%
+  select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
+  View(title = "sna avg sd by year") # useful to look at in combo w sociogram
+
+#ranges
+all_sna_measure_df %>%
+  group_by(network_sex, behavior) %>%
+  summarise_at(vars(bt, ec, deg, trans), funs(max = max, min = min)) %>%
+  select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
 
 # prop 0's sna measures in mixed sex gm
 all_sna_measure_df %>%
@@ -110,7 +151,7 @@ all_sna_measure_df %>%
   #bc prox network is so saturated, you have a lot of males w zero betweenness in prox network, same sex prox models don't work in B2
 
 
-# iii. Look at very simple correlations w age within networks (no RE for individual...) -----
+# d. Look at very simple correlations w age within networks (no RE for individual...) -----
 
 unique(all_sna_measure_df$network_sex)
 unique(all_sna_measure_df$network_type)
@@ -143,7 +184,7 @@ all_sna_measure_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada 
 
-# iii. basic correlations between network measures ----
+# e. basic correlations between network measures ----
 names(all_sna_measure_df)
 
 df <- all_sna_measure_df
@@ -174,7 +215,7 @@ p_cors
 #in every network, all measures are positively and significantly correlated except for trans and bt 8|
 
 
-# iv. PCA how do measures load together or apart? ------
+# f. PCA -- how do measures load together or apart? ------
 
 # both sexes
 sna_comp <- all_sna_measure_df %>% # keeping all the various networks, mixed and sex specific
