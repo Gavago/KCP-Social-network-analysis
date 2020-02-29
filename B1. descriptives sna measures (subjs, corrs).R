@@ -63,26 +63,25 @@ priorities %>%
 
 
 # b. distributions & averages -- indices -----
-g_data_gm_sex_comb %>%
+annual_avg_gmgmd_mixed <- g_data_gm_sex_comb %>%
   unnest(c(data)) %>%
   group_by(year) %>%
   summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi))
-g_data_prox_sex_comb %>%
+annual_avg_prox_mixed <- g_data_prox_sex_comb %>%
   unnest(c(data)) %>%
   group_by(year) %>%
   summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i))
 
-g_data_gm_sex_sep %>%
+annual_avg_gmgmd_sep <- g_data_gm_sex_sep %>%
   unnest(c(data)) %>%
   group_by(year, dyad_sex) %>%
   summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
   arrange(dyad_sex, year)
-g_data_prox_sex_sep %>%
+annual_avg_prox_sep <- g_data_prox_sex_sep %>%
   unnest(c(data)) %>%
-  group_by(year, dyad_sex) %>%
-  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i))
-
-
+  group_by(dyad_sex, year) %>%
+  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i)) %>%
+  ungroup()
 
 
 # c. distributions & averages -- sna measures -----
@@ -94,17 +93,24 @@ all_sna_measure_df %>%
 #maybe good to model trans as beta bc bt 0 -- 1
 
 #mean sd
-all_sna_measure_df %>% # overall
+overall_sna_avg <- all_sna_measure_df %>% # overall
   group_by(network_sex, behavior) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
-  select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
+  select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
+  arrange(behavior)
 
-all_sna_measure_df %>% # for every year
+annual_sna_avg <- all_sna_measure_df %>% # for every year
   group_by(network_sex, behavior, year) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
   ungroup() %>%
-  select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
-  View(title = "sna avg sd by year") # useful to look at in combo w sociogram
+  select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
+  #View(title = "sna avg sd by year") # useful to look at in combo w sociogram
+
+#save(overall_sna_avg, annual_sna_avg,
+#     annual_avg_gmgmd_mixed, annual_avg_prox_mixed,
+#     annual_avg_gmgmd_sep, annual_avg_prox_sep,
+#     file = "average social measures for steph.Rdata")
+
 
 #ranges
 all_sna_measure_df %>%
