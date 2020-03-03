@@ -175,6 +175,8 @@ foc_part1[grepl(" ", foc_part1$partner), "partner"]
 
 foc_part <- fix_ID_errors(foc_part1, ID1 = "focal", ID2 = "partner")
 
+foc_part
+
 
 # test fix id errors worked
 # foc_part[grepl(" ", foc_part$ID1), "ID1"]
@@ -264,6 +266,7 @@ poss_focal <- foc_part %>%
 # is correct to assume that if individual was in party that year 
 
 total_focal <- foc_part %>%
+  distinct(year, ID1, scan_id) %>%
   group_by(year, ID1) %>%
   tally() %>%
   ungroup() %>%
@@ -278,23 +281,24 @@ total_poss_focal <- total_focal %>%
   add_individ_attr(., ID1 = "ID1") %>%
   add_age(dyad = FALSE) %>%
   filter_age(dyad = FALSE) %>%
-  mark_short_time_pres_individ()
+  mark_short_time_pres_individ() %>%
+  select(year, ID1, n, sex, dls, weeks_pres)
 
-total_focal %>%
-  filter(year == 2010) %>% View()
 
 nrow(total_focal) #224
 nrow(total_poss_focal) #234 aha, not so different
 
-
 total_poss_focal %>%
   filter(is.na(n)) # that, friend, is fucking beautiful.
+
+total_poss_focal %>%
+  filter(year == 2010)
 
 #interesting to see that sufficient weeks present is not always indicative of sufficient sampling time.
 # all n = NA means that potential focals were never focaled, most individs seem to be newly immigrant or disappearing
 
 total_poss_focal %<>%
-mutate(n = replace_na(n, 0))
+  mutate(n = replace_na(n, 0))
 
 #save(total_focal, total_poss_focal, file = "data/total focal and possible focal per year.Rdata")
 
