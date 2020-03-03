@@ -9,7 +9,7 @@ mdy <- lubridate::mdy
 month <- lubridate::month
 year <- lubridate::year
 ymd_hms <- lubridate::ymd_hms
-load("functions/functions - data preparation.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
 
 # Open Database Connectivity (ODBC) is a protocol 
 # that you can use to connect a Microsoft Access database to an external data source such as Microsoft SQL Server. 
@@ -218,16 +218,7 @@ head(total_AB_party)
 #total_AB_party %>%
 #  filter(apply(.,1, function(x) any(is.na(x))))
 
-
-#total focal obs in given year
-total_focal <- foc_part %>%
-  group_by(year, ID1) %>%
-  tally() %>%
-  ungroup()
-nrow(total_focal) #267 
-
-
-#save(total_AB_party, total_focal, file = "data/counts - dyadic focal party and total focal.Rdata")
+#save(total_AB_party, file = "data/counts - dyadic focal party.Rdata")
 
 # ----- create possible dyads per year #####
 #start using met's file 1/2020
@@ -263,6 +254,50 @@ nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" c
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 #save(foc_part, file = "data/focal party scans formatted.Rdata")
+
+# ----- create total focal obs w possible focal years included ----
+
+#total focal obs in given year
+poss_focal <- foc_part %>%
+  distinct(ID2, year) %>% #use ID2 bc is more comprehensive than ID1 (id1 was focals, 2 was partners)
+  rename(ID1 = ID2)
+# is correct to assume that if individual was in party that year 
+
+total_focal <- foc_part %>%
+  group_by(year, ID1) %>%
+  tally() %>%
+  ungroup() %>%
+  add_individ_attr(., ID1 = "ID1") %>%
+  add_age(dyad = FALSE) %>%
+  filter_age(dyad = FALSE) %>%
+  select(year, ID1, n)
+
+
+total_poss_focal <- total_focal %>%
+  full_join(., poss_focal, by = c("year","ID1")) %>%
+  add_individ_attr(., ID1 = "ID1") %>%
+  add_age(dyad = FALSE) %>%
+  filter_age(dyad = FALSE) %>%
+  mark_short_time_pres_individ()
+
+total_focal %>%
+  filter(year == 2010) %>% View()
+
+nrow(total_focal) #224
+nrow(total_poss_focal) #234 aha, not so different
+
+
+total_poss_focal %>%
+  filter(is.na(n)) # that, friend, is fucking beautiful.
+
+#interesting to see that sufficient weeks present is not always indicative of sufficient sampling time.
+# all n = NA means that potential focals were never focaled, most individs seem to be newly immigrant or disappearing
+
+total_poss_focal %<>%
+mutate(n = replace_na(n, 0))
+
+#save(total_focal, total_poss_focal, file = "data/total focal and possible focal per year.Rdata")
+
 
 # graveyard #####
 # SCAN ####
