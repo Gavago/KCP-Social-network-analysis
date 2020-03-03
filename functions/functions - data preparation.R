@@ -29,13 +29,14 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
 add_individ_attr <- function(df, ID1 = "ID1", ...){
   load("data/attribute data alone.Rdata")
   
+  names(df)[names(df) == ID1] <- "ID1"
+  
   a <- df %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c("ID1" = "chimp_id"))
+    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 = "chimp_id"))
   return(a)
 }
 
-
-#create ages on june 1 of observation year
+#create ages on july 1 of observation year
 add_age <- function(df, dyad = TRUE) {
   
   if(dyad == TRUE){
