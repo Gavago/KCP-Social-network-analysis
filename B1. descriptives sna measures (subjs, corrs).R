@@ -84,6 +84,17 @@ annual_avg_prox_sep <- g_data_prox_sex_sep %>%
   ungroup()
 
 
+# coments annual prox indices
+annual_avg_prox_mixed # starts hi ends lower
+annual_avg_prox_sep # is trend for M, F hold steady at low prox indices (relative to M)
+
+# comments annual grooming indices
+annual_avg_gmgmd_mixed # super hi in 2009 wtf - prob just obs conspicuous socializing individuals,steadily lower w time w smaller variation
+annual_avg_gmgmd_sep # females decline to lowest val...tho males start higher and decline earlier and more steeply, whats w M 2015?
+
+#for filtering prox
+#save(annual_avg_prox_sep, file = "data/annual thresholds for same sex prox nets.Rdata")
+
 # c. distributions & averages -- sna measures -----
 all_sna_measure_df %>%
   filter(network_sex == "female") %>%
@@ -98,18 +109,41 @@ overall_sna_avg <- all_sna_measure_df %>% # overall
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
   select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
   arrange(behavior)
+overall_sna_avg
 
 annual_sna_avg <- all_sna_measure_df %>% # for every year
   group_by(network_sex, behavior, year) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
   ungroup() %>%
   select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
-  #View(title = "sna avg sd by year") # useful to look at in combo w sociogram
+  View(annual_sna_avg, title = "sna avg sd by year") # useful to look at in combo w sociogram
+annual_sna_avg
 
-#save(overall_sna_avg, annual_sna_avg,
+# --- comments ---
+# overall avg:
+# all groom networks are sparser than prox (low avg. DEG) --
+# tho males have lower degree in prox network than females (it seems).
+# have much higher degree in gm network.
+# BT: see higher avg bt in gm vs prox networks for both sexes, think that sparseness opens opportunity for bt
+# EC: no big diffs bt gm and prox except generally higher avg values for prox.
+# TRANS: trans always higher in prox networks bc are denser.
+#
+# annual avgs: see variation in sna measures year to year (y2y)
+# -- Mixed
+# prox - BT: why goes down as years advance?, DEG steadily increases (after is tiny as shit in 2009 - weird),
+# BT DEG prob related; EC hold steady w smaaaall variance, TRANS steadily kinda low
+# gm - BT and DEG avg varies a lot from y2y. EC and TRANS steadily low again.
+# -- Female
+# prox - BT lots of var y2y
+# gm - BT same, EC and DEG super low and not much var y2y, TRANS 0 often
+# -- Male
+# prox - BT is zero and EC is 1 almost every year bc network is so saturated
+# gm - all sna measures vary quite beautifully and irregularly from y2y
+
+# save(overall_sna_avg, annual_sna_avg,
 #     annual_avg_gmgmd_mixed, annual_avg_prox_mixed,
 #     annual_avg_gmgmd_sep, annual_avg_prox_sep,
-#     file = "average social measures for steph.Rdata")
+#     file = "data/average social measures for exploration (pre-prox filter).Rdata")
 
 
 #ranges
