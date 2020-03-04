@@ -102,7 +102,14 @@ plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
   if(size_centrality == "ec" & scale_vertex_size == 1){
     scale_vertex_size <- 10
   }
+  
+  if(size_centrality == "bt" & dyads == "female"){
+    scale_vertex_size <- 0.3
+  }
+  
+  #vertex size
   size <- g %>% vertex_attr() %>% .[[size_centrality]]*scale_vertex_size
+ 
   #set edge weight
   w <- g %>% edge_attr() %>% .[[1]]/scale_edge_weight 
   
