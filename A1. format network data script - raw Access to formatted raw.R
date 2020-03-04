@@ -43,7 +43,7 @@ demox[i] <- lapply(demox[i], as.character)
 
 #grooming records from focal data
 groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date)))
+  mutate(orig_year = year(ymd(Date)), month = month(ymd(Date)))
 i <- sapply(groomingx, is.factor)
 groomingx[i] <- lapply(groomingx[i], as.character)
 
@@ -119,12 +119,18 @@ focal_5m1 %>%
 focal_5m_raw <- focal_5m1 %>%
   rename(ID1 = Focal, ID2 = w5) %>%
   mutate_if(is.factor, as.character) %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date))) %>%
+  mutate(orig_year = year(ymd(Date)), month = month(ymd(Date))) %>%
+  mutate(year = case_when(
+    orig_year == 2009 ~ 2010,
+    TRUE ~ orig_year
+  )) %>%  
   filter(ID1 != ID2) %>% # removes 50 cases, removes 59 cases
   fix_ID_errors()
 
 focal_5m_raw$ID1[grepl(" ", focal_5m_raw$ID1)] #check, each should be 0
 focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
+
+View(focal_5m_raw)
 
 nrow(focal_5m_raw) # 177686
 
@@ -147,7 +153,11 @@ names(groomingx)
 grooming_raw <- groomingx %>%
   rename(ID1 = Focal, ID2 = Partner_ID) %>% 
   filter(ID2 != "UNK") %>%
-  filter(ID1 != ID2)
+  filter(ID1 != ID2) %>%
+  mutate(year = case_when(
+    orig_year == 2009 ~ 2010,
+    TRUE ~ orig_year
+  ))
 # to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
 
 #save(grooming_raw, file = "data/grooming raw.Rdata")
@@ -163,7 +173,11 @@ foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F
   unite("scan_id", date, time, sep = "_") %>%
   separate(scan_id, into = c("date", "trash", "scan_time"), sep = " ", remove = F) %>%
   select(-trash) %>%
-  mutate(year = year(mdy(date)), month = month(mdy(date))) 
+  mutate(orig_year = year(mdy(date)), month = month(mdy(date))) %>%
+  mutate(year = case_when(
+    orig_year == 2009 ~ 2010,
+    TRUE ~ orig_year
+  ))
 
 names(foc_part1)
 
@@ -200,7 +214,7 @@ dyad_party <- foc_part %>%
   tally() %>%
   ungroup()
 
-nrow(dyad_party) #12076
+nrow(dyad_party) #11496 (2009-2010 collapsed), 12076
 head(dyad_party)
 
 total_AB_party <- dyad_party %>%
@@ -214,7 +228,7 @@ x <- names(total_AB_party)[grepl("^n_", names(total_AB_party))]
 names(total_AB_party)[grepl("^n_", names(total_AB_party))] <- paste(x, "party", sep = "_")
 
 
-nrow(total_AB_party) #17568 after removing ID typos
+nrow(total_AB_party) #16640 2009-10 collapsed, 17568 after removing ID typos
 head(total_AB_party)
 
 #total_AB_party %>%
@@ -238,7 +252,7 @@ dir_annual_dyads <- foc_part %>%
   ungroup() %>%
   filter(ID1 != ID2)
 
-nrow(dir_annual_dyads) # using "partner" column is 24036, when using "Focal" column is 7712
+nrow(dir_annual_dyads) # 22414 2009-10 collapsed; using "partner" column is 24036, when using "Focal" column is 7712
 
 abc_ids <- dir_annual_dyads %>%
   select(ID1, ID2) %>%
@@ -252,7 +266,7 @@ undir_annual_dyads <- dir_annual_dyads %>%
   cbind(abc_ids, .) %>%
   distinct(ID1, ID2, year)
 
-nrow(undir_annual_dyads) # using "partner" column is 12018, when using "Focal" column is 3856
+nrow(undir_annual_dyads) #11207 2009-10 collapsed, using "partner" column is 12018, when using "Focal" column is 3856
 
 #save(dir_annual_dyads, undir_annual_dyads, file = "data/annual possible focal dyads.Rdata")
 #save(foc_part, file = "data/focal party scans formatted.Rdata")
@@ -285,14 +299,11 @@ total_poss_focal <- total_focal %>%
   select(year, ID1, n, sex, dls, weeks_pres, short_presence)
 
 
-nrow(total_focal) #224
-nrow(total_poss_focal) #234 aha, not so different
+nrow(total_focal) #209 2009-10 collapsed, 224
+nrow(total_poss_focal) #215 2009-10 collapsed; 234 aha, not so different
 
 total_poss_focal %>%
   filter(is.na(n)) # that, friend, is fucking beautiful.
-
-total_poss_focal %>%
-  filter(year == 2010)
 
 #interesting to see that sufficient weeks present is not always indicative of sufficient sampling time.
 # all n = NA means that potential focals were never focaled, most individs seem to be newly immigrant or disappearing
