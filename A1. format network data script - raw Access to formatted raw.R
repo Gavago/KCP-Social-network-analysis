@@ -282,7 +282,7 @@ total_poss_focal <- total_focal %>%
   add_age(dyad = FALSE) %>%
   filter_age(dyad = FALSE) %>%
   mark_short_time_pres_individ() %>%
-  select(year, ID1, n, sex, dls, weeks_pres)
+  select(year, ID1, n, sex, dls, weeks_pres, short_presence)
 
 
 nrow(total_focal) #224
