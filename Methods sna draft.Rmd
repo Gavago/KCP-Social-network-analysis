@@ -5,11 +5,19 @@ date: "2/7/2020"
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+library(tidyverse)
+select<- dplyr::select
+```
+
 ## Study site and data collection
 
 We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. X unique subject-years
 
-```{r setup, include=FALSE}
+```{r total subj, eval=FALSE}
+library(tidyverse)
+select<- dplyr::select
+
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 
 all_sna_measure_df %>%
@@ -42,7 +50,7 @@ lo_focal <- total_poss_focal %>%
   
 lo_focal
 
-nrow(lo_focal) # 112 chimp-years w lo focal observations, i.e. < 100 hrs... (a lot!!!)
+nrow(lo_focal) #92, 112 chimp-years w lo focal observations, i.e. < 100 hrs... (a lot!!!)
 
 # many in 2009, 2011 & 2012
 lo_focal %>%
@@ -72,7 +80,7 @@ lo_foc_lo_party <- lo_focal %>%
   left_join(.,total_party_member, by = c("year", "ID1", "short_presence")) %>%
   mutate(party_hours = replace_na(party_hours, 0)) %>% # for GS 2011
   filter(focal_hours < 50 & party_hours < 100) #everyone else will be between 50 and 100 hrs focaled and > 100 hrs in party
-lo_foc_lo_party # 4 of these are removed for short presence, 
+lo_foc_lo_party # 8 w 4 of these are removed for short presence, 11 pre 09-10 merge
 
 lo_foc_lo_party %<>%
   filter(short_presence != 1)
@@ -84,10 +92,10 @@ lo_foc_hi_party <- lo_focal %>%
   left_join(total_party_member, by = c("year", "ID1", "short_presence")) %>%
   filter(party_hours >= 100)
 
-nrow(lo_foc_hi_party) #101
+nrow(lo_foc_hi_party) #84, 101
 
 lo_focal %>% anti_join(lo_foc_lo_party) %>% anti_join(lo_foc_hi_party)
-
+#should just be those w short pres
 
 ```
 
@@ -100,10 +108,12 @@ total_poss_focal %>%
   group_by(year) %>%
   summarise(mean = mean(n), sd = sd(n), spread_relative = sd/mean, min = min(n), max = max(n))
 
+load("data/total focal and possible focal per year.Rdata", verbose = T)
+
 total_poss_focal %>%
-  group_by(year)%>%
-  filter( n == max(n)) %>%
-  arrange(year)
+  group_by(year) %>%
+  summarise(mean = mean(n), sd = sd(n), spread_relative = sd/mean, min = min(n), max = max(n))
+
 
 ```
 
@@ -155,27 +165,21 @@ load("data/total focal and possible focal per year.Rdata", verbose = T)
 load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
 source("functions/functions - data preparation.R")
 
-sp_focal <- total_poss_focal %>%
+shortpres_focal <- total_poss_focal %>% # is same as marked short time pres for gm and prox data directly
   filter(short_presence == 1) %>%
   select(year, ID1, sex) %>%
   arrange(year, ID1)
 
-rm_gm <- total_gm_gmdx %>%
-  mark_short_time_pres() %>%
-  filter(short_presence_ID1 == 1) %>%
-  distinct(year, ID1) %>%
-  arrange(year, ID1)
+shortpres_focal
 
-rm_5 <- total_5mx %>%
-  mark_short_time_pres() %>%
-  filter(short_presence_ID1 == 1) %>%
-  distinct(year, ID1) %>%
-  arrange(year, ID1)
-
-cbind(sp_focal, rm_gm, rm_5) 
-sp_focal %>%
+shortpres_focal %>%
  count(sex)
 #none in 2009, start in 2011
+
+#no overlap between low observation removals and short presence removals
+nrow(shortpres_focal) #11
+nrow(lo_foc_lo_party) #4
+full_join(lo_foc_lo_party, shortpres_focal) %>% nrow() #15, no overlap
 
 ```
 
@@ -207,5 +211,21 @@ total_poss_focal %>%
 total_poss_focal %>%
   filter(year == 2013) %>%
   arrange(desc(n))
+
+
+## removed for time pres
+rm_gm <- total_gm_gmdx %>%
+  mark_short_time_pres() %>%
+  filter(short_presence_ID1 == 1) %>%
+  distinct(year, ID1) %>%
+  arrange(year, ID1)
+
+rm_5 <- total_5mx %>%
+  mark_short_time_pres() %>%
+  filter(short_presence_ID1 == 1) %>%
+  distinct(year, ID1) %>%
+  arrange(year, ID1)
+
+cbind(sp_focal, rm_gm, rm_5) 
 
 
