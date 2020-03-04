@@ -221,8 +221,13 @@ add_final_age <- function(df) {
   return(f)
   }
 
+# filter same sex prox networks by sex specific annual average index
 
+#filter_sex_prox <-
+#  load("data/annual thresholds for same sex prox nets.Rdata", verbose = T)
 
+#total_5m
+  
 
 #save(add_dyad_attr, add_individ_attr, add_age, filter_age, mark_short_time_pres, fix_ID_errors, clean_ghosts,
 # add_years_obs, add_final_age, file = "functions/functions - data preparation.Rdata")

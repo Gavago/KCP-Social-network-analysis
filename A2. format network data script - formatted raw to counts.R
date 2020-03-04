@@ -52,7 +52,7 @@ total_gm_gmd1 <- AB %>%
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
 names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))] <- paste(x, "gmgmd", sep = "_")
 
-nrow(total_gm_gmd1) #12632, 13003 added poss dyads at early stage and don't age filter
+nrow(total_gm_gmd1) #12632 09_10 merge, 12780, 13003 added poss dyads at early stage and don't age filter
 head(total_gm_gmd1)
 
 # readd IDs in alphabetical order to then remove duplicate dyads
@@ -67,14 +67,14 @@ total_gm_gmdx <- total_gm_gmd1 %>%
   select(-ID1, -ID2) %>%
   cbind(IDs, .) %>%
   distinct(ID1, ID2, year, .keep_all = T) %>% #remove dup dyads, revealed after IDs were alphabetized 
-  add_dyad_attr() %>% # add their attributes, sex, dobc...
+  add_dyad_attr() %>%   # add their attributes, sex, dobc...
   add_age() %>% # and ages
   filter_age() %>%
   clean_ghosts()
 total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-nrow(total_gm_gmd) #3113, 2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #3113, 3163, 2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
@@ -120,7 +120,9 @@ total_gm <- total_gm1 %>%
   mark_short_time_pres(filter_n_clean = TRUE) %>%
   clean_ghosts()
 
-nrow(total_gm) #6272 - whyyyy longer now that 09-10 merged?...,  5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) #6272 09_10 merged,  5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
+
+
 
 
 # describe non grooming
@@ -177,7 +179,7 @@ total_gmd <- total_gmd1 %>%
   clean_ghosts()
 
 names(total_gmd)
-nrow(total_gmd) #6272, 5168 w short obs removed, 5826 w total possible dyads, 825
+nrow(total_gmd) #6272, 6331, 5168 w short obs removed, 5826 w total possible dyads, 825
 
 total_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
@@ -243,7 +245,7 @@ tail(total_5m)
 total_5m %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 total_5m %>%
-  filter(total_5m == 0) %>% nrow() #521 dyad-years w 0 time in 5d
+  filter(total_5m == 0) %>% nrow() #445, 521 dyad-years w 0 time in 5d
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
