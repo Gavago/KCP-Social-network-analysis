@@ -1,3 +1,5 @@
+
+
 # Function 1 -- undirected centrality measures function -----
 
 # sna measures undirected is a function that takes a list column data frame with graph objects for sex-specific dyads by year
@@ -5,7 +7,7 @@
 # the output of the function can be a data frame of observations of individual network score by year, or a sociogram ("graph")
 # that produces a visualization of the network, with the sna measure defining the size of the vertex 
 
-sna_measures_undir <- function(g,year = NULL, network_sex = NULL, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
+sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TRUE, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
   #lapply(list("tidyverse","igraph"), require, character.only = TRUE)
   require(tidyverse)
   require(igraph)
@@ -20,7 +22,13 @@ sna_measures_undir <- function(g,year = NULL, network_sex = NULL, output = c("gr
   remove <- edge_attr(g)[[1]] == 0 # create vector for removing edges = 0
   g <- delete_edges(g, E(g)[remove]) # remove
   
-  gb <- betweenness(g, directed = F, normalized = F)
+  if(bt_weight == TRUE){
+    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = TRUE)
+  }
+  if(bt_weight == FALSE){
+    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = FALSE)
+  }
+  
   ge <- eigen_centrality(g)$vector
   gd <- degree(g)
   gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local") #local transitivity
