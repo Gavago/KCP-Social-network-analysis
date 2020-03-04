@@ -58,7 +58,6 @@ add_age <- function(df, dyad = TRUE) {
   
 }
 
-
 #sex specific age filter
 filter_age <- function(df, Age_F = 12, Age_M = 15, dyad = TRUE) {
   
@@ -166,7 +165,6 @@ mark_short_time_pres_individ <- function(df, year = year, wks_of_yr_cutoff = 26,
   
 }
 
-
 # remove spaces from any IDs
 fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
   
@@ -191,14 +189,16 @@ fix_ID_errors <- function(df, ID1 = "ID1", ID2 = "ID2"){
 
 # remove individuals from analysis
 clean_ghosts <- function(df){
-total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH")
+total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH") # CA GO HL HH non-members
   f <- df %>%  
     filter(!(ID1 %in% total_ghosts_n_non_members) & !(ID2 %in% total_ghosts_n_non_members)) %>% # turn this into data prep function eventually?
     filter(!(year > 2013 & ID1 == "ST") & !(year > 2013 & ID2 == "ST")) %>% # mis-ID'd after death
     filter(!(year > 2013 & ID1 == "PG") & !(year > 2013 & ID2 == "PG")) %>% # mis-ID'd after death
-    filter(!(year == 2012 & ID1 == "PO") & !(year == 2012)) #PO not observed enough in this year. see Methods sna draft.Rmd
+    filter(!(year == 2011 & ID1 == "GS") & !(year == 2013 & ID2 == "GS")) # lo focal and lo party membership
+  # see lo individs load("data/subject years to remove for low observations (focal and party membership).Rdata")
 return(f)
     }
+
 
 # add years observed
 add_years_obs <- function(df) {
@@ -211,8 +211,6 @@ years_pres %<>% rename(yrs_obs = n)
  return(y) 
  
  }
-  
-
 
 # add final age - 2018 or age last seen
 add_final_age <- function(df) {
