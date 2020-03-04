@@ -103,7 +103,11 @@ plot_graph <- function(g, year, dyads, behavior = c("total_grooming", "prox"),
     scale_vertex_size <- 10
   }
   
-  if(size_centrality == "bt" & dyads == "female"){
+  if(size_centrality == "bt" & dyads == "any_combo"){
+    scale_vertex_size <- 0.1
+  }
+  
+  if(size_centrality == "bt" & dyads != "any_combo"){
     scale_vertex_size <- 0.3
   }
   
