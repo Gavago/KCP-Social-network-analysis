@@ -7,7 +7,12 @@
 # the output of the function can be a data frame of observations of individual network score by year, or a sociogram ("graph")
 # that produces a visualization of the network, with the sna measure defining the size of the vertex 
 
-sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TRUE, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
+#tester
+#g <- graph_from_data_frame(d = g_data_gm_sex_sep$data[[1]], directed = FALSE)
+
+
+
+sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TRUE, ec_weight = TRUE, deg_weight = TRUE, trans_weight = TRUE, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
   #lapply(list("tidyverse","igraph"), require, character.only = TRUE)
   require(tidyverse)
   require(igraph)
@@ -19,19 +24,45 @@ sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TR
     behavior <- "prox"
   }
   
-  remove <- edge_attr(g)[[1]] == 0 # create vector for removing edges = 0
-  g <- delete_edges(g, E(g)[remove]) # remove
+  #creates vector for removing edges = 0
+  remove <- edge_attr(g)[[1]] == 0 
+  #removes
+  g <- delete_edges(g, E(g)[remove]) 
   
+  #creates edge weight vector
+  g_weights <- edge_attr(g)[[1]]
+  
+  #betweeness
   if(bt_weight == TRUE){
-    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = TRUE)
+    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = g_weights)
   }
   if(bt_weight == FALSE){
-    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = FALSE)
+    gb <- betweenness(g, directed = FALSE, normalized = FALSE, weights = NULL)
   }
   
+  #eigenvector centrality
+  if(ec_weight == TRUE){
+  ge <- eigen_centrality(g, weights = g_weights)$vector
+  }
+  if(ec_weight == FALSE){
   ge <- eigen_centrality(g)$vector
-  gd <- degree(g)
-  gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local") #local transitivity
+  }
+  
+  #degree and strength (weighted degree)
+  if(deg_weight == TRUE){
+  gd <- strength(g) }
+  
+  if(deg_weight == FALSE){
+  gd <- degree(g) }
+  
+  #local transitivity
+  if(trans_weight == TRUE){
+    gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local", weights = g_weights) 
+  }
+  if(trans_weight == FALSE){
+    gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local")
+  }
+  
   gt <- ifelse(is.nan(gt), 0, gt)
   
   if(output == "graph"){
