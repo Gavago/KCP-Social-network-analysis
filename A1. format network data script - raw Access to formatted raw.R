@@ -43,7 +43,7 @@ demox[i] <- lapply(demox[i], as.character)
 
 #grooming records from focal data
 groomingx <- sqlFetch(connection, "FOCAL GROOMING SCANS") %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date)))
+  mutate(orig_year = year(ymd(Date)), month = month(ymd(Date)))
 i <- sapply(groomingx, is.factor)
 groomingx[i] <- lapply(groomingx[i], as.character)
 
@@ -119,12 +119,18 @@ focal_5m1 %>%
 focal_5m_raw <- focal_5m1 %>%
   rename(ID1 = Focal, ID2 = w5) %>%
   mutate_if(is.factor, as.character) %>%
-  mutate(year = year(ymd(Date)), month = month(ymd(Date))) %>%
+  mutate(orig_year = year(ymd(Date)), month = month(ymd(Date))) %>%
+  mutate(year = case_when(
+    orig_year == 2009 ~ 2010,
+    TRUE ~ orig_year
+  )) %>%  
   filter(ID1 != ID2) %>% # removes 50 cases, removes 59 cases
   fix_ID_errors()
 
 focal_5m_raw$ID1[grepl(" ", focal_5m_raw$ID1)] #check, each should be 0
 focal_5m_raw$ID2[grepl(" ", focal_5m_raw$ID2)]
+
+View(focal_5m_raw)
 
 nrow(focal_5m_raw) # 177686
 
@@ -147,7 +153,11 @@ names(groomingx)
 grooming_raw <- groomingx %>%
   rename(ID1 = Focal, ID2 = Partner_ID) %>% 
   filter(ID2 != "UNK") %>%
-  filter(ID1 != ID2)
+  filter(ID1 != ID2) %>%
+  mutate(year = case_when(
+    orig_year == 2009 ~ 2010,
+    TRUE ~ orig_year
+  ))
 # to check for appropriate codes in file, can left join w attributes and see what rows attributes are NA...
 
 #save(grooming_raw, file = "data/grooming raw.Rdata")
@@ -290,9 +300,6 @@ nrow(total_poss_focal) #234 aha, not so different
 
 total_poss_focal %>%
   filter(is.na(n)) # that, friend, is fucking beautiful.
-
-total_poss_focal %>%
-  filter(year == 2010)
 
 #interesting to see that sufficient weeks present is not always indicative of sufficient sampling time.
 # all n = NA means that potential focals were never focaled, most individs seem to be newly immigrant or disappearing
