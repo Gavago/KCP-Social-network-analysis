@@ -22,51 +22,109 @@ all_sna_measure_df %>%
 
 ## Data processing
 
-Focal animal sampling began in Aug 2009. While 2009 was a short observation year, individuals were still sufficiently and evenly sampled to create a representative network.
+#### Obs per year
 
-```{r individuals focaled in 2009}
-load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
+1. Overall, we only included individuals that were either observed as a focal >= 100 hours, or observed as a focal for > 50 hrs AND present in social parties for at least X hours of observation.
+(to be done for PO 3/2/20)
+These individuals were marked to filter for short time present in year.
 
-total_focal %>%
-  group_by(year) %>%
-  summarise( mean = mean(n), sd = sd(n), spread_relative = sd/mean)
+
+```{r filter sub-years: low time as focal, eval = FALSE}
+#load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
+load("data/total focal and possible focal per year.Rdata", verbose = T)
+
+lo_focal <- total_poss_focal %>%
+  mutate(focal_hours = n/4) %>% #scan every 15 minutes
+  filter(focal_hours < 100) %>%
+  rename(focal_n = n) %>%
+  select(year, ID1, focal_n, focal_hours, short_presence) %>%
+  arrange(year, ID1)
+  
+lo_focal
+
+nrow(lo_focal) # 112 chimp-years w lo focal observations, i.e. < 100 hrs... (a lot!!!)
+
+# many in 2009, 2011 & 2012
+lo_focal %>%
+  count(year)
 
 ```
 
-Excluded individuals not observed either as a focal or within a party with a focal for > 100 hours 
-
-
-```{r obs time as focal, eval = FALSE}
-load("data/counts - dyadic focal party and total focal.Rdata", verbose = T)
-
-# Low time as focal
-total_focal %>%
-  summarise(min = min(n), max = max(n))
-
-lo_focal <- total_focal %>%
-  mutate(hours = n/4) %>% #scan every 15 minutes
-  filter(hours < 100)
-lo_focal
-# many in 2009, possibly more reason to exclude that year
-# otherwise is tripoli in 2012
-
+```{r filter subj-years: low time in party}
 # Low time in party
 load("data/focal party scans formatted.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
 
 total_party_member <- foc_part %>%
-  count(ID2, year) 
-lo_party_memb <- total_party_member %>%
-  mutate(hours = n/4) %>%
-  filter(hours < 100)
+  count(ID2, year) %>%
+  add_individ_attr(ID1 = "ID2") %>%
+  add_age(dyad = F) %>%
+  filter_age(dyad = F) %>%
+  mark_short_time_pres_individ() %>%
+  mutate(party_hours = n/4) %>%
+  rename(party_n = n) %>%
+  select(year, ID1, party_n, party_hours, short_presence) %>% arrange(year, ID1)
+total_party_member #number of focal scans individaul was in party
 
-# Remove low time in party that overlaps w low focal
-inner_join(lo_focal[,c("ID1","year")], lo_party_memb[,c("ID2","year")], by = c("ID1" = "ID2", "year"))
-# only CA, and already removed...
+
+#These are chimp-years to remove, lo focal hours and and lo party hours
+lo_foc_lo_party <- lo_focal %>%
+  left_join(.,total_party_member, by = c("year", "ID1", "short_presence")) %>%
+  mutate(party_hours = replace_na(party_hours, 0)) %>% # for GS 2011
+  filter(focal_hours < 50 & party_hours < 100) #everyone else will be between 50 and 100 hrs focaled and > 100 hrs in party
+lo_foc_lo_party # 4 of these are removed for short presence, 
+
+lo_foc_lo_party %<>%
+  filter(short_presence != 1)
+
+#save(lo_foc_lo_party, file = "data/subject years to remove for low observations (focal and party membership).Rdata")
+
+#which lo focals are saved from exclusion bc of time in party
+lo_foc_hi_party <- lo_focal %>%
+  left_join(total_party_member, by = c("year", "ID1", "short_presence")) %>%
+  filter(party_hours >= 100)
+
+nrow(lo_foc_hi_party) #101
+
+lo_focal %>% anti_join(lo_foc_lo_party) %>% anti_join(lo_foc_hi_party)
+
 
 ```
 
-```{r}
-#whether obs time correlates with network integration
+
+2. Focal animal sampling began in Aug 2009. But low avg observations per individuals, so we include those observations into 2010. 
+```{r justify fold 2009 into 2010, eval=FALSE}
+load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
+
+total_poss_focal %>%
+  group_by(year) %>%
+  summarise(mean = mean(n), sd = sd(n), spread_relative = sd/mean, min = min(n), max = max(n))
+
+total_poss_focal %>%
+  group_by(year)%>%
+  filter( n == max(n)) %>%
+  arrange(year)
+
+```
+
+Side exploration of obs time and integration:
+bc low obs, see that gmgmd indices in 2009 are oddly high (prox are somewhat higher) and several sna measures are deviant. For example, in `annual_avg_sna` can see that deg is much lower and bt much higher in 2009 than other years.
+
+```{r 2009 as outlier among social measures, eval=FALSE}
+load("data/average social measures for exploration (pre-prox filter).Rdata", verbose = T)
+
+#indices
+annual_avg_gmgmd_mixed #2009 hi
+annual_avg_gmgmd_sep # and is hi for both M and F
+
+#sna measures
+annual_sna_avg %>%
+  filter(behavior == "prox")
+```
+
+Time as focal always correlates with network integration, no matter range of time obs...
+
+```{r corr time observed and }
 library(ggcorrplot)
 load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 
@@ -78,38 +136,46 @@ mat <- all_sna_measure_df %>%
   mutate(hours_party_member = n/4, hours_party_member_hi = ifelse(n/4 > 500, n/4, NA)) %>%
   select(-n) %>%
   select(ec,bt,deg, trans, hours_focal, hours_party_member, hours_focal_hi, hours_party_member_hi) 
+mat
 mat %>%
   cor(.,  method = "spearman", use = "pairwise.complete.obs")
 mat %>%
   cor_pmat() %>%
-  round(,2)
+  round(., 2)
 
 #seems like observation time is always correlated with network integration...
 ```
 
 
-We excluded network members who were present in the community for < 6 months of a given observation year. 
+3. We excluded 11 subject years, where individuals were present in the community for < 6 months of a given observation year. 
 
 ```{r who was not present in community > 6 mo in given year?}
+#load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
+load("data/total focal and possible focal per year.Rdata", verbose = T)
 load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
-load("functions/functions - data preparation.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
 
-total_gm_gmdx %>%
+sp_focal <- total_poss_focal %>%
+  filter(short_presence == 1) %>%
+  select(year, ID1, sex) %>%
+  arrange(year, ID1)
+
+rm_gm <- total_gm_gmdx %>%
   mark_short_time_pres() %>%
   filter(short_presence_ID1 == 1) %>%
-  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+  distinct(year, ID1) %>%
+  arrange(year, ID1)
 
-total_gm_gmdx %>%
-  mark_short_time_pres() %>% 
-  filter(weeks_pres_ID1 < 52) %>%
-  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1, short_presence_ID1) %>%
-  arrange(year, short_presence_ID1)
-
-total_5mx %>%
+rm_5 <- total_5mx %>%
   mark_short_time_pres() %>%
   filter(short_presence_ID1 == 1) %>%
-  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
+  distinct(year, ID1) %>%
+  arrange(year, ID1)
 
+cbind(sp_focal, rm_gm, rm_5) 
+sp_focal %>%
+ count(sex)
+#none in 2009, start in 2011
 
 ```
 
@@ -121,3 +187,25 @@ An average of X network members per year were never observed as a focal.
 ```
 
 We calculated affiliation
+
+
+
+------ graveyard
+
+```{r avg obs in 2009}
+load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
+
+total_focal %>%
+  group_by(year) %>%
+  summarise( mean = mean(n), sd = sd(n), spread_relative = sd/mean, max = max(n), min = min(n))
+
+total_poss_focal %>%
+  group_by(year) %>%
+  summarise( mean = mean(n), sd = sd(n), spread_relative = sd/mean, max = max(n), min = min(n))
+
+#spread in n 2010 is large
+total_poss_focal %>%
+  filter(year == 2013) %>%
+  arrange(desc(n))
+
+
