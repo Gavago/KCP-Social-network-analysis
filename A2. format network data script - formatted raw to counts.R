@@ -1,7 +1,7 @@
 # create count data from formatted raw
 library(tidyverse)
 library(magrittr)
-load("functions/functions - data preparation.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
 
 
 
@@ -24,8 +24,8 @@ gm <- c("GC", "MG")
 #   nrow() #358, 264
 # 358/nrow(grooming_raw) #4.4% grooming is mutual - am counting as regular gm interaction in undirected
 
-nrow(grooming_raw) #8817
-nrow(undir_annual_dyads) #12018
+nrow(grooming_raw) #8117
+nrow(undir_annual_dyads) #11207, 12018
 
 # ----- All AB grooming counts, undirected ####
 
@@ -34,7 +34,7 @@ AB <- grooming_raw %>%
   tally() %>%
   ungroup()
 names(AB)
-nrow(AB) # 1935
+nrow(AB) #1863, 1935
 #no_sexAB <- AB %>% select(-starts_with("sex"))
 
 total_gm_gmd1 <- AB %>% 
@@ -52,7 +52,7 @@ total_gm_gmd1 <- AB %>%
 x <- names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))]
 names(total_gm_gmd1)[grepl("^n_", names(total_gm_gmd1))] <- paste(x, "gmgmd", sep = "_")
 
-nrow(total_gm_gmd1) #now 13003 added poss dyads at early stage and don't age filter
+nrow(total_gm_gmd1) #12632, 13003 added poss dyads at early stage and don't age filter
 head(total_gm_gmd1)
 
 # readd IDs in alphabetical order to then remove duplicate dyads
@@ -74,7 +74,7 @@ total_gm_gmdx <- total_gm_gmd1 %>%
 total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-nrow(total_gm_gmd) #2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #3113, 2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
@@ -120,7 +120,7 @@ total_gm <- total_gm1 %>%
   mark_short_time_pres(filter_n_clean = TRUE) %>%
   clean_ghosts()
 
-nrow(total_gm) # 5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
+nrow(total_gm) #6272 - whyyyy longer now that 09-10 merged?...,  5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
 
 
 # describe non grooming
@@ -177,7 +177,7 @@ total_gmd <- total_gmd1 %>%
   clean_ghosts()
 
 names(total_gmd)
-nrow(total_gmd) #5168 w short obs removed, 5826 w total possible dyads, 825
+nrow(total_gmd) #6272, 5168 w short obs removed, 5826 w total possible dyads, 825
 
 total_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
@@ -205,7 +205,7 @@ total_5m1 <- total_5m2 %>%
   rename(n_AB = n.x, n_BA = n.y) %>%
   mutate(n_AB = ifelse(is.na(n_AB), 0, n_AB), n_BA = ifelse(is.na(n_BA), 0, n_BA)) %>%
   mutate(total_5m = n_AB + n_BA)
-nrow(total_5m1) #14740, 4254
+nrow(total_5m1) #14058, 14740, 4254
 
 #add behavior to N count col name
 x <- names(total_5m1)[grepl("^n_", names(total_5m1))]
@@ -218,7 +218,7 @@ IDs <- total_5m1 %>%
   t(.) %>%
   data.frame(., stringsAsFactors = F) %>%
   rename(ID1 = X1, ID2 = X2)
-nrow(IDs) #14740, 4254
+nrow(IDs) #14058, 14740, 4254
 
 total_5mx <- total_5m1 %>%
   select(-ID1, -ID2) %>%
@@ -236,7 +236,7 @@ total_5m <- total_5mx %>%
   mark_short_time_pres(filter_n_clean = TRUE) 
 
 names(total_5m)
-nrow(total_5m) # 2597 after short pres removed and ghosts; 2936
+nrow(total_5m) #3113 why longer now that 09-10 merged? ; 2597 after short pres removed and ghosts; 2936
 head(total_5m)
 tail(total_5m)
 
@@ -261,18 +261,4 @@ total_gm_gmdx %>%
   filter(weeks_pres_ID1 < 52) %>%
   distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1, short_presence_ID1) %>%
   arrange(year, short_presence_ID1)
-
-total_5mx %>%
-  mark_short_time_pres() %>%
-  filter(short_presence_ID1 == 1) %>%
-  distinct(ID1, year, dls_ID1, immig_date_ID1, weeks_pres_ID1)
-
-#ghosts
-names(foc_part)
-foc_part %>%
-  filter(ID1 == "ST" & year > 2013)
-
-total_5m  %>%
-  filter((ID2 == "ST" & year > 2013) | (ID1 == "ST" & year > 2013))
-
 

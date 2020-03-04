@@ -194,7 +194,7 @@ total_ghosts_n_non_members <- c("NL", "KL", "OK", "PE", "CA", "GO", "HL", "HH") 
     filter(!(ID1 %in% total_ghosts_n_non_members) & !(ID2 %in% total_ghosts_n_non_members)) %>% # turn this into data prep function eventually?
     filter(!(year > 2013 & ID1 == "ST") & !(year > 2013 & ID2 == "ST")) %>% # mis-ID'd after death
     filter(!(year > 2013 & ID1 == "PG") & !(year > 2013 & ID2 == "PG")) %>% # mis-ID'd after death
-    filter(!(year == 2011 & ID1 == "GS") & !(year == 2013 & ID2 == "GS")) # lo focal and lo party membership
+    filter(!(year == 2011 & ID1 == "GS") & !(year == 2011 & ID2 == "GS")) # lo focal and lo party membership
   # see lo individs load("data/subject years to remove for low observations (focal and party membership).Rdata")
 return(f)
     }
