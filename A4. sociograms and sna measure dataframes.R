@@ -1,9 +1,8 @@
 library(tidyverse)
 library(purrr)
 library(igraph)
-library(viridis)
 select <- dplyr::select
-load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
+source("functions/functions - sna measures and plot.R")
 
 # options for shiny plots
 # sexes
@@ -20,7 +19,7 @@ load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
 
 
 # 1. Calculate SNA measures -----
-# Transform list column data into graph objects for each either year or sex-year ------
+# 1a. Transform list column data into graph objects for each either year or sex-year ------
 load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
 # see data where "data" column is a list of dataframes of dyadic association indices from either that year (sex_comb for sexes combined)
 # of for dyads of a given sex (sex_sep for sexes separated) in a given year
@@ -34,12 +33,6 @@ gdf_gm_sex_sep <- g_data_gm_sex_sep %>%
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
   #add sna attributes to vertices
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
-
-#test df option, doesn't work w map
-# x <- gdf_gm_sex_sep %>%
-# filter(year == 2017 & dyad_sex == "male") %>%
-# mutate(sna_measures = map(graph, sna_measures_undir, year = year, network_sex = dyad_sex, output = "data.frame"))
-# x$sna_measures
 
 gdf_gm_sex_comb <- g_data_gm_sex_comb %>%
   #list cols graph
@@ -62,50 +55,106 @@ gdf_prox_sex_comb <- g_data_prox_sex_comb %>%
 
 gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 
-#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata")
+#save(gdf_gm_sex_comb, gdf_prox_sex_comb, gdf_gm_sex_sep, gdf_prox_sex_sep , file = "data/sna graphs - weighted measures, name & sna measures as vector attributes, index as edge weight.Rdata")
+
+
+# # 1b. Unweighted sna measures ----
+
+gdf_gm_sex_sep_uw <- g_data_gm_sex_sep %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, bt_weight = FALSE,
+                           ec_weight = FALSE, deg_weight = FALSE, trans_weight = FALSE, output = "graph"))
+
+gdf_gm_sex_comb_uw <- g_data_gm_sex_comb %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, bt_weight = FALSE,
+                           ec_weight = FALSE, deg_weight = FALSE, trans_weight = FALSE, output = "graph"))
+
+gdf_prox_sex_sep_uw <- g_data_prox_sex_sep %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, bt_weight = FALSE,
+                           ec_weight = FALSE, deg_weight = FALSE, trans_weight = FALSE, output = "graph"))
+
+gdf_prox_sex_comb_uw <- g_data_prox_sex_comb %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, bt_weight = FALSE,
+                           ec_weight = FALSE, deg_weight = FALSE, trans_weight = FALSE, output = "graph"))
+
+gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
+
+#save(gdf_gm_sex_comb_uw, gdf_prox_sex_comb_uw, gdf_gm_sex_sep_uw, gdf_prox_sex_sep_uw, file = "data/sna graphs - unweighted measures, name & sna measures as vector attributes, index as edge weight.Rdata")
 
 
 # 2. SNA measure data frames ----
-load("functions/functions - data preparation.Rdata", verbose = T)
-load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
+source("functions/functions - sna measures and plot.R")
+load("data/sna graphs - weighted measures, name & sna measures as vector attributes, index as edge weight.Rdata", verbose = T)
 load("data/attribute data alone.Rdata", verbose = T)
 
 #create master data frame with all individual sna measures by year
 
-#list of list columns (!)
+#list of list columns
 graph_list <- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf_prox_sex_comb) 
 
-all_sna_measure_df_list <- vector("list", length(graph_list))
+all_sna_measure_df_list_weighted <- vector("list", length(graph_list))
+all_sna_measure_df_list_unweighted <- vector("list", length(graph_list))
 
 for(j in 1:length(graph_list)){
   gdf <- graph_list[[j]] 
   n <- nrow(gdf)
-  measures_list <- vector("list", length = n)
+  measures_list_weighted <- vector("list", length = n)
+  measures_list_unweighted <- vector("list", length = n)
   
+  #unweighted centralities
   for(i in seq(n)) {
     g <- gdf$graph[[i]]
     y <- gdf$year[[i]]
     s <- gdf$dyad_sex[[i]]
-    measures_list[[i]] <- sna_measures_undir(g, year = y, network_sex = s, output = "data.frame")
+    measures_list_unweighted[[i]] <- sna_measures_undir(g, year = y, network_sex = s,
+                                                      bt_weight = FALSE, ec_weight = FALSE, 
+                                                      deg_weight = FALSE, trans_weight = FALSE, output = "data.frame")
   }
-  df <- do.call("rbind", measures_list)
-  all_sna_measure_df_list[[j]] <- df
+  df_uw <- do.call("rbind", measures_list_unweighted)
+  all_sna_measure_df_list_unweighted[[j]] <- df_uw
+  
+  #weighted centralities
+  for(i in seq(n)) {
+    g <- gdf$graph[[i]]
+    y <- gdf$year[[i]]
+    s <- gdf$dyad_sex[[i]]
+    measures_list_weighted[[i]] <- sna_measures_undir(g, year = y, network_sex = s, output = "data.frame")
+  }
+  df_w <- do.call("rbind", measures_list_weighted)
+  all_sna_measure_df_list_weighted[[j]] <- df_w
+  
 }
 
-all_sna_measure_df <- do.call("rbind", all_sna_measure_df_list) %>%
+all_sna_measure_df_uw <- do.call("rbind", all_sna_measure_df_list_unweighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
   add_age(dyad = FALSE)
 
-all_sna_measure_df
-nrow(all_sna_measure_df) # 879
+all_sna_measure_df_w <- do.call("rbind", all_sna_measure_df_list_weighted) %>%
+  left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
+  add_age(dyad = FALSE)
 
-#save(all_sna_measure_df, file = "data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata")
+nrow(all_sna_measure_df_uw) # 800, 879
+nrow(all_sna_measure_df_w) # 800
+
+#save(all_sna_measure_df_uw, file = "data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata")
+#save(all_sna_measure_df_w, file = "data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata")
 
 # 3. Create pdf sociograms from igraphs in list column  ----
 load("data/sna graphs -  name & sna measures as vector attributes, index as edge weight.Rdata", verbose = TRUE)
-load("functions/functions - SNA measures and graph plotting.Rdata", verbose = T)
-load("functions/functions - data preparation.Rdata", verbose = T)
+source("functions/functions - data preparation.R")
+source("functions/functions - sna measures and plot.R")
 
 #list of list column dfs
 #for each df, go through each year and print
@@ -116,7 +165,7 @@ gm_prox_graph_list<- list(gdf_gm_sex_sep, gdf_gm_sex_comb, gdf_prox_sex_sep, gdf
 
 
 #settings for title and plot graph function, ec bt trans deg
-size_centrality_x <- "bt"
+size_centrality_x <- "trans"
 layout_setting <- "nicely"
 
 
