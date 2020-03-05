@@ -74,7 +74,7 @@ total_gm_gmdx <- total_gm_gmd1 %>%
 total_gm_gmd <- total_gm_gmdx %>% #sex specific age filter 
   mark_short_time_pres(filter_n_clean = TRUE) #mark whether individual present in year for < 26 wks, filter & clean vars or not
 
-nrow(total_gm_gmd) #3113, 3163, 2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
+nrow(total_gm_gmd) #2412, 3163, 2585 filter short obs clean ghosts; 2914, because have fixed IDs and ages are added, therefore more rows kept 1/30/20 -  with total possible dyads
 
 total_gm_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x))))
@@ -120,10 +120,7 @@ total_gm <- total_gm1 %>%
   mark_short_time_pres(filter_n_clean = TRUE) %>%
   clean_ghosts()
 
-nrow(total_gm) #6272 09_10 merged,  5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
-
-
-
+nrow(total_gm) #4824 09_10 merged,  5168 short obs and ghosts removed; 5826, 825 without possibl dyads, 1382 before age filter
 
 # describe non grooming
 # can see that 2344 of 4683 non-grooming dyads are same-sex
@@ -133,11 +130,11 @@ a <- total_gm %>%
   filter(total_AB_gm == 0)
 
 nrow(a)  
-a %>% filter(sex_ID1 == sex_ID2) %>% nrow()
-a %>% filter(sex_ID1 == "M" & sex_ID2 == "M") %>% nrow() # 441 - bonds
-a %>% filter(sex_ID1 == "M" & sex_ID2 == "F") %>% nrow() # 1208 - sex
-a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1269 - appeasement? protection?
-a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 2024 - family?
+a %>% filter(sex_ID1 == sex_ID2) %>% nrow() #2000
+a %>% filter(sex_ID1 == "M" & sex_ID2 == "M") %>% nrow() # 342 - bonds
+a %>% filter(sex_ID1 == "M" & sex_ID2 == "F") %>% nrow() # 975 - sex
+a %>% filter(sex_ID1 == "F" & sex_ID2 == "M") %>% nrow() # 1037 - appeasement? protection?
+a %>% filter(sex_ID1 == "F" & sex_ID2 == "F") %>% nrow() # 1658 - family?
 
 total_gm %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow()
@@ -179,7 +176,7 @@ total_gmd <- total_gmd1 %>%
   clean_ghosts()
 
 names(total_gmd)
-nrow(total_gmd) #6272, 6331, 5168 w short obs removed, 5826 w total possible dyads, 825
+nrow(total_gmd) #4824; 6331, 5168 w short obs removed, 5826 w total possible dyads, 825
 
 total_gmd %>%
   filter(apply(.,1, function(x) any(is.na(x)))) %>% nrow() #same stats as total_gm1
@@ -238,14 +235,14 @@ total_5m <- total_5mx %>%
   mark_short_time_pres(filter_n_clean = TRUE) 
 
 names(total_5m)
-nrow(total_5m) #3113 why longer now that 09-10 merged? ; 2597 after short pres removed and ghosts; 2936
+nrow(total_5m) #2412 09-10 merged ; 2597 after short pres removed and ghosts; 2936
 head(total_5m)
 tail(total_5m)
 
 total_5m %>%
   filter(apply(.,1, function(x) any(is.na(x))))
 total_5m %>%
-  filter(total_5m == 0) %>% nrow() #445, 521 dyad-years w 0 time in 5d
+  filter(total_5m == 0) %>% nrow() #233, 521 dyad-years w 0 time in 5d
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
