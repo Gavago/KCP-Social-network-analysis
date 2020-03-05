@@ -50,14 +50,14 @@ sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TR
   
   #degree and strength (weighted degree)
   if(deg_weight == TRUE){
-  gd <- strength(g) }
+  gd <- strength(g, weights = g_weights) }
   
   if(deg_weight == FALSE){
   gd <- degree(g) }
   
   #local transitivity
   if(trans_weight == TRUE){
-    gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local", weights = g_weights) 
+    gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "weighted", weights = g_weights) 
   }
   if(trans_weight == FALSE){
     gt <- transitivity(g, vids = vertex_attr(g)[[1]] , type = "local")
