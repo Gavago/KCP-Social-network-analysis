@@ -191,7 +191,6 @@ foc_part <- fix_ID_errors(foc_part1, ID1 = "focal", ID2 = "partner")
 
 foc_part
 
-
 # test fix id errors worked
 # foc_part[grepl(" ", foc_part$ID1), "ID1"]
 # foc_part[grepl(" ", foc_part$ID2), "ID2"]
@@ -230,6 +229,9 @@ names(total_AB_party)[grepl("^n_", names(total_AB_party))] <- paste(x, "party", 
 
 nrow(total_AB_party) #16640 2009-10 collapsed, 17568 after removing ID typos
 head(total_AB_party)
+
+total_AB_party %>%
+  count(year)
 
 #total_AB_party %>%
 #  filter(apply(.,1, function(x) any(is.na(x))))
