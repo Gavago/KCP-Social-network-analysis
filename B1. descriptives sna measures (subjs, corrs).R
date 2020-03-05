@@ -4,9 +4,15 @@ library(fitdistrplus)
 library(psych) #for KMO
 library(paran) #parallel analysis
 load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
-load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+load("data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/attribute data alone.Rdata", verbose = T)
 select <- dplyr::select
+
+sna_df <- all_sna_measure_df_w
+sna_df <- all_sna_measure_df_uw
+
+all_sna_measure_df_w$trans == all_sna_measure_df_uw$trans
 
 
 # a. descriptives - subjects ----
@@ -66,17 +72,20 @@ priorities %>%
 annual_avg_gmgmd_mixed <- g_data_gm_sex_comb %>%
   unnest(c(data)) %>%
   group_by(year) %>%
-  summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi))
+  summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
+  ungroup()
 annual_avg_prox_mixed <- g_data_prox_sex_comb %>%
   unnest(c(data)) %>%
   group_by(year) %>%
-  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i))
+  summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i)) %>%
+  ungroup()
 
 annual_avg_gmgmd_sep <- g_data_gm_sex_sep %>%
   unnest(c(data)) %>%
   group_by(year, dyad_sex) %>%
   summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
-  arrange(dyad_sex, year)
+  arrange(dyad_sex, year) %>%
+  ungroup()
 annual_avg_prox_sep <- g_data_prox_sex_sep %>%
   unnest(c(data)) %>%
   group_by(dyad_sex, year) %>%
@@ -84,40 +93,64 @@ annual_avg_prox_sep <- g_data_prox_sex_sep %>%
   ungroup()
 
 
-# coments annual prox indices
-annual_avg_prox_mixed # starts hi ends lower
-annual_avg_prox_sep # is trend for M, F hold steady at low prox indices (relative to M)
+# coments annual prox indices: comments after ";" are pre 09-10 merge
+annual_avg_prox_mixed # no patt; starts hi ends lower
+annual_avg_prox_sep # no patt; is trend for M, F hold steady at low prox indices (relative to M)
 
 # comments annual grooming indices
-annual_avg_gmgmd_mixed # super hi in 2009 wtf - prob just obs conspicuous socializing individuals,steadily lower w time w smaller variation
-annual_avg_gmgmd_sep # females decline to lowest val...tho males start higher and decline earlier and more steeply, whats w M 2015?
+annual_avg_gmgmd_mixed # no patt; super hi in 2009 wtf - prob just obs conspicuous socializing individuals,steadily lower w time w smaller variation
+annual_avg_gmgmd_sep # no patt; females decline to lowest val...tho males start higher and decline earlier and more steeply, whats w M 2015?
 
-#for filtering prox
-#save(annual_avg_prox_sep, file = "data/annual thresholds for same sex prox nets.Rdata")
 
 # c. distributions & averages -- sna measures -----
 all_sna_measure_df %>%
   filter(network_sex == "female") %>%
   filter(behavior == "prox") %$%
-  descdist(deg)
+  descdist(bt)
 #bt & ec are pretty gamma-fied in any network,
 #maybe good to model trans as beta bc bt 0 -- 1
 
+
+sna_df <- all_sna_measure_df_w
+sna_df <- all_sna_measure_df_uw
+
 #mean sd
-overall_sna_avg <- all_sna_measure_df %>% # overall
+overall_sna_avg <- sna_df %>% # overall
   group_by(network_sex, behavior) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
   select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
   arrange(behavior)
 overall_sna_avg
 
-annual_sna_avg <- all_sna_measure_df %>% # for every year
+annual_sna_avg <- sna_df %>% # for every year
   group_by(network_sex, behavior, year) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
   ungroup() %>%
   select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
   View(annual_sna_avg, title = "sna avg sd by year") # useful to look at in combo w sociogram
 annual_sna_avg
+
+
+# save(overall_sna_avg, annual_sna_avg,
+#     annual_avg_gmgmd_mixed, annual_avg_prox_mixed,
+#     annual_avg_gmgmd_sep, annual_avg_prox_sep,
+#     file = "data/average social measures for exploration (sna weighted and 09-10 merged).Rdata")
+
+
+#overall_sna_avg_uw <- overall_sna_avg
+#annual_sna_avg_uw <- annual_sna_avg
+#save(overall_sna_avg_uw, annual_sna_avg_uw, file = "data/average social measures for exploration (sna unweighted and 09-10 merged).Rdata")
+
+# comments on averages --------
+
+load("data/average social measures for exploration (sna weighted and 09-10 merged).Rdata", verbose = T)
+load("data/average social measures for exploration (sna unweighted and 09-10 merged).Rdata", verbose = T)
+
+overall_sna_avg
+overall_sna_avg_uw
+
+annual_sna_avg
+annual_sna_avg_uw
 
 # --- comments ---
 # overall avg:
@@ -140,20 +173,15 @@ annual_sna_avg
 # prox - BT is zero and EC is 1 almost every year bc network is so saturated
 # gm - all sna measures vary quite beautifully and irregularly from y2y
 
-# save(overall_sna_avg, annual_sna_avg,
-#     annual_avg_gmgmd_mixed, annual_avg_prox_mixed,
-#     annual_avg_gmgmd_sep, annual_avg_prox_sep,
-#     file = "data/average social measures for exploration (pre-prox filter).Rdata")
-
 
 #ranges
-all_sna_measure_df %>%
+sna_df %>%
   group_by(network_sex, behavior) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(max = max, min = min)) %>%
   select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
 
 # prop 0's sna measures in mixed sex gm
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "any_combo", behavior == "total_grooming") %>%
   group_by(sex) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
@@ -162,7 +190,7 @@ all_sna_measure_df %>%
   select(sex, starts_with("prop"))
 
 # prop 0's sna measures in same sex gm
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex %in% c("male", "female"), behavior == "total_grooming") %>%
   group_by(sex) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
@@ -172,7 +200,7 @@ all_sna_measure_df %>%
   #wow k, a lot of females have 0 betweenness and transitivity in same sex gm networks. hence same sex gm models don't work
 
 # prop 0's sna measures in mixed sex prox
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %>%
   group_by(sex) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
@@ -181,7 +209,7 @@ all_sna_measure_df %>%
   select(sex, starts_with("prop"))
 
 # prop 0's sna measures in same sex prox
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex %in% c("male", "female"), behavior == "prox") %>%
   group_by(sex) %>%
   summarise_at(vars(bt, ec, deg, trans), funs(N = n(), zeros = sum(. == 0))) %>%
@@ -193,39 +221,39 @@ all_sna_measure_df %>%
 
 # d. Look at very simple correlations w age within networks (no RE for individual...) -----
 
-unique(all_sna_measure_df$network_sex)
-unique(all_sna_measure_df$network_type)
+unique(df$network_sex)
+unique(df$network_type)
 
 # female
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "female", behavior == "total_grooming") %$% 
   cor.test(trans, age_mid_year) # strong neg ec, bt, deg
 
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "female", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada
 
 # male
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "male", behavior == "total_grooming") %$% 
   cor.test(deg, age_mid_year) # pos ec
 
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "male", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada
 
 # all
 #group this by male and female within full network
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "any_combo", behavior == "total_grooming") %$% 
   cor.test(trans, age_mid_year) #nada
 
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "any_combo", behavior == "prox") %$% 
   cor.test(trans, age_mid_year) #nada 
 
 # e. basic correlations between network measures ----
-names(all_sna_measure_df)
+names(df)
 
 df <- all_sna_measure_df
 df <- all_sna_measure_df %>%
