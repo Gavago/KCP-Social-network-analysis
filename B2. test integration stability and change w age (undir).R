@@ -210,65 +210,79 @@ gm_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming",
                                 net_sex = "any_combo", sex_age_int = F, summary = T )
 gm_mixed_int_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
                 net_sex = "any_combo", sex_age_int = T, summary = T )
-gm_mixed_w
-gm_mixed_int_w
+
+gm_mixed_w #males higher ec bt deg
+gm_mixed_int_w # deg int sig
 
 # BT EC unweighted
-gm_mixed_uw <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+gm_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
                               net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_uw <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+gm_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
                                   net_sex = "any_combo", sex_age_int = T, summary = T )
-gm_mixed_w
-gm_mixed_int_w
+gm_mixed_uw # males higher bt, ec, and deg
+gm_mixed_int_uw # no int sig
 
 
 # -- mixed sex prox - predict bt ec deg trans -----
-prox_mixed <- age_sex_fun_all(sna_df, beh = "prox", 
+
+#weighted bt ec
+prox_mixed_w <- age_sex_fun_all(sna_w, beh = "prox", 
                             net_sex = "any_combo", sex_age_int = F, summary = T )
-prox_mixed_int <- age_sex_fun_all(sna_df, beh = "prox", 
+prox_mixed_int_w <- age_sex_fun_all(sna_w, beh = "prox", 
                                 net_sex = "any_combo", sex_age_int = T, summary = T )
-prox_mixed
-prox_mixed_int
+prox_mixed_w # males higher ec and lower bt
+prox_mixed_int_w # no sig int
+
+#unweighted
+prox_mixed_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
+                                net_sex = "any_combo", sex_age_int = F, summary = T )
+prox_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
+                                    net_sex = "any_combo", sex_age_int = T, summary = T )
+prox_mixed_uw # no effects age or sex
+prox_mixed_int_uw # no sig int
 
 # -- viz - mixed sex gm age sex ------
-sna_df %>%
+
+#think we'll find all of these are sig relative to randomization
+
+sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, ec, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, deg, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, trans, color = sex)) +
   geom_smooth( method = "lm")
 
 # -- viz - mixed sex prox age sex ------
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, ec, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, deg, color = sex)) +
   geom_smooth( method = "lm")
 
-sna_df %>%
+sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, trans, color = sex)) +
   geom_smooth( method = "lm")
