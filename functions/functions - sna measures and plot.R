@@ -12,7 +12,7 @@
 
 
 
-sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TRUE, ec_weight = TRUE, deg_weight = TRUE, trans_weight = TRUE, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
+sna_measures_undir <- function(g, year = NULL, network_sex = NULL, bt_weight = TRUE, ec_weight = TRUE, deg_weight = TRUE, trans_weight = TRUE, output = c("graph", "data.frame")){ # c("male", "female", "any_combination")
   #lapply(list("tidyverse","igraph"), require, character.only = TRUE)
   require(tidyverse)
   require(igraph)
@@ -65,9 +65,19 @@ sna_measures_undir <- function(g,year = NULL, network_sex = NULL, bt_weight = TR
   
   gt <- ifelse(is.nan(gt), 0, gt)
   
+  # store vertex names to re-add among attributes later
+  v_names <- vertex_attr(g)$name
+  source("functions/functions - data preparation.R")
+  
+  # create various attributes df to add as vertex attributes
+  attrs <- add_individ_attr(df = data.frame(v_names, stringsAsFactors = F), ID1 = "v_names")
+  #mutate(year = year) %>% add_age(dyad = F)
+  
+  
   if(output == "graph"){
     # have to reinclude "name" or that attr overwritten
-    vertex_attr(g) <- list(name = vertex_attr(g)$name, bt = gb, ec = ge, deg = gd, trans = gt)
+    vertex_attr(g) <- list(name = v_names, sex = attrs$sex,
+                           bt = gb, ec = ge, deg = gd, trans = gt) #age_mid_year = attrs$age_mid_year # doesn't want to add
     return(g)
   }
   if(output == "data.frame"){

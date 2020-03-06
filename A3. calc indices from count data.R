@@ -206,6 +206,7 @@ g_data_gm_sex_comb <- total_gm_gmd_index %>%
   nest(data = c(ID1,ID2, gmgmdi)) %>%
   arrange(year)
 
+
 g_data_prox_sex_comb <- index_5m %>%
   mutate(dyad_sex = "any_combo") %>%
   select(year, dyad_sex, ID1,ID2, prox5i) %>%
