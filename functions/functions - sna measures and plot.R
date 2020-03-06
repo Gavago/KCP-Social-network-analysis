@@ -76,7 +76,7 @@ sna_measures_undir <- function(g, year = NULL, network_sex = NULL, bt_weight = T
   
   if(output == "graph"){
     # have to reinclude "name" or that attr overwritten
-    vertex_attr(g) <- list(name = v_names, sex = attrs$sex,
+    vertex_attr(g) <- list(name = v_names, sex = as.factor(attrs$sex),
                            bt = gb, ec = ge, deg = gd, trans = gt) #age_mid_year = attrs$age_mid_year # doesn't want to add
     return(g)
   }
