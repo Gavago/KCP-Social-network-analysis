@@ -141,15 +141,15 @@ annual_sna_avg
 #annual_sna_avg_uw <- annual_sna_avg
 #save(overall_sna_avg_uw, annual_sna_avg_uw, file = "data/average social measures for exploration (sna unweighted and 09-10 merged).Rdata")
 
-# comments on averages --------
+# ---- comments on averages --------
 
 load("data/average social measures for exploration (sna weighted and 09-10 merged).Rdata", verbose = T)
-load("data/average social measures for exploration (sna unweighted and 09-10 merged).Rdata", verbose = T)
+#load("data/average social measures for exploration (sna unweighted and 09-10 merged).Rdata", verbose = T)
 
 overall_sna_avg
 overall_sna_avg_uw
 
-annual_sna_avg
+annual_sna_avg %>% View()
 annual_sna_avg_uw
 
 # --- comments ---
