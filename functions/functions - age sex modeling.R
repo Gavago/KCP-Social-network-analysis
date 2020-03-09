@@ -85,8 +85,6 @@ age_sex_fun_all <- function(data,
   
 }
 
-data<-sna_df
-
 
 #NOTE - could apply function to each sna col for output and workaround from error
 
@@ -122,3 +120,15 @@ data<-sna_df
 #   return(mods)
 #   
 # }
+
+#extract coefficient function - mostly for randomizations
+ex_coef <- function(m, coef = c("age", "sex")){
+  if(coef == "age"){
+    b <- coef(m)[2,1]
+  }
+  if(coef == "sex"){
+    b <- coef(m)[3,1]
+  }
+  return(b)
+} 
+
