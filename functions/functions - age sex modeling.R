@@ -89,46 +89,88 @@ age_sex_fun_all <- function(data,
 #NOTE - could apply function to each sna col for output and workaround from error
 
 # age in same sex networks
-# age_fun_all <- function(data, 
-#                         beh = c("total_grooming", "prox"), 
-#                         net_sex = c("any_combo", "female", "male"), 
-#                         summary = TRUE){
-#   
-#   sna_measures <-  c("bt", "ec", "deg", "trans")
-#   mods <- vector("list", length = length(sna_measures))
-#   names(mods) <- sna_measures
-#   
-#   for (i in seq(sna_measures)){
-#     
-#     f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + (1|chimp_id))
-#     
-#     s <- data %>%
-#       filter(behavior == beh, network_sex %in% net_sex) %>%
-#       tryCatch({glmer(f, family = Gamma(link = "log") , data = .)}, error = function(e) e) 
-#     
-#     d <- data %>%
-#       filter(behavior == beh, network_sex %in% net_sex)
-#     mod <- tryCatch({glmer(f, family = Gamma(link = "log") , data = d)}, error = function(e) e) 
-#     if(summary == TRUE & !inherits(mod, "error")){
-#       mod <- summary(mod)
-#     }
-#     if(inherits(mod, "error")){mod <- "Error: model does not converge"}
-#     
-#     mods[[i]] <- mod
-#   }
-#   
-#   return(mods)
-#   
-# }
+age_fun_all <- function(data,
+                        beh = c("total_grooming", "prox"),
+                        net_sex = c("any_combo", "female", "male"),
+                        summary = TRUE){
+
+  #scale shorthand function
+  z. <- function(x) scale(x)
+  
+  #set up loop for modeling each sna measure separately
+  sna_measures <-  c("bt", "ec", "deg", "trans")
+  mods <- vector("list", length = length(sna_measures))
+  names(mods) <- sna_measures
+
+  for (i in seq(sna_measures)){
+
+    #model expression
+    f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + (1|chimp_id))
+
+    #data
+    d <- data %>%
+      filter(behavior == beh, network_sex %in% net_sex)
+    
+    #model with error handling
+    mod <- tryCatch({glmer(f, family = Gamma(link = "log") , data = d)}, error = function(e) e)
+    if(summary == TRUE & !inherits(mod, "error")){
+      mod <- summary(mod)
+    }
+    
+    #error message, only known error is non-convergence
+    if(inherits(mod, "error")){mod <- "Error: model does not converge"}
+
+    mods[[i]] <- mod
+  }
+
+  return(mods)
+
+}
 
 #extract coefficient function - mostly for randomizations
-ex_coef <- function(m, coef = c("age", "sex")){
-  if(coef == "age"){
-    b <- coef(m)[2,1]
+# ex_coef <- function(m, coef = c("age", "sex")){
+#   if( m == "Error: model does not converge"){
+#     b <- NA
+#   }
+#   
+#   if(coef == "age"){
+#     b <- coef(m)[2,1]
+#   }
+#   if(coef == "sex"){
+#     b <- coef(m)[3,1]
+#   }
+#   return(b)
+# } 
+#figure out conditional lapply or just make loop for extracting
+
+ex_coef <- function(mod_list, coef = c("age", "sex", "Iint")){
+  
+  coef_list <- vector("list", length = 4)
+  names(coef_list) <- paste(names(mod_list), coef, sep = "_")
+  
+  for(k in 1:4){
+    m <- mod_list[[k]]
+    
+    if(inherits(m, "summary.merMod")){
+
+        if(coef == "age"){
+          b <- coef(m)[2,1]
+        }
+        if(coef == "sex"){
+          b <- coef(m)[3,1]
+        }
+      if(coef == "int"){
+        b <- coef(m)[4,1]
+      }
+      }
+    
+    if( is.character(m)){
+      b <- NA
+    }
+    
+    coef_list[[k]] <- b
   }
-  if(coef == "sex"){
-    b <- coef(m)[3,1]
-  }
-  return(b)
-} 
+  coefs <- unlist(coef_list)
+  return(coefs)
+}
 
