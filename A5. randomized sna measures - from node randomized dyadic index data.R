@@ -118,7 +118,7 @@ prox_sex_int_b <- do.call("rbind", list_sex_b_int) %>% data.frame()
 prox_int_int_b <- do.call("rbind", list_int_b_int) %>% data.frame()
 
 
-save(prox_age_b, prox_sex_b, prox_age_int_b, prox_sex_int_b, prox_int_int_b, file = "data/random coefs age sex on prox sna.Rdata")
+save(prox_age_b, prox_sex_b, prox_age_int_b, prox_sex_int_b, prox_int_int_b, file = "data/random coefs age sex on prox mixed sex net sna.Rdata")
 
 # ---- groom ran models for same-sex nets, age coef ------
 
@@ -173,7 +173,7 @@ Sys.time() - t # 12 min
 prox_age_b_f <- do.call("rbind", list_age_b_f) %>% data.frame()
 prox_age_b_m <- do.call("rbind", list_age_b_m) %>% data.frame()
 
-#save(prox_age_b_f, prox_age_b_m, file = "data/random coefs age sex on prox sna.Rdata")
+#save(prox_age_b_f, prox_age_b_m, file = "data/random coefs age on prox same sex sna.Rdata")
 
 
 
