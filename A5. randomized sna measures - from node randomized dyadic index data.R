@@ -2,6 +2,7 @@ library(tidyverse)
 library(igraph)
 library(lmerTest)
 source("functions/functions - age sex modeling.R")
+z. <- function(x) scale(x)
 # within years, randomly sample and replace nodes of networks
 # create 1000 randomized versions of 2009 - 2017 networks
 # save to extract network measures on
@@ -50,7 +51,7 @@ t <- Sys.time()
 for(i in 1:1000) {
 
   
-ran_df <- list_ran_undir_sna_measure_w[[1]]  
+ran_df <- list_ran_undir_sna_measure_w[[i]]  
 # run models
 gm_mixed_w <- ran_df %>%
     age_sex_fun_all(., beh = "total_grooming", net_sex = "any_combo", sex_age_int = F, summary = T )
@@ -92,7 +93,7 @@ list_int_b_int <- vector("list", length = 1000)
 t <- Sys.time()
 for(i in 1:1000) {
   
-  ran_df <- list_ran_undir_sna_measure_w[[1]]  
+  ran_df <- list_ran_undir_sna_measure_w[[i]]  
   
   # run models
   prox_mixed_w <- ran_df %>%
@@ -117,7 +118,7 @@ prox_sex_int_b <- do.call("rbind", list_sex_b_int) %>% data.frame()
 prox_int_int_b <- do.call("rbind", list_int_b_int) %>% data.frame()
 
 
-#save(prox_age_b, prox_sex_b, prox_age_int_b, prox_sex_int_b, prox_int_int_b, file = "data/random coefs age sex on prox sna.Rdata")
+save(prox_age_b, prox_sex_b, prox_age_int_b, prox_sex_int_b, prox_int_int_b, file = "data/random coefs age sex on prox sna.Rdata")
 
 # ---- groom ran models for same-sex nets, age coef ------
 
