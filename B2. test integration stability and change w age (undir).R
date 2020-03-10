@@ -1,6 +1,8 @@
 library(tidyverse)
 library(magrittr)
 library(lmerTest)
+library(gridExtra)
+library(grid)
 
 load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
@@ -260,7 +262,7 @@ prox_mixed_int_uw # no sig int
 
 
 # ----- sig - total grooming (mixed sex) -----
-load("data/random coefs age sex on grooming sna.Rdata", verbose = T) # all weighted bt and ec
+load("data/random coefs age sex on gmgmd mixed sex net sna.Rdata", verbose = T) # all weighted bt and ec
 load("data/models - summaries of age sex effects in mixed networks.Rdata", verbose = T)
 
 # e.g. gmgmd_age_b
@@ -268,7 +270,8 @@ names(gmgmd_sex_b)
 # coefficients of age effects on a given sna measure in a model w only age-sex main effects
 
 # Age effects on integration in mixed sex grooming networks (no age sex interaction)
-sum(coef(gm_mixed_w$bt)[2,1] >  gmgmd_age_b$bt_age, na.rm = T) / 1000 # b of -.14 is sig low
+# the observed coefficient is higher than what proportion of random coefs
+sum(coef(gm_mixed_w$bt)[2,1] >  gmgmd_age_b$bt_age, na.rm = T) / 1000 # b of -.14 is almost sig low, is higher than very few
 sum(coef(gm_mixed_w$ec)[2,1] > gmgmd_age_b$ec_age, na.rm = T) / 1000 # b of .19 is sig high, increase ec w age
 sum(coef(gm_mixed_w$deg)[2,1] > gmgmd_age_b$deg_age, na.rm = T) / 1000 # b of -.11 is sig low, dec deg w age
 sum(coef(gm_mixed_w$trans)[2,1] > gmgmd_age_b$trans_age, na.rm = T) / 1000 # sig increase
@@ -316,76 +319,131 @@ sum(coef(prox_mixed_int_w$trans)[4,1] > prox_int_int_b$trans_int_int, na.rm = T)
 # ----- obs - prox and grooming (same sex) -----
 
 # all chimps
-gm_same_f <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "female", summary = T)
-gm_same_m <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "male", summary = T)
+gm_same_w_f <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "female", summary = T)
+gm_same_w_m <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "male", summary = T)
 
 
-prox_same_f <- age_fun_all(sna_w, beh = "prox", net_sex = "female", summary = T ) 
-prox_same_m <- age_fun_all(sna_w, beh = "prox", net_sex = "male", summary = T ) 
+prox_same_w_f <- age_fun_all(sna_w, beh = "prox", net_sex = "female", summary = T ) 
+prox_same_w_m <- age_fun_all(sna_w, beh = "prox", net_sex = "male", summary = T ) 
 
 
-gm_same_f # ec and deg dec sharply w age
-gm_same_m # ec and deg inc w age, bt no converge
+gm_same_w_f # ec and deg dec sharply w age
+gm_same_w_m # ec and deg inc w age, bt no converge
 
-prox_same_f # no age changes
-prox_same_m # ec inc w age
+prox_same_w_f # no age changes
+prox_same_w_m # ec inc w age
 
 # chimps > 30 yo
 
-gm_same_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
-gm_same_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
+gm_same_w_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
+gm_same_w_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
 
 
-prox_same_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "female", summary = T ) 
-prox_same_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "male", summary = T ) 
+prox_same_w_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "female", summary = T ) 
+prox_same_w_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "male", summary = T ) 
 
-gm_same_f_old #trans dec fem older than 32, bt doesn't converge
-gm_same_m_old # ec dec w age, v close to sig
+gm_same_w_f_old #trans dec fem older than 32, bt doesn't converge
+gm_same_w_m_old # ec dec w age, v close to sig
 
-prox_same_f_old # inc trans
-prox_same_m_old # no age effects
+prox_same_w_f_old # inc trans
+prox_same_w_m_old # no age effects
 
-#save(gm_same_f, gm_same_m, prox_same_f, prox_same_m, file = "data/models - summaries of age effects in same sex undirected networks.Rdata")
-#save(gm_same_f_old, gm_same_m_old, prox_same_f_old, prox_same_m_old, file = "data/models - summaries of age effects in same sex undirected networks: chimps > 30 yo.Rdata")
+#save(gm_same_w_f, gm_same_w_m, prox_same_w_f, prox_same_w_m, file = "data/models - summaries of age effects in same sex undirected networks.Rdata")
+#save(gm_same_w_f_old, gm_same_w_m_old, prox_same_w_f_old, prox_same_w_m_old, file = "data/models - summaries of age effects in same sex undirected networks: chimps > 30 yo.Rdata")
 
 
-# 4. Visualization
+
 # ----- sig - total grooming (same sex)----
 load("data/models - summaries of age effects in same sex undirected networks.Rdata", verbose = T)
 load("data/models - summaries of age effects in same sex undirected networks: chimps > 30 yo.Rdata", verbose = T)
 
+load("data/random coefs age on gmgmd same sex sna.Rdata", verbose = T)
+load("data/random coefs age on prox same sex sna.Rdata", verbose = T)
+
+
+
+sum(coef(gm_same_w_f$bt)[2,1] >  gmgmd_age_b_f$bt_age, na.rm = T) / 1000 # no convergence
+sum(coef(gm_same_w_f$ec)[2,1] > gmgmd_age_b_f$ec_age, na.rm = T) / 1000 # b -0.59 sig dec ec w age
+sum(coef(gm_same_w_f$deg)[2,1] > gmgmd_age_b_f$deg_age, na.rm = T) / 1000 # b of -0.69 is sig low, dec deg w age
+sum(coef(gm_same_w_f$trans)[2,1] > gmgmd_age_b_f$trans_age, na.rm = T) / 1000 #
+
+sum(coef(gm_same_w_m$bt)[2,1] >  gmgmd_age_b_m$bt_age, na.rm = T) / 1000 # no convergence
+sum(coef(gm_same_w_m$ec)[2,1] > gmgmd_age_b_m$ec_age, na.rm = T) / 1000 # b 0.3 sig inc ec w age
+sum(coef(gm_same_w_m$deg)[2,1] > gmgmd_age_b_m$deg_age, na.rm = T) / 1000 # b 0.32 sig inc deg w age
+sum(coef(gm_same_w_m$trans)[2,1] > gmgmd_age_b_m$trans_age, na.rm = T) / 1000 #
+
+
+
 # ----- sig - prox (same sex) -----
 
+# Age effects on integration in mixed sex prox networks (no age sex interaction)
+sum(coef(prox_same_w_f$bt)[2,1] >  prox_age_b_f$bt_age, na.rm = T) / 1000 # 
+sum(coef(prox_same_w_f$ec)[2,1] > prox_age_b_f$ec_age, na.rm = T) / 1000 #
+sum(coef(prox_same_w_f$deg)[2,1] > prox_age_b_f$deg_age, na.rm = T) / 1000 #
+sum(coef(prox_same_w_f$trans)[2,1] > prox_age_b_f$trans_age, na.rm = T) / 1000 #
+
+sum(coef(prox_same_w_m$bt)[2,1] >  prox_age_b_m$bt_age, na.rm = T) / 1000 # no converge
+sum(coef(prox_same_w_m$ec)[2,1] > prox_age_b_m$ec_age, na.rm = T) / 1000 # b of .21 sig hi, ec inc w age
+sum(coef(prox_same_w_m$deg)[2,1] > prox_age_b_m$deg_age, na.rm = T) / 1000 #
+sum(coef(prox_same_w_m$trans)[2,1] > prox_age_b_m$trans_age, na.rm = T) / 1000 #
+
+# 4. Visualization----------
 # -- viz - mixed sex gm age sex ------
 
 # grooming
 # think we'll find all of these are sig relative to randomization - yup.
 
-sna_w %>%
+sg1 <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
-  geom_smooth( method = "lm") # sig
+  geom_point() +
+  geom_smooth( method = "lm") + # sig
+  labs( x = "Age (years)", y = "", title = "Betweenness") +
+  annotate("text",x = 35, y = 115, label = "*", size = 12) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+  #annotate("text",x = 52, y = 50, label = "M > F", size = 4)  
+sg1
 
-sna_w %>%
+sg2 <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, ec, color = sex)) +
   geom_point() +
-  geom_smooth( method = "loess") + # sig, maybe better to model this GAM ... males peak in EC in mid 30s
-# test mixed net model among chimps  > 35, ec doesn't dec, nor w int, but deg does
+  geom_smooth( method = "lm") +
+  labs( x = "Age (years)", y = "",title = "Eigenvector centrality") +
+  annotate("text",x = 52, y = 1, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+  #annotate("text",x = 52, y = 0.25, label = "M > F", size = 4)  
+sg2
 
-
-sna_w %>%
+sg3 <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, deg, color = sex)) +
   geom_point() +
-  geom_smooth( method = "loess") #sig
+  geom_smooth( method = "lm") + #sig
+  labs( x = "Age (years)", y = "", title = "Weighted degree") +
+  annotate("text",x = 35, y = 65, label = "*", size = 12) +
+  annotate("text",x = 50, y = 75, label = "** Age changes in \n same sex networks, too", size = 3)+
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+  #annotate("text",x = 52, y = 10, label = "M > F", size = 4)  
+sg3
 
-sna_w %>%
+sg4 <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, trans, color = sex)) +
-  geom_point() +
-  geom_smooth( method = "lm") #sig
+  #geom_point() +
+  geom_smooth( method = "lm") + #sig
+  labs( x = "Age (years)", y = "", title = "Weighted transitivity") +
+  annotate("text",x = 35, y = .8, label = "*", size = 12) +
+  annotate("text",x = 50, y = .9, label = "** Age changes in \n same sex networks, too", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+  #no main effect diff M F
+sg4
 
+sg1; sg2; sg3; sg4
+
+pdf("results/results viz - age sex changes in grooming integration.pdf", height = 16, width = 16)
+grid.arrange(grobs = list(sg1, sg2, sg3, sg4), nrow = 2, top = textGrob("Age changes in grooming integration, mixed sex networks"), gp = gpar(fontize = 32))
+dev.off()
 
 sna_uw %>%
   filter(chimp_id == "QT", network_sex == "female", behavior =="total_grooming") %>%
@@ -397,27 +455,48 @@ sna_uw %>%
 
 # -- viz - mixed sex prox age sex ------
 
-sna_w %>%
+sp1 <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
-  geom_smooth( method = "lm")
-
-sna_w %>%
+  #geom_point() +
+  geom_smooth( method = "lm") +
+  labs(x = "Age (years)", y = "" ,title = "Betweenness") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+sp1
+  
+sp2 <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, ec, color = sex)) +
-  geom_smooth( method = "loess")
+  geom_point() +
+  geom_smooth( method = "lm") + # sig M F same sex
+  labs( x = "Age (years)", y = "", title = "Eigenvector centrality") +
+  annotate("text",x = 35, y = 0.9, label = "*", size = 12) +
+  annotate("text",x = 50, y = 1, label = "** Age change in \n male network, too", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+sp2
 
-sna_w %>%
+sp3 <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, deg, color = sex)) +
-  geom_smooth( method = "lm")
+  geom_point() +
+  geom_smooth( method = "lm") + #sig mixed, sig M F same sex
+  labs( x = "Age (years)", y = "", title = "Weighted degree") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+sp3
 
-sna_w %>%
+sp4 <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, trans, color = sex)) +
-  geom_smooth( method = "lm")
+  #geom_point() +
+  geom_smooth( method = "lm") +
+  labs( x = "Age (years)", y = "", title = "Weighted transitivity") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+sp4
 
-
+pdf("results/results viz - age sex changes in proximity integration.pdf", height = 16, width = 16)
+grid.arrange(grobs = list(sp1, sp2, sp3, sp4), nrow = 2, top = textGrob("Age changes in proximity integration, mixed sex network"), gp = gpar(fontize = 32))
+dev.off()
 
 
 #gyard ----
