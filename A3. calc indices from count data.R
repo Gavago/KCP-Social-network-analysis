@@ -183,13 +183,19 @@ names(index_5m)
 
 
 # where dyad ids and their indices are separate dataframes for each year year and dyad_sex
-g_data_gm_sex_sep <- total_gm_gmd_index %>%
+g_data_gmgmd_sex_sep <- total_gm_gmd_index %>%
   select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
   filter(dyad_sex != "mixed") %>%
   # nest all dyad ids and indices within year and dyad sex
   nest(data = c(ID1,ID2, gmgmdi)) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
   arrange(dyad_sex, year) 
 
+g_data_gm_sex_sep <- total_gm_index %>%
+  select(year, dyad_sex, ID1,ID2, gmi) %>%
+  filter(dyad_sex != "mixed") %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, gmi)) %>% #data = c(ID1,ID2, gmgmdi) # <- in windows
+  arrange(dyad_sex, year) 
 
 g_data_prox_sex_sep <- index_5m %>%
   select(year, dyad_sex, ID1,ID2, prox5i) %>%
@@ -199,11 +205,18 @@ g_data_prox_sex_sep <- index_5m %>%
   arrange(dyad_sex, year) 
 
 
-g_data_gm_sex_comb <- total_gm_gmd_index %>%
+g_data_gmgmd_sex_comb <- total_gm_gmd_index %>%
   mutate(dyad_sex = "any_combo") %>%
   select(year, dyad_sex, ID1,ID2, gmgmdi) %>%
   # nest all dyad ids and indices within year and dyad sex
   nest(data = c(ID1,ID2, gmgmdi)) %>%
+  arrange(year)
+
+g_data_gm_sex_comb <- total_gm_index %>%
+  mutate(dyad_sex = "any_combo") %>%
+  select(year, dyad_sex, ID1,ID2, gmi) %>%
+  # nest all dyad ids and indices within year and dyad sex
+  nest(data = c(ID1,ID2, gmi)) %>%
   arrange(year)
 
 
@@ -215,7 +228,12 @@ g_data_prox_sex_comb <- index_5m %>%
   arrange(year)
 
 
-#save(g_data_gm_sex_comb, g_data_prox_sex_comb, g_data_gm_sex_sep, g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
+# save(g_data_gmgmd_sex_comb, 
+#     g_data_gm_sex_comb, 
+#      g_data_prox_sex_comb, 
+#     g_data_gmgmd_sex_sep, 
+#      g_data_gm_sex_sep, 
+#      g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
 
 
 # graveyard ----
