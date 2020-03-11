@@ -88,12 +88,83 @@ sna_measures_undir <- function(g, year = NULL, network_sex = NULL, bt_weight = T
   }
 }
 
-#test
-#g <- x$graph[[1]]
-#sna_measures_undir(g, output = "data.frame")
+
+# Function 2 -- directed centrality measures function -------
 
 
-# Function 2 -- plotting -------
+# change each to directed
+
+sna_measures_dir <- function(g, year = NULL, network_sex = NULL, bt_weight = TRUE, ec_weight = TRUE, deg_weight = TRUE, trans_weight = TRUE, output = c("graph", "data.frame")){
+  #lapply(list("tidyverse","igraph"), require, character.only = TRUE)
+  require(tidyverse)
+  require(igraph)
+  
+  behavior <- "grooming"
+  
+  #creates vector for removing edges = 0
+  remove <- edge_attr(g)[[1]] == 0 
+  #removes
+  g <- delete_edges(g, E(g)[remove]) 
+  
+  #creates edge weight vector
+  g_weights <- edge_attr(g)[[1]]
+  
+  #betweeness
+  if(bt_weight == TRUE){
+    gb <- betweenness(g, directed = TRUE, normalized = FALSE, weights = g_weights)
+  }
+  if(bt_weight == FALSE){
+    gb <- betweenness(g, directed = TRUE, normalized = FALSE, weights = NULL)
+  }
+  
+  #eigenvector centrality
+  if(ec_weight == TRUE){
+    ge <- eigen_centrality(g, weights = g_weights, directed = TRUE)$vector
+  }
+  if(ec_weight == FALSE){
+    ge <- eigen_centrality(g, directed = TRUE)$vector
+  }
+  
+  #IN degree and strength (weighted degree)
+  if(deg_weight == TRUE){
+    gd_in <- strength(g, mode = "in", weights = g_weights) }
+  
+  if(deg_weight == FALSE){
+    gd_in <- degree(g, mode = "in") }
+  
+  #OUT degree and strength (weighted degree)
+  if(deg_weight == TRUE){
+    gd_out <- strength(g, mode = "out", weights = g_weights) }
+  
+  if(deg_weight == FALSE){
+    gd_out <- degree(g, mode = "out") }
+  
+  
+  # store vertex names to re-add among attributes later
+  v_names <- vertex_attr(g)$name
+  source("functions/functions - data preparation.R")
+  
+  # create various attributes df to add as vertex attributes
+  attrs <- add_individ_attr(df = data.frame(v_names, stringsAsFactors = F), ID1 = "v_names")
+  #mutate(year = year) %>% add_age(dyad = F)
+  
+  
+  if(output == "graph"){
+    # have to reinclude "name" or that attr overwritten
+    vertex_attr(g) <- list(name = v_names, sex = as.factor(attrs$sex),
+                           bt = gb, ec = ge, deg_in = gd_in, deg_out = gd_out) #age_mid_year = attrs$age_mid_year # doesn't want to add
+    return(g)
+  }
+  if(output == "data.frame"){
+    
+    df <- data.frame(chimp_id = names(gb), year, network_sex, behavior, network_type = "directed", bt = gb, ec = ge, deg_in = gd_in, deg_out = gd_out, stringsAsFactors = FALSE)
+    return(df)
+  }
+}
+
+
+
+# Function 3 -- plotting -------
 
 # the plot graph function takes the graph/sociogram output from the sna_measures_undir function and creates
 # a sociogram, arguments year, dyads, size centrality supplied manually, & behavior taken from graph object itself
