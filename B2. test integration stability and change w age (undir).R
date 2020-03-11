@@ -12,9 +12,9 @@ z. <- function(x) scale(x)
 
 #load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = T)
 
-
 sna_w <- all_sna_measure_df_w
 sna_uw <- all_sna_measure_df_uw
+
 #sna_df <- all_sna_measure_df
 
 # deg and trans not weighting...
@@ -201,39 +201,39 @@ sig_stability %>%
 
 
 
-# 2. Age-sex effects on integration in undirected mixed sex networks (groom and prox)
+# 2. Age-sex effects on integration in undirected mixed sex networks (groom and prox) -----
 # ----- obs - total grooming (mixed sex) ----
 
 # BT EC weighted 
-gm_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+gmgmd_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
                                 net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+gmgmd_mixed_int_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
                 net_sex = "any_combo", sex_age_int = T, summary = T )
 
-gm_mixed_w #males higher ec bt deg
-gm_mixed_int_w # deg int sig
+gmgmd_mixed_w #males higher ec bt deg
+gmgmd_mixed_int_w # deg int sig
 
 # BT EC unweighted
-gm_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+gmgmd_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
                               net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+gmgmd_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
                                   net_sex = "any_combo", sex_age_int = T, summary = T )
-gm_mixed_uw # males higher bt, ec, and deg
-gm_mixed_int_uw # no int sig
+gmgmd_mixed_uw # males higher bt, ec, and deg
+gmgmd_mixed_int_uw # no int sig
 
 # old chimps
 
-gm_mixed_w_old <- sna_w %>% 
+gmgmd_mixed_w_old <- sna_w %>% 
   filter(age_mid_year > 32) %>%
            age_sex_fun_all(., beh = "total_grooming", 
                               net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_w_old <- sna_w %>% 
+gmgmd_mixed_int_w_old <- sna_w %>% 
   filter(age_mid_year > 32) %>%
   age_sex_fun_all(., beh = "total_grooming", 
                                   net_sex = "any_combo", sex_age_int = T, summary = T )
 
-gm_mixed_w_old # deg dec w age
-gm_mixed_int_w_old
+gmgmd_mixed_w_old # deg dec w age
+gmgmd_mixed_int_w_old
 
 
 # ----- obs - prox (mixed sex) -----
@@ -255,8 +255,8 @@ prox_mixed_uw # no effects age or sex
 prox_mixed_int_uw # no sig int
 
 
-# save(gm_mixed_w, gm_mixed_int_w, 
-#      gm_mixed_uw, gm_mixed_int_uw,
+# save(gmgmd_mixed_w, gmgmd_mixed_int_w,
+#      gmgmd_mixed_uw, gmgmd_mixed_int_uw,
 #      prox_mixed_w, prox_mixed_int_w,
 #      prox_mixed_uw, prox_mixed_int_uw, file = "data/models - summaries of age sex effects in mixed networks.Rdata")
 
@@ -271,23 +271,23 @@ names(gmgmd_sex_b)
 
 # Age effects on integration in mixed sex grooming networks (no age sex interaction)
 # the observed coefficient is higher than what proportion of random coefs
-sum(coef(gm_mixed_w$bt)[2,1] >  gmgmd_age_b$bt_age, na.rm = T) / 1000 # b of -.14 is almost sig low, is higher than very few
-sum(coef(gm_mixed_w$ec)[2,1] > gmgmd_age_b$ec_age, na.rm = T) / 1000 # b of .19 is sig high, increase ec w age
-sum(coef(gm_mixed_w$deg)[2,1] > gmgmd_age_b$deg_age, na.rm = T) / 1000 # b of -.11 is sig low, dec deg w age
-sum(coef(gm_mixed_w$trans)[2,1] > gmgmd_age_b$trans_age, na.rm = T) / 1000 # sig increase
+sum(coef(gmgmd_mixed_w$bt)[2,1] >  gmgmd_age_b$bt_age, na.rm = T) / 1000 # b of -.14 is almost sig low, is higher than very few
+sum(coef(gmgmd_mixed_w$ec)[2,1] > gmgmd_age_b$ec_age, na.rm = T) / 1000 # b of .19 is sig high, increase ec w age
+sum(coef(gmgmd_mixed_w$deg)[2,1] > gmgmd_age_b$deg_age, na.rm = T) / 1000 # b of -.11 is sig low, dec deg w age
+sum(coef(gmgmd_mixed_w$trans)[2,1] > gmgmd_age_b$trans_age, na.rm = T) / 1000 # sig increase
 
 # Sex effects on integration in mixed sex grooming networks (no age sex interaction)
-sum(coef(gm_mixed_w$bt)[3,1] >  gmgmd_sex_b$bt_sex, na.rm = T) / 1000 # b bt .79 is sig high, males more between than females
-sum(coef(gm_mixed_w$ec)[3,1] > gmgmd_sex_b$ec_sex, na.rm = T) / 1000 # b ec sig high, males more ec than females
-sum(coef(gm_mixed_w$deg)[3,1] > gmgmd_sex_b$deg_sex, na.rm = T) / 1000 # b deg sig high, males more deg than females
-sum(coef(gm_mixed_w$trans)[3,1] > gmgmd_sex_b$trans_sex, na.rm = T) / 1000 #
+sum(coef(gmgmd_mixed_w$bt)[3,1] >  gmgmd_sex_b$bt_sex, na.rm = T) / 1000 # b bt .79 is sig high, males more between than females
+sum(coef(gmgmd_mixed_w$ec)[3,1] > gmgmd_sex_b$ec_sex, na.rm = T) / 1000 # b ec sig high, males more ec than females
+sum(coef(gmgmd_mixed_w$deg)[3,1] > gmgmd_sex_b$deg_sex, na.rm = T) / 1000 # b deg sig high, males more deg than females
+sum(coef(gmgmd_mixed_w$trans)[3,1] > gmgmd_sex_b$trans_sex, na.rm = T) / 1000 #
 
 
 # Age by sex in interaction models alone
-sum(coef(gm_mixed_int_w$bt)[4,1] >  gmgmd_int_int_b$bt_int_int, na.rm = T) / 1000 # b -0.55 sig lo, males decrease in betweenness w age while fem don't
-sum(coef(gm_mixed_int_w$ec)[4,1] > gmgmd_int_int_b$ec_int_int, na.rm = T) / 1000 # b no sig diff
-sum(coef(gm_mixed_int_w$deg)[4,1] > gmgmd_int_int_b$deg_int_int, na.rm = T) / 1000 # b 0.45 sig high, males increase deg w age, fem decrease
-sum(coef(gm_mixed_int_w$trans)[4,1] > gmgmd_int_int_b$trans_int_int, na.rm = T) / 1000 # b 0.25 sig high, males increase trans w age f dec 
+sum(coef(gmgmd_mixed_int_w$bt)[4,1] >  gmgmd_int_int_b$bt_int_int, na.rm = T) / 1000 # b -0.55 sig lo, males decrease in betweenness w age while fem don't
+sum(coef(gmgmd_mixed_int_w$ec)[4,1] > gmgmd_int_int_b$ec_int_int, na.rm = T) / 1000 # b no sig diff
+sum(coef(gmgmd_mixed_int_w$deg)[4,1] > gmgmd_int_int_b$deg_int_int, na.rm = T) / 1000 # b 0.45 sig high, males increase deg w age, fem decrease
+sum(coef(gmgmd_mixed_int_w$trans)[4,1] > gmgmd_int_int_b$trans_int_int, na.rm = T) / 1000 # b 0.25 sig high, males increase trans w age f dec 
 
 # ----- sig - prox (mixed sex) -----
 load("data/random coefs age sex on prox sna.Rdata", verbose = T)
