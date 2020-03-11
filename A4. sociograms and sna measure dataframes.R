@@ -28,19 +28,32 @@ names(g_data_gm_sex_sep)
 names(g_data_gm_sex_comb)
 
 
-gdf_gm_sex_sep <- g_data_gm_sex_sep %>%
+gdf_gmgmd_sex_sep <- g_data_gmgmd_sex_sep %>%
   #list cols graph
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
   #add sna attributes to vertices
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
-gdf_gm_sex_comb <- g_data_gm_sex_comb %>%
+gdf_gmgmd_sex_comb <- g_data_gmgmd_sex_comb %>%
   #list cols graph
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
   #add sna attributes to vertices
   mutate(graph_w_sna = map(graph, sna_measures_undir, network_sex = dyad_sex, output = "graph"))
 
   
+gdf_gm_sex_sep <- g_data_gm_sex_sep %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = TRUE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_dir, network_sex = dyad_sex, output = "graph"))
+
+gdf_gm_sex_comb <- g_data_gmgmd_sex_comb %>%
+  #list cols graph
+  mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = TRUE))) %>%
+  #add sna attributes to vertices
+  mutate(graph_w_sna = map(graph, sna_measures_dir, network_sex = dyad_sex, output = "graph"))
+
+
 gdf_prox_sex_sep <- g_data_prox_sex_sep %>%
   #list cols graph
   mutate(graph = map(data, function(x) graph_from_data_frame(d = x, directed = FALSE))) %>%
