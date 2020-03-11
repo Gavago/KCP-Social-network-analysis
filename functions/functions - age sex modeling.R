@@ -2,7 +2,7 @@
 
 
 #modeling function for single sna measure
-age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans"), 
+age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans", "deg_in", "deg_out"), 
                                beh = c("total_grooming", "prox"), 
                                net_sex = c("any_combo", "female", "male"), 
                                sex_age_int = FALSE, summary = FALSE){
@@ -39,7 +39,7 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans")
 
 #for all sna measures
 age_sex_fun_all <- function(data, 
-                            beh = c("total_grooming", "prox"), 
+                            beh = c("total_grooming", "prox", "grooming"), 
                             net_sex = c("any_combo", "female", "male"), 
                             sex_age_int = FALSE, summary = TRUE){
   
@@ -47,7 +47,14 @@ age_sex_fun_all <- function(data,
   z. <- function(x) scale(x)
   
   #set up loop for modeling each sna measure separately
-  sna_measures <-  c("bt", "ec", "deg", "trans")
+  if(beh %in% c("total_grooming", "prox")){
+    sna_measures <-  c("bt", "ec", "deg", "trans")  
+  }
+  if(beh %in% "grooming"){
+    sna_measures <-  c("bt", "ec", "deg_in", "deg_out")  
+  }
+  
+  
   mods <- vector("list", length = length(sna_measures))
   names(mods) <- sna_measures
   
@@ -90,7 +97,7 @@ age_sex_fun_all <- function(data,
 
 # age in same sex networks
 age_fun_all <- function(data,
-                        beh = c("total_grooming", "prox"),
+                        beh = c("total_grooming", "prox", "grooming"), 
                         net_sex = c("any_combo", "female", "male"),
                         summary = TRUE){
 
@@ -98,7 +105,13 @@ age_fun_all <- function(data,
   z. <- function(x) scale(x)
   
   #set up loop for modeling each sna measure separately
-  sna_measures <-  c("bt", "ec", "deg", "trans")
+  if(beh %in% c("total_grooming", "prox")){
+    sna_measures <-  c("bt", "ec", "deg", "trans")  
+  }
+  if(beh %in% "grooming"){
+    sna_measures <-  c("bt", "ec", "deg_in", "deg_out")  
+  }
+  
   mods <- vector("list", length = length(sna_measures))
   names(mods) <- sna_measures
 
