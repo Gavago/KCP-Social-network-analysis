@@ -246,7 +246,7 @@ total_5m %>%
 
 #save(total_5m, file = "data/counts - time in 5m.Rdata")
 
-# 5. view those removed for low time pres & check for ghosts (mis-ID's) -----
+# 3. view those removed for low time pres & check for ghosts (mis-ID's) -----
 #save(total_5mx, total_gm_gmdx, file = "data/counts - gm and prox counts before removing short pres individs.Rdata")
 load("data/counts - gm and prox counts before removing short pres individs.Rdata", verbose = T)
 
