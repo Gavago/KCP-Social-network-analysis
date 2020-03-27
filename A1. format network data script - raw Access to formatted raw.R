@@ -202,7 +202,6 @@ foc_part
 # i.e. count of focal A in which B was in party, for time period X
 #this is what you use to control for 
 #time AB grooming, time AB in 5 meters
-#is not used for party association of A and B (that would be somthing like)
 
 head(foc_part)
 nrow(foc_part) #1760408
