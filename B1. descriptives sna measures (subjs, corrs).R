@@ -3,6 +3,10 @@ library(magrittr)
 library(fitdistrplus)
 library(psych) #for KMO
 library(paran) #parallel analysis
+library(devtools)
+source("~/Dropbox/2. R projects/ggbiplot function.R")
+source("~/Dropbox/2. R projects/ggscreeplot function.R")
+
 load("data/list column dyadic data prox & gm by year & dyad-sex year.Rdata", verbose = T)
 load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
@@ -10,9 +14,8 @@ load("data/attribute data alone.Rdata", verbose = T)
 select <- dplyr::select
 
 sna_df <- all_sna_measure_df_w
-sna_df <- all_sna_measure_df_uw
-
-all_sna_measure_df_w$trans == all_sna_measure_df_uw$trans
+#sna_df <- all_sna_measure_df_uw
+#all_sna_measure_df_w$trans == all_sna_measure_df_uw$trans
 
 
 # a. descriptives - subjects ----
@@ -69,7 +72,7 @@ priorities %>%
 
 
 # b. distributions & averages -- indices -----
-annual_avg_gmgmd_mixed <- g_data_gm_sex_comb %>%
+annual_avg_gmgmd_mixed <- g_data_gmgmd_sex_comb %>%
   unnest(c(data)) %>%
   group_by(year) %>%
   summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
@@ -80,10 +83,10 @@ annual_avg_prox_mixed <- g_data_prox_sex_comb %>%
   summarize(mean_prox = mean(prox5i), sd_prox = sd(prox5i)) %>%
   ungroup()
 
-annual_avg_gmgmd_sep <- g_data_gm_sex_sep %>%
+annual_avg_gmgmd_sep <- g_data_gmgmd_sex_sep %>%
   unnest(c(data)) %>%
   group_by(year, dyad_sex) %>%
-  summarize(mean_gm = mean(gmgmdi), sd_gm = sd(gmgmdi)) %>%
+  summarize(mean_gmgmd = mean(gmgmdi), sd_gmgmd = sd(gmgmdi)) %>%
   arrange(dyad_sex, year) %>%
   ungroup()
 annual_avg_prox_sep <- g_data_prox_sex_sep %>%
@@ -98,33 +101,28 @@ annual_avg_prox_mixed # no patt; starts hi ends lower
 annual_avg_prox_sep # no patt; is trend for M, F hold steady at low prox indices (relative to M)
 
 # comments annual grooming indices
-annual_avg_gmgmd_mixed # no patt; super hi in 2009 wtf - prob just obs conspicuous socializing individuals,steadily lower w time w smaller variation
-annual_avg_gmgmd_sep # no patt; females decline to lowest val...tho males start higher and decline earlier and more steeply, whats w M 2015?
-
+annual_avg_gmgmd_mixed # why 2015 so low ; no patt; super hi in 2009 wtf - prob just obs conspicuous socializing individuals,steadily lower w time w smaller variation
+annual_avg_gmgmd_sep # why 2015 so low ; no patt; females decline to lowest val...tho males start higher and decline earlier and more steeply, whats w M 2015?
 
 # c. distributions & averages -- sna measures -----
-all_sna_measure_df %>%
+sna_df %>%
   filter(network_sex == "female") %>%
   filter(behavior == "prox") %$%
   descdist(bt)
 #bt & ec are pretty gamma-fied in any network,
 #maybe good to model trans as beta bc bt 0 -- 1
 
-
-sna_df <- all_sna_measure_df_w
-sna_df <- all_sna_measure_df_uw
-
 #mean sd
 overall_sna_avg <- sna_df %>% # overall
   group_by(network_sex, behavior) %>%
-  summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
+  summarise_at(vars(bt, ec, deg, trans), list(mean = mean, sd = sd)) %>%
   select(network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans")) %>%
   arrange(behavior)
 overall_sna_avg
 
 annual_sna_avg <- sna_df %>% # for every year
   group_by(network_sex, behavior, year) %>%
-  summarise_at(vars(bt, ec, deg, trans), funs(mean = mean, sd = sd)) %>%
+  summarise_at(vars(bt, ec, deg, trans), list(mean = mean, sd = sd)) %>%
   ungroup() %>%
   select(year, network_sex, behavior, starts_with("bt"), starts_with("ec"), starts_with("deg"), starts_with("trans"))
   View(annual_sna_avg, title = "sna avg sd by year") # useful to look at in combo w sociogram
@@ -221,8 +219,8 @@ sna_df %>%
 
 # d. Look at very simple correlations w age within networks (no RE for individual...) -----
 
-unique(df$network_sex)
-unique(df$network_type)
+unique(sna_df$network_sex)
+unique(sna_df$network_type)
 
 # female
 sna_df %>%
@@ -284,47 +282,7 @@ p_cors
 
 
 # f. PCA -- how do measures load together or apart? ------
-
-# both sexes
-sna_comp <- all_sna_measure_df %>% # keeping all the various networks, mixed and sex specific
-  filter(complete.cases(bt, ec, deg, trans)) %>%
-  select(bt, ec, deg, trans)
-# females in mixed network
-sna_comp_fem_mixed <- all_sna_measure_df %>%
-  filter(sex == "F", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
-  select(bt, ec, deg, trans)
-# females in same sex
-sna_comp_fem_same <- all_sna_measure_df %>%
-  filter(sex == "F", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
-  select(bt, ec, deg, trans)
-# males in mixed network
-sna_comp_male_mixed <- all_sna_measure_df %>%
-  filter(sex == "M", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
-  select(bt, ec, deg, trans)
-# males in mixed network
-sna_comp_male_same <- all_sna_measure_df %>%
-  filter(sex == "M", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
-  select(bt, ec, deg, trans)
-
-
-
-nrow(sna_comp) #879
-nrow(sna_comp_fem_mixed) # 266
-nrow(sna_comp_fem_same) #265
-
-nrow(sna_comp_male_mixed) # 174
-nrow(sna_comp_male_same) # 174
-
-df <- sna_comp
-
-df <- sna_comp_fem_mixed
-df <- sna_comp_fem_same
-
-df <- sna_comp_male_mixed
-df<- sna_comp_male_same 
-
-
-# bartlett's and KMO
+# --- bartlett's and KMO -----
 bart<-function(dat){ #dat is your raw data
   R<-cor(dat)
   p<-ncol(dat)
@@ -338,44 +296,228 @@ bart<-function(dat){ #dat is your raw data
       round(p,3),sep="" )   
 }
 
-bart(df)
-KMO(df) # KMO is higher for F in same sex network, KMO not as high for males
+# copy paste subset from below
+sna_df %>% # keeping all the various networks, mixed and sex specific
+  filter(behavior == "total_grooming", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  bart(.)
+sna_df %>% # keeping all the various networks, mixed and sex specific
+  filter(behavior == "total_grooming", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  KMO(.) 
+# weighted: not very hi at all for any one measure for both sexes, plenty hi for males
+# unweighted: KMO is higher for F in same sex network, KMO not as high for males
 
-pc <- prcomp(scale(df)) # should scale
+
+# -- PCs -------
+pc_g <- sna_df %>%
+  filter(behavior == "total_grooming", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+
+pc_p <- sna_df %>% 
+  filter(behavior == "prox", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+
+# females in mixed sex gmgmd network
+pc_fem_mixed_g <- sna_df %>%
+  filter(sex == "F", behavior == "total_grooming", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+# females in mixed sex prox network
+pc_fem_mixed_p <- sna_df %>%
+  filter(sex == "F", behavior == "prox", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+# females in same sex gmgmd
+pc_fem_same_g <- sna_df %>%
+  filter(sex == "F", behavior == "total_grooming", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+# females in same sex prox
+pc_fem_same_p <- sna_df %>%
+  filter(sex == "F", behavior == "prox", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+
+# males in mixed gmgmd network
+pc_male_mixed_g <- sna_df %>%
+  filter(sex == "M", behavior == "total_grooming", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+# males in mixed prox network
+pc_male_mixed_p <- sna_df %>%
+  filter(sex == "M", behavior == "prox", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+
+# males in mixed gmgmd network
+pc_male_same_g <- sna_df %>%
+  filter(sex == "M", behavior == "total_grooming", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
+# males in mixed prox network
+pc_male_same_p <- sna_df %>%
+  filter(sex == "M", behavior == "prox", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
+  select(bt, ec, deg, trans) %>%
+  prcomp(., scale = T, center = T)
 
 
+# --- interpret var loadings ------
 pc$rotation # var loadings
-# with both sexes: PC1 kinda captures traditional "integration", i.e. connections of connections - 
-# ec deg trans high pos load and bt no
-# PC2 captures inverse relationship between betweenness and local clustering, 
-# high neg load bt and medium pos loading trans.
-# loadings diff when just considering certain sexes within mixed network?
-# looking at males in mixed sex network - PC1 captures inverse bt and trans. PC2 is centrality, 
-# high neg loading of bt ec and deg, but males in all male network, they follow above pattern too, PC1
-# bt low and ec deg trans high pos, PC2, bt high neg and trans on flip side.
-# looking at females - PC1 and PC2 follow the above, females probably contribute lots to that signal,
-# bc they have the majority of observations in the dataset. is same in same-sex female networks.
-# Should not use 1 size fits all for PCs, or shouldn't use PCs at all...
-# maybe need to focus on different kinds of networks and centrality within them based on specific
-# questions/hypotheses.
-# bc relationship bt sna measures (i.e. patterns of correlations and loadings) is different for 
-# males in mixed vs same sex network, maybe don't use PCA to reduce dimensionality of integration.
+pc_p$rotation
+pc_g$rotation #by behavior is different, continue to split by behavior
+# prox mixed sex; PC1 bt hi n ec deg lo, trans hi deg n bt lo
+# gmgmd mixed sex; PC1 ec deg hi, PC2 bt hi trans lo
+
+# within grooming, PCs are similar for m and f, even in same sex nets
+# can just focus interpret mixed sex gm net
+# m f pc1 a lil different, bt load w ec deg for f, bt load opposite direction for m
+pc_fem_mixed_g$rotation
+pc_male_mixed_g$rotation
+pc_fem_same_g$rotation 
+pc_male_same_g$rotation 
+
+#within prox, PCs again are similar, focus interp on mixed sex prox net
+pc_fem_mixed_p$rotation  #ec deg together
+pc_male_mixed_p$rotation # EC deg together
+pc_fem_same_p$rotation # ec deg together
+pc_male_same_p$rotation # ec deg together
 
 
-pc$sd^2 # kaiser rule, eigenvalue > 1
-summary(pc) #cum value
-plot(pc) #screeplot
-paran(sna_comp, iterations = 5000, centile = 0, quietly = FALSE, #paran says 2
+pc_p$rotation
+# PC1 ec deg together and bt opposite (connected vs between), PC2 trans high (clustered)
+pc_g$rotation
+# PC1 ec deg trans together (connected and clustered), PC2 bt hi and trans lo (between vs clustered)
+
+# kaiser rule, eigenvalue > 1
+# keep first 2 PCs in both
+pc_p$sd^2 # 
+pc_g$sd^2 # 
+summary(pc_p) #cum value
+summary(pc_g) #cum value
+
+plot(pc_g) #screeplot
+plot(pc_p) 
+paran(sna_comp_p, iterations = 5000, centile = 0, quietly = FALSE, #paran says 2
+      status = TRUE, all = TRUE, cfa = TRUE, graph = TRUE, color = TRUE, 
+      col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+      file = "", width = 640, height = 640, grdevice = "png", seed = 0)
+paran(sna_comp_g, iterations = 5000, centile = 0, quietly = FALSE, #paran says 2
       status = TRUE, all = TRUE, cfa = TRUE, graph = TRUE, color = TRUE, 
       col = c("black", "red", "blue"), lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
       file = "", width = 640, height = 640, grdevice = "png", seed = 0)
 
-biplot(pc, choices = c(1,2))
+biplot(pc_p, choices = c(1,2))
 
 all_sna_measure_df %>%
   select(chimp_id, sex, year, age_mid_year) %>%
   cbind(., predict(pc)[,1:2]) 
 
+
+# --- alternate rotations ---
+# basically all the same as previous
+principal(df, nfactors = 2, rotate = "varimax")
+principal(df, nfactors = 2, rotate = "quartimax")
+principal(df, nfactors = 2, rotate = "oblimin")
+
+# --- biplots ------
+
+# labels
+pc_p_id_sex <- sna_df %>%
+  filter(behavior == "prox", network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_p)[,1:2])
+pc_p_fs_id_sex <- sna_df %>%
+  filter(behavior == "prox", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_fem_same_p)[,1:2])
+pc_p_ms_id_sex <- sna_df %>%
+  filter(behavior == "prox", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_male_same_p)[,1:2])
+
+pc_g_id_sex <- sna_df %>%
+  filter(behavior == "total_grooming",  network_sex == "any_combo", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_g)[,1:2])
+pc_g_fs_id_sex <- sna_df %>%
+  filter(behavior == "total_grooming", network_sex == "female", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_fem_same_g)[,1:2])
+pc_g_ms_id_sex <- sna_df %>%
+  filter(behavior == "total_grooming", network_sex == "male", complete.cases(bt, ec, deg, trans)) %>%
+  mutate(chimp_id_year = paste(chimp_id, year, sep = "_")) %>%
+  select(chimp_id_year, sex) %>% mutate_all(as.factor) %>%
+  cbind(., predict(pc_male_same_g)[,1:2])
+
+
+#plots
+
+#prox mixed
+p <- ggbiplot(pc_p, choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0, groups = pc_p_id_sex$sex,
+              ellipse = T, 
+              circle = F, alpha = .2) + theme(legend.direction = 'horizontal', 
+               legend.position = 'top') +
+  labs(title = "Prox network SNA measures") +
+  ylim(-7.5, 2.7) +
+  annotate("text", x = pc_p_id_sex$PC1, y = pc_p_id_sex$PC2, label = pc_p_id_sex$chimp_id_year)
+p
+# PC1 connected vs between, PC2 clustered
+
+#gm mixed
+g <- ggbiplot(pc_g,choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0, groups = pc_g_id_sex$sex,
+              ellipse = T, 
+              circle = F, alpha = 0.2) + theme(legend.direction = 'horizontal', 
+               legend.position = 'top') +
+            labs(title = "Grooming network SNA measures")  +
+            annotate("text", x = pc_g_id_sex$PC1, y = pc_g_id_sex$PC2, label = pc_g_id_sex$chimp_id_year)
+g
+# PC1 connected and clustered, PC2 between vs clustered
+
+
+p_fs <- ggbiplot(pc_fem_same_p, choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0,
+              ellipse = T, 
+              circle = F, alpha = .2) + theme(legend.direction = 'horizontal', 
+                                              legend.position = 'top') +
+  labs(title = "Prox network SNA measures Females") +
+  ylim(-7.5, 2.7)  +
+  annotate("text", x = pc_g_fs_id_sex$PC1, y = pc_g_fs_id_sex$PC2, label = pc_g_fs_id_sex$chimp_id_year)
+p_fs
+
+p_ms <- ggbiplot(pc_male_same_p, choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0,
+                 ellipse = T, 
+                 circle = F, alpha = .2) + theme(legend.direction = 'horizontal', 
+                                                 legend.position = 'top') +
+  labs(title = "Prox network SNA measures Males") +
+  ylim(-7.5, 2.7) +
+  annotate("text", x = pc_g_ms_id_sex$PC1, y = pc_g_ms_id_sex$PC2, label = pc_g_ms_id_sex$chimp_id_year)
+p_ms
+# M F same sex prox has same pattern of loadings
+
+g_fs <- ggbiplot(pc_fem_same_g, choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0,
+                 ellipse = T, 
+                 circle = F, alpha = .2) + theme(legend.direction = 'horizontal', 
+                                                 legend.position = 'top') +
+  labs(title = "Grooming network SNA measures Females") +
+  ylim(-7.5, 2.7)
+g_fs
+
+g_ms <- ggbiplot(pc_male_same_g, choices= c(1,2),varname.size = 3.5,scale = 0, var.scale = 0,
+                 ellipse = T, 
+                 circle = F, alpha = .2) + theme(legend.direction = 'horizontal', 
+                                                 legend.position = 'top') +
+  labs(title = "Grooming network SNA measures Males") +
+  ylim(-7.5, 2.7)
+g_ms
+# For gm, loadings are similar M v F, except that bt pos correlated w
+# deg and ec for females, but neg corr for males.
 
 # gyard ------
 a <- sna_comp_fem_mixed %>% pull(chimp_id) %>% unique() %>% sort()
@@ -407,3 +549,21 @@ all_sna_measure_df %>%
 load("data/annual possible focal dyads.Rdata", verbose = T)
 undir_annual_dyads %>%
   filter(ID1 == "GS" | ID2 == "GS")
+
+
+# UNWEIGHTED: with both sexes: PC1 kinda captures traditional "integration", i.e. connections of connections - 
+# ec deg trans high pos load and bt no
+# PC2 captures inverse relationship between betweenness and local clustering, 
+# high neg load bt and medium pos loading trans.
+# loadings diff when just considering certain sexes within mixed network?
+# looking at males in mixed sex network - PC1 captures inverse bt and trans. PC2 is centrality, 
+# high neg loading of bt ec and deg, but males in all male network, they follow above pattern too, PC1
+# bt low and ec deg trans high pos, PC2, bt high neg and trans on flip side.
+# looking at females - PC1 and PC2 follow the above, females probably contribute lots to that signal,
+# bc they have the majority of observations in the dataset. is same in same-sex female networks.
+# Should not use 1 size fits all for PCs, or shouldn't use PCs at all...
+# maybe need to focus on different kinds of networks and centrality within them based on specific
+# questions/hypotheses.
+# bc relationship bt sna measures (i.e. patterns of correlations and loadings) is different for 
+# males in mixed vs same sex network, maybe don't use PCA to reduce dimensionality of integration.
+
