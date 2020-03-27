@@ -12,18 +12,31 @@ select<- dplyr::select
 
 ## Study site and data collection
 
-We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. X unique subject-years
+We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. 200 subject-years. Subjects ranged 12 - 57 yo. 26.5 +/-  11.6 y, mean sd. Observations 1 - 8 years, 2010 - 2017. Age calculated at mid year.
 
 ```{r total subj, eval=FALSE}
 library(tidyverse)
 select<- dplyr::select
 
-load("data/sna dataframe - individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 
-all_sna_measure_df %>%
+all_sna_measure_df_w %>%
   distinct(chimp_id, sex, year) %>%
   group_by(sex) %>%
   tally()
+
+all_sna_measure_df_w %>%
+  distinct(chimp_id, year) %>%
+  nrow()
+
+all_sna_measure_df_w %>%
+  summarise(max = max(age_mid_year), min = min(age_mid_year), mean = mean(age_mid_year), sd = sd(age_mid_year))
+
+all_sna_measure_df_w %>%
+  distinct(chimp_id, year) %>%
+  count(chimp_id) %>%
+  summarise(max_obs = max(n), min_obs = min(n))
+
 
 
 ```
@@ -32,10 +45,7 @@ all_sna_measure_df %>%
 
 #### Obs per year
 
-1. Overall, we only included individuals that were either observed as a focal >= 100 hours, or observed as a focal for > 50 hrs AND present in social parties for at least X hours of observation.
-(to be done for PO 3/2/20)
-These individuals were marked to filter for short time present in year.
-
+1. Overall, we only included individuals that were either observed as a focal >= 100 hours per year, or observed as a focal for > 50 hrs AND present in social parties for at least 100 hours of focal observation.
 
 ```{r filter sub-years: low time as focal, eval = FALSE}
 #load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
@@ -58,8 +68,8 @@ lo_focal %>%
 
 ```
 
-```{r filter subj-years: low time in party}
-# Low time in party
+```{r filter subj-years: time in party}
+# Time in party
 load("data/focal party scans formatted.Rdata", verbose = T)
 source("functions/functions - data preparation.R")
 
@@ -74,7 +84,6 @@ total_party_member <- foc_part %>%
   select(year, ID1, party_n, party_hours, short_presence) %>% arrange(year, ID1)
 total_party_member #number of focal scans individaul was in party
 
-
 #These are chimp-years to remove, lo focal hours and and lo party hours
 lo_foc_lo_party <- lo_focal %>%
   left_join(.,total_party_member, by = c("year", "ID1", "short_presence")) %>%
@@ -86,8 +95,9 @@ lo_foc_lo_party %<>%
   filter(short_presence != 1)
 
 #save(lo_foc_lo_party, file = "data/subject years to remove for low observations (focal and party membership).Rdata")
+#apply in ghosts function - data preparation
 
-#which lo focals are saved from exclusion bc of time in party
+#which lo focals are saved from exclusion bc of time in party?
 lo_foc_hi_party <- lo_focal %>%
   left_join(total_party_member, by = c("year", "ID1", "short_presence")) %>%
   filter(party_hours >= 100)
@@ -100,7 +110,7 @@ lo_focal %>% anti_join(lo_foc_lo_party) %>% anti_join(lo_foc_hi_party)
 ```
 
 
-2. Focal animal sampling began in Aug 2009. But low avg observations per individuals, so we include those observations into 2010. 
+2. Focal animal sampling began in Aug 2009. But low avg observations per individuals, so we collated data from 2009 with 2010. 
 ```{r justify fold 2009 into 2010, eval=FALSE}
 load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
 
@@ -121,7 +131,8 @@ Side exploration of obs time and integration:
 bc low obs, see that gmgmd indices in 2009 are oddly high (prox are somewhat higher) and several sna measures are deviant. For example, in `annual_avg_sna` can see that deg is much lower and bt much higher in 2009 than other years.
 
 ```{r 2009 as outlier among social measures, eval=FALSE}
-load("data/average social measures for exploration (pre-prox filter).Rdata", verbose = T)
+load("data/average social measures for exploration (with 2009 unweighted).Rdata", verbose = T)
+#load("data/average social measures for exploration (sna weighted and 09-10 merged).Rdata", verbose = T)
 
 #indices
 annual_avg_gmgmd_mixed #2009 hi
@@ -157,7 +168,7 @@ mat %>%
 ```
 
 
-3. We excluded 11 subject years, where individuals were present in the community for < 6 months of a given observation year. 
+3. We also excluded any individuals that were not present in the community for at least 6 months. Excluded 11 subject years for this.
 
 ```{r who was not present in community > 6 mo in given year?}
 #load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
@@ -183,16 +194,20 @@ full_join(lo_foc_lo_party, shortpres_focal) %>% nrow() #15, no overlap
 
 ```
 
-Each network member was observed as a focal subject for an annual average +/- sd of hours.
+4. Each network member was observed as a focal subject for an annual average +/- sd of hours.
 An average of X network members per year were never observed as a focal.
 
 ```{r average obs time}
 
 ```
 
-We calculated affiliation
+We calculated annual affiliation indices gmgmd, prox, and gm, time associating during focal obs relative to time subjects seen in same party while one was a focal (as in machanda et al 2013 IJP). Analyzed measures of affiliation independently - as they appear to have diff functions or patterns among diff sex dyads (e.g. Machanda et al 2013)
+Undirected (gmgmd prox) and directed (gm) annual networks with mixed and same sex dyads (9 networks) in R igraph
+Calculated network centrality measures bt ec deg and local trans, with deg in and out for directed grooming
+All measures weighted according to the aff index between individs
+Calc sig using 1000 node permutations for attributes of chimp id, age, and sex
 
-
+? changes in network sizes - and or changes in community size - year 2 year
 
 ------ graveyard
 
