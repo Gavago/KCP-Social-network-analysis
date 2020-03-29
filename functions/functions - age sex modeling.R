@@ -68,9 +68,9 @@ age_sex_fun_all <- function(data,
     
     #model expressions
     if(sex_age_int == TRUE){
-      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + sex*z.(age_mid_year) + (1|chimp_id))
+      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + z.(avg_rank) + sex*z.(age_mid_year) + (1|chimp_id))
     } else {
-      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + (1|chimp_id))
+      f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + sex + z.(avg_rank) + (1|chimp_id))
     }
     
     #data
@@ -118,7 +118,7 @@ age_fun_all <- function(data,
   for (i in seq(sna_measures)){
 
     #model expression
-    f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + (1|chimp_id))
+    f <- expr(!!sym(sna_measures[[i]]) + 0.00001 ~ z.(age_mid_year) + z.(avg_rank) + (1|chimp_id))
 
     #data
     d <- data %>%
