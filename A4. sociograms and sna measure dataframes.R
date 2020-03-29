@@ -195,8 +195,7 @@ for(j in 1:length(graph_list)){
     
     measures_list_unweighted[[i]] <- sna_measures_undir(g, year = y, network_sex = s,
                                                         bt_weight = FALSE, ec_weight = FALSE, 
-                                                        deg_weight = FALSE, trans_weight = FALSE, output = "data.frame") %>%
-      add_individ_ann_attr()
+                                                        deg_weight = FALSE, trans_weight = FALSE, output = "data.frame")
   }
   df_uw <- do.call("rbind", measures_list_unweighted)
   all_sna_measure_df_list_unweighted[[j]] <- df_uw
@@ -216,12 +215,13 @@ for(j in 1:length(graph_list)){
 
 all_sna_measure_df_uw <- do.call("rbind", all_sna_measure_df_list_unweighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
-  add_age(dyad = FALSE)
+  add_age(dyad = FALSE) %>%
+  add_individ_ann_attr()
 
 all_sna_measure_df_w <- do.call("rbind", all_sna_measure_df_list_weighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
-  add_age(dyad = FALSE)
-
+  add_age(dyad = FALSE) %>%
+  add_individ_ann_attr()
 
 # Directed SNA loop
 dir_graph_list <- list(gdf_gm_sex_sep, gdf_gm_sex_comb)
@@ -242,8 +242,7 @@ for(j in 1:length(dir_graph_list)){
     s <- gdf$dyad_sex[[i]]
     measures_list_unweighted[[i]] <- sna_measures_dir(g, year = y, network_sex = s,
                                                         bt_weight = FALSE, ec_weight = FALSE, 
-                                                        deg_weight = FALSE, trans_weight = FALSE, output = "data.frame") %>%
-      add_individ_ann_attr()
+                                                        deg_weight = FALSE, trans_weight = FALSE, output = "data.frame")
   }
   df_uw <- do.call("rbind", measures_list_unweighted)
   dir_sna_measure_df_list_unweighted[[j]] <- df_uw
@@ -253,8 +252,7 @@ for(j in 1:length(dir_graph_list)){
     g <- gdf$graph[[i]]
     y <- gdf$year[[i]]
     s <- gdf$dyad_sex[[i]]
-    measures_list_weighted[[i]] <- sna_measures_dir(g, year = y, network_sex = s, output = "data.frame") %>%
-      add_individ_ann_attr()
+    measures_list_weighted[[i]] <- sna_measures_dir(g, year = y, network_sex = s, output = "data.frame")
   }
   df_w <- do.call("rbind", measures_list_weighted) 
   dir_sna_measure_df_list_weighted[[j]] <- df_w
@@ -263,16 +261,39 @@ for(j in 1:length(dir_graph_list)){
 
 dir_sna_measure_df_uw <- do.call("rbind", dir_sna_measure_df_list_unweighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
-  add_age(dyad = FALSE)
+  add_age(dyad = FALSE) %>%
+  add_individ_ann_attr()
 
 dir_sna_measure_df_w <- do.call("rbind", dir_sna_measure_df_list_weighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
-  add_age(dyad = FALSE)
+  add_age(dyad = FALSE) %>%
+  add_individ_ann_attr()
 
 nrow(all_sna_measure_df_uw) # 800
 nrow(all_sna_measure_df_w)
-nrow(dir_sna_measure_df_uw) # 400
+nrow(dir_sna_measure_df_uw) # 400 - is half number because only grooming is directed, not prox
 nrow(dir_sna_measure_df_w) # 400
+
+all_sna_measure_df_uw %>%
+  count(chimp_id)
+dir_sna_measure_df_uw %>%
+  filter(chimp_id == "AJ")
+  count(chimp_id)
+
+  
+# When avg_rank is NA -> 0 and when rank class is NA -> "lo"
+all_sna_measure_df_uw %<>%
+  mutate(avg_rank = ifelse(is.na(avg_rank), 0, avg_rank), 
+         rank_class = ifelse(is.na(rank_class), 0, rank_class))
+all_sna_measure_df_w %<>%
+  mutate(avg_rank = ifelse(is.na(avg_rank), 0, avg_rank), 
+         rank_class = ifelse(is.na(rank_class), 0, rank_class))
+dir_sna_measure_df_uw %<>%
+  mutate(avg_rank = ifelse(is.na(avg_rank), 0, avg_rank), 
+         rank_class = ifelse(is.na(rank_class), 0, rank_class))
+dir_sna_measure_df_w %<>%
+  mutate(avg_rank = ifelse(is.na(avg_rank), 0, avg_rank), 
+         rank_class = ifelse(is.na(rank_class), 0, rank_class))  
 
 
 # ISSUES WITH WEIGHTED DIRECTED EC: 
