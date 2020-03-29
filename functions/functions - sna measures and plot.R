@@ -70,13 +70,13 @@ sna_measures_undir <- function(g, year = NULL, network_sex = NULL, bt_weight = T
   source("functions/functions - data preparation.R")
   
   # create various attributes df to add as vertex attributes
-  attrs <- add_individ_attr(df = data.frame(v_names, stringsAsFactors = F), ID1 = "v_names")
-  #mutate(year = year) %>% add_age(dyad = F)
+  v_attrs <- add_individ_attr(df = data.frame(v_names, stringsAsFactors = F), ID1 = "v_names")
+#mutate(year = year) %>% add_age(dyad = F)
   
   
   if(output == "graph"){
     # have to reinclude "name" or that attr overwritten
-    vertex_attr(g) <- list(name = v_names, sex = as.factor(attrs$sex),
+    vertex_attr(g) <- list(name = v_names, sex = as.factor(v_attrs$sex), rank = v_attrs$avg_rank,
                            bt = gb, ec = ge, deg = gd, trans = gt) #age_mid_year = attrs$age_mid_year # doesn't want to add
     return(g)
   }
