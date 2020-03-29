@@ -14,7 +14,8 @@ which(is.na(m_ranks$Date))
 format(m_ranks$Date)
 
 m_ranks %<>%
-  mutate(Date = mdy(Date), year = year(Date)) %>% #as.Date(Date, format = "%m/%d/%y"))
+  mutate(Date = mdy(Date), orig_year = year(Date)) %>%
+  mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
   group_by(year, ID) %>%
   summarise(avg_rank = mean(Rank.Proportion)) %>%
   ungroup() %>%
@@ -29,7 +30,8 @@ m_ranks %<>%
 
 
 f_ranks %<>%
-  mutate(Date = mdy(Date), year = year(Date)) %>%
+  mutate(Date = mdy(Date), orig_year = year(Date)) %>%
+  mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
   group_by(year, ID) %>%
   summarise(avg_rank = mean(Rank.Proportion)) %>%
   ungroup() %>%
