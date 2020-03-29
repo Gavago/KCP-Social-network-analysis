@@ -61,9 +61,19 @@ agg_key <- read_xlsx("data/Aggression key.xlsx") %>%
   separate(`Key:`, into = c("code", "meaning"), sep = "=|-") %>%
   filter(!is.na(code))
 
+
+estrous_raw <- sqlFetch(connection, "ESTROUS_DATES")  %>%
+  mutate(orig_year = year(date), chimp_id = as.character(chimp_id)) %>%
+  rename(rep_status = `Reproductive Status`)
+
+estrous_raw[is.na(estrous_raw$chimp_id), "chimp_id"] <- "NX"
+estrous_raw[estrous_raw$orig_year == 2019, "orig_year"] <- 2009
+
+
 #save(agg, agg_key, file = "data/raw aggression and agg key.Rdata")
 #save(action, file = "data/action lookup.Rdata")
 #save(demox, file = "data/raw demography.Rdata")
+#save(estrous_raw, file = "data/raw estrous.Rdata")
 
 # ----- Format attribute data #####
 load("data/raw demography.Rdata")
@@ -95,9 +105,6 @@ attr <- demox %>%
   mutate_if(is.factor, as.character) %>%
   select(-date_of_birth_corrected, -date_last_seen)
 
-
-
-
 #attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_date <- immigrants$date_first_seen
 #attr[attr$chimp_id %in% immigrants$chimp_id,]$immigration_year <- immigrants$year_first_seen
 
@@ -108,6 +115,65 @@ attr[is.na(attr$chimp_id), "chimp_id"] <- "NX" #change ngamba to NX
 attr[attr$chimp_id == "NPT", "chimp_id"] <- "NT"
 
 #save(attr, file = "data/attribute data alone.Rdata")
+
+# ----- Format estrous #####
+
+load("data/raw estrous.Rdata", verbose = T)
+prop_cyc <- estrous_raw %>%
+  mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
+  group_by(year, chimp_id) %>%
+  summarise(days_cycling = sum(rep_status == "CYCSW"), days_obs = n()) %>%
+  mutate(prop_cyc = days_cycling/days_obs) %>%
+  ungroup()
+#save(prop_cyc, file = "data/female prop annual cycling.Rdata")
+
+# ----- Format rank data #####
+m_ranks <- read.csv("data/MaleRanks09thru17.csv", stringsAsFactors = F)
+f_ranks <- read.csv("data/FemaleRanks09thru17.csv", stringsAsFactors = F)
+
+str(m_ranks)
+
+which(is.na(m_ranks$Date))
+
+format(m_ranks$Date)
+
+m_ranks %<>%
+  mutate(Date = mdy(Date), orig_year = year(Date)) %>%
+  mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
+  group_by(year, ID) %>%
+  summarise(avg_rank = mean(Rank.Proportion)) %>%
+  ungroup() %>%
+  group_by(year) %>%
+  mutate(rank_class = as.numeric(quantcut(avg_rank, 3))) %>%
+  ungroup() %>%
+  mutate(rank_class = as.factor(case_when(
+    rank_class == 1 ~ "lo",
+    rank_class == 2 ~ "med",
+    rank_class == 3 ~ "hi"
+  )))
+
+
+f_ranks %<>%
+  mutate(Date = mdy(Date), orig_year = year(Date)) %>%
+  mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
+  group_by(year, ID) %>%
+  summarise(avg_rank = mean(Rank.Proportion)) %>%
+  ungroup() %>%
+  group_by(year) %>%
+  mutate(rank_class = as.numeric(quantcut(avg_rank, 3))) %>%
+  ungroup() %>%
+  mutate(rank_class = as.factor(case_when(
+    rank_class == 1 ~ "lo",
+    rank_class == 2 ~ "med",
+    rank_class == 3 ~ "hi"
+  )))
+
+
+ann_ranks <- rbind(m_ranks, f_ranks)
+
+
+#save(ann_ranks, file = "data/annual average standardized ranks.Rdata")
+
 
 # ----- Format prox in 5 #####
 names(focal_5m1)
