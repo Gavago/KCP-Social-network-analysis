@@ -26,13 +26,23 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
 }
 
 # add individual attribute
-add_individ_attr <- function(df, ID1 = "ID1", ...){
+add_individ_attr <- function(df, ID1 = "ID1", year = NULL ,...){
   load("data/attribute data alone.Rdata")
-  
   names(df)[names(df) == ID1] <- "ID1"
   
-  a <- df %>%
-    left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 = "chimp_id"))
+  if(is.null(year)){
+    a <- df %>%
+      left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 = "chimp_id"))  
+  } else {
+    #adds annual chimp-year attribute data, e.g. rank and prop estrous
+    load("data/annual average standardized ranks.Rdata")
+    
+    names(df)[names(df) == year] <- "year"
+    a <- df %>%
+      left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 = "chimp_id"))
+    left_join(., ann_ranks,  by = c("year", ID1 = "ID"))   
+  }
+  
   return(a)
 }
 
