@@ -86,59 +86,6 @@ ran_cv_dists %>%
 
 
 
-# 2. Age and sex coefficient distributions --------
-source("functions/functions - age sex modeling.R")
-
-list_
-
-
-# for weighted & unweighted sna (2)
-# for 1 network sex (any_combo) and 2 behaviors (2)
-# for main effect & interaction models (2)
-# run age sex fun all and extract coefs of age sex
-
-
-#extract_age_sex_coef <- 
-  
-  
-d <-
-
-#no interaction
-mod <- d %>% age_sex_fun_all(beh = , net_sex = , summary = T)
-
-age_beta <- mod[[1]] %>% coef() %>% .[2,1] 
-sex_beta <- mod[[1]] %>% coef() %>% .[3,1] 
-
-age_beta_list[[k]] <- age_beta
-sex_beta_list[[k]] <- sex_beta
-
-#interaction
-mod <- d %>% age_sex_fun_all(beh = , net_sex = , summary = T)
-
-age_beta <- mod[[1]] %>% coef() %>% .[2,1] 
-sex_beta <- mod[[1]] %>% coef() %>% .[3,1] 
-
-age_beta_list[[k]] <- age_beta
-sex_beta_list[[k]] <- sex_beta
-
-
-
-#lapply(list_ran_sna_measure_df, extract_rcv) %>%
-#  do.call("rbind", .) 
-
-#
-
-
-# in sex comb networks
-# age + sex
-# age*sex
-
-# in sex sep networks
-# age + sex
-# age*sex
-
-
-
 
 
 View(ran_cv_dists)
