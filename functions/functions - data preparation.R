@@ -29,25 +29,29 @@ add_dyad_attr <- function(df, ID1 = "ID1", ID2 = "ID2", ...){
 add_individ_attr <- function(df, ID1 = "ID1", ...){
   load("data/attribute data alone.Rdata")
   names(df)[names(df) == ID1] <- "ID1"
+  #ID name not always the same
+  #ID arg says, whatever is the ID name in the original DF, let's change it to "ID1" to consistently merge on it
+  #leave ID as chimp_id bc when undirected, bc "chimp_id" is a good var name
   
     a <- df %>%
-      left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 = "chimp_id"))  
-  
+      left_join(., attr %>% select(chimp_id, sex, dobc, dls, year_last_seen, starts_with("immig"), ...), by = c(ID1 ="chimp_id"))  
+    
   return(a)
 }
 
 
 # add annual attributes
-
-add_individ_ann_attr <- function(df, ID1 = "ID1", year = "year"){
+add_individ_ann_attr <- function(df, ID = "chimp_id", year = "year"){
   #adds annual chimp-year attribute data, e.g. rank and prop estrous
   load("data/annual average standardized ranks.Rdata")
   
-  names(df)[names(df) == ID1] <- "ID1"
+  names(df)[names(df) == ID] <- "chimp_id"
   names(df)[names(df) == year] <- "year"
 
   a <- df %>%
-    left_join(., ann_ranks,  by = c("year", ID1 = "ID"))   
+    left_join(., ann_ranks,  by = c("year", chimp_id = "ID")) %>%
+    rename(chimp_id = ID)
+  
   
   return(a)
 }
