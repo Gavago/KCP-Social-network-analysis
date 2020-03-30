@@ -123,6 +123,7 @@ prop_cyc <- estrous_raw %>%
   mutate(year = ifelse(orig_year == 2009, 2010, orig_year)) %>%
   group_by(year, chimp_id) %>%
   summarise(days_cycling = sum(rep_status == "CYCSW"), days_obs = n()) %>%
+  mutate(days_cycling = ifelse(is.na(days_cycling), 0, days_cycling)) %>%
   mutate(prop_cyc = days_cycling/days_obs) %>%
   ungroup()
 #save(prop_cyc, file = "data/female prop annual cycling.Rdata")
