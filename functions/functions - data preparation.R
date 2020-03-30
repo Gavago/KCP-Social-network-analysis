@@ -44,14 +44,14 @@ add_individ_attr <- function(df, ID1 = "ID1", ...){
 add_individ_ann_attr <- function(df, ID = "chimp_id", year = "year"){
   #adds annual chimp-year attribute data, e.g. rank and prop estrous
   load("data/annual average standardized ranks.Rdata")
+  load("data/female prop annual cycling.Rdata")
   
   names(df)[names(df) == ID] <- "chimp_id"
   names(df)[names(df) == year] <- "year"
 
   a <- df %>%
     left_join(., ann_ranks,  by = c("year", chimp_id = "ID")) %>%
-    rename(chimp_id = ID)
-  
+    left_join(., prop_cyc, by = c("year", "chimp_id"))
   
   return(a)
 }
