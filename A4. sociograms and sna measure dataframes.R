@@ -1,4 +1,3 @@
-
 library(tidyverse)
 library(purrr)
 library(igraph)
@@ -71,11 +70,11 @@ gdf_prox_sex_comb <- g_data_prox_sex_comb %>%
 
 gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 
-# save(gdf_gmgmd_sex_comb, 
-#       gdf_gm_sex_comb, 
-#      gdf_prox_sex_comb, 
-#      gdf_gmgmd_sex_sep, 
-#      gdf_gm_sex_sep, 
+# save(gdf_gmgmd_sex_comb,
+#       gdf_gm_sex_comb,
+#      gdf_prox_sex_comb,
+#      gdf_gmgmd_sex_sep,
+#      gdf_gm_sex_sep,
 #      gdf_prox_sex_sep , file = "data/sna graphs - weighted measures, name & sna measures as vector attributes, index as edge weight.Rdata")
 
 
@@ -127,10 +126,10 @@ gdf_prox_sex_comb_uw <- g_data_prox_sex_comb %>%
 gdf_gm_sex_sep$graph_w_sna[[12]] %>% vertex_attr()
 
 # save(gdf_gmgmd_sex_comb_uw,
-#     gdf_gm_sex_comb_uw, 
-#     gdf_prox_sex_comb_uw, 
-#     gdf_gmgmd_sex_sep_uw,  
-#     gdf_gm_sex_sep_uw, 
+#     gdf_gm_sex_comb_uw,
+#     gdf_prox_sex_comb_uw,
+#     gdf_gmgmd_sex_sep_uw,
+#     gdf_gm_sex_sep_uw,
 #     gdf_prox_sex_sep_uw, file = "data/sna graphs - unweighted measures, name & sna measures as vector attributes, index as edge weight.Rdata")
 
 
@@ -259,7 +258,7 @@ for(j in 1:length(dir_graph_list)){
   
 }
 
-dir_sna_measure_df_uw <- do.call("rbind", dir_sna_measure_df_list_unweighted) %>%
+dir_sna_measure_df_uw  <- do.call("rbind", dir_sna_measure_df_list_unweighted) %>%
   left_join(attr %>% select(chimp_id, sex, ends_with("id"), dobc, dfs, dls), by = "chimp_id") %>%
   add_age(dyad = FALSE) %>%
   add_individ_ann_attr()
@@ -273,12 +272,6 @@ nrow(all_sna_measure_df_uw) # 800
 nrow(all_sna_measure_df_w)
 nrow(dir_sna_measure_df_uw) # 400 - is half number because only grooming is directed, not prox
 nrow(dir_sna_measure_df_w) # 400
-
-all_sna_measure_df_uw %>%
-  count(chimp_id)
-dir_sna_measure_df_uw %>%
-  filter(chimp_id == "AJ")
-  count(chimp_id)
 
   
 # When avg_rank is NA -> 0 and when rank class is NA -> "lo"
@@ -294,6 +287,8 @@ dir_sna_measure_df_uw %<>%
 dir_sna_measure_df_w %<>%
   mutate(avg_rank = ifelse(is.na(avg_rank), 0, avg_rank), 
          rank_class = ifelse(is.na(rank_class), 0, rank_class))  
+
+
 
 
 # ISSUES WITH WEIGHTED DIRECTED EC: 
