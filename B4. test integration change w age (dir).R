@@ -12,44 +12,47 @@ z. <- function(x) scale(x)
 
 
 dir_sna_w <- dir_sna_measure_df_w
-#dir_sna_uw <- dir_sna_measure_df_uw
+dir_sna_uw <- dir_sna_measure_df_uw
 
 # 1. Age-sex effects on integration in directed mixed sex networks (groom and prox) -----
 # ----- obs - directed grooming (mixed sex) ----
 
- 
-gm_mixed_w <- age_sex_fun_all(dir_sna_w, beh = "grooming", 
-                              net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_w <- age_sex_fun_all(dir_sna_w, beh = "grooming", 
-                                  net_sex = "any_combo", sex_age_int = T, summary = T )
 
-gm_mixed_w #males higher deg in and out
-gm_mixed_int_w # no age changes
+both_gm_mixed_w <- age_sex_fun_all(dir_sna_w, beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
+f_gm_mixed_w <- age_sex_fun_all(dir_sna_w, beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gm_mixed_w <- age_sex_fun_all(dir_sna_w, beh = "grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
 
-
-gm_mixed_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", 
-                               net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", 
-                                   net_sex = "any_combo", sex_age_int = T, summary = T )
-gm_mixed_uw #
-gm_mixed_int_uw #
+both_gm_mixed_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
+f_gm_mixed_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gm_mixed_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
 
 # old chimps
 
-gm_mixed_w_old <- dir_sna_w %>% 
-  filter(age_mid_year > 30) %>%
-  age_sex_fun_all(., beh = "grooming", 
-                  net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_w_old <- dir_sna_w %>% 
-  filter(age_mid_year > 30) %>%
-  age_sex_fun_all(., beh = "grooming", 
-                  net_sex = "any_combo", sex_age_int = T, summary = T )
+both_gm_mixed_w_old <- dir_sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
+f_gm_mixed_w_old <- dir_sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", subj_sex = "F",  summary = T )
+m_gm_mixed_w_old <- dir_sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", subj_sex = "M",  summary = T )
 
-gm_mixed_w_old # deg dec w age
-gm_mixed_int_w_old
+both_gm_mixed_uw_old <- dir_sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
+f_gm_mixed_uw_old <- dir_sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", subj_sex = "F",  summary = T )
+m_gm_mixed_uw_old <- dir_sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", subj_sex = "M",  summary = T )
 
 
-#save(gm_mixed_w, gm_mixed_int_w, gm_mixed_uw, gm_mixed_int_uw, file = "data/models - summaries of age sex effects in directed gm mixed networks.Rdata")
+# save(both_gm_mixed_w,
+# f_gm_mixed_w,
+# m_gm_mixed_w,
+# both_gm_mixed_uw,
+# f_gm_mixed_uw,
+# m_gm_mixed_uw,
+# file = "data/models - summaries of age sex effects in directed gm mixed networks.Rdata")
+
+# save(both_gm_mixed_w_old,
+# f_gm_mixed_w_old,
+# m_gm_mixed_w_old,
+# both_gm_mixed_uw_old,
+# f_gm_mixed_uw_old,
+# m_gm_mixed_uw_old,
+# file = "data/models - summaries of age sex effects in directed gm mixed networks: older chimps > 30 yo.Rdata")
+
 
 
 # ----- sig - directed grooming (mixed sex) -----
