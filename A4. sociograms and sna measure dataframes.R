@@ -289,8 +289,6 @@ dir_sna_measure_df_w %<>%
          rank_class = ifelse(is.na(rank_class), 0, rank_class))  
 
 
-
-
 # ISSUES WITH WEIGHTED DIRECTED EC: 
 # https://igraph-help.nongnu.narkive.com/38qXaASY/warning-message-in-eigen-centrality-function-of-package-igraph
 # more reason to only use directed graphs to understand in vs out degree
