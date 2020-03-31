@@ -92,42 +92,74 @@ m_gmgmd_mixed_uw_old
 
 # ----- obs - prox (mixed sex) -----
 
-#weighted
-prox_mixed_w <- age_sex_fun_all(sna_w, beh = "prox", 
-                            net_sex = "any_combo", sex_age_int = F, summary = T )
-prox_mixed_int_w <- age_sex_fun_all(sna_w, beh = "prox", 
-                                net_sex = "any_combo", sex_age_int = T, summary = T )
-prox_mixed_w # males higher ec and deg than females, lower bt
-prox_mixed_int_w # no sig int
+# weighted 
+both_prox_mixed_w <- age_sex_fun_all(sna_w, beh = "prox", 
+                                      net_sex = "any_combo", subj_sex = "both",
+                                      sex_age_int = T, summary = T )
+f_prox_mixed_w <- age_sex_fun_all(sna_w, beh = "prox", 
+                                   net_sex = "any_combo", subj_sex = "F", summary = T )
+m_prox_mixed_w <- age_sex_fun_all(sna_w, beh = "prox", 
+                                   net_sex = "any_combo", subj_sex = "M", summary = T )
 
-#unweighted
-prox_mixed_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
-                                net_sex = "any_combo", sex_age_int = F, summary = T )
-prox_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
-                                    net_sex = "any_combo", sex_age_int = T, summary = T )
-prox_mixed_uw # no effects age or sex
-prox_mixed_int_uw # no sig int
+# unweighted
+both_prox_mixed_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
+                                       net_sex = "any_combo", subj_sex = "both",
+                                       sex_age_int = T, summary = T )
+f_prox_mixed_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
+                                    net_sex = "any_combo", subj_sex = "F", summary = T )
+m_prox_mixed_uw <- age_sex_fun_all(sna_uw, beh = "prox", 
+                                    net_sex = "any_combo", subj_sex = "M", summary = T )
 
-# single sex mixed
-# weighted # only 47 rows, not enough data...?
-f_prox_mixed_w <- sna_w %>% filter(sex == "F") %>% age_fun_all(., beh = "prox", 
-                                net_sex = "any_combo", summary = T )
-prox_mixed_w # males higher ec and deg than females, lower bt
+# old chimps
+both_prox_mixed_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                          net_sex = "any_combo", subj_sex = "both", 
+                                          sex_age_int = T,summary = T )
+f_prox_mixed_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                       net_sex = "any_combo", subj_sex = "F", summary = T )
+m_prox_mixed_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                       net_sex = "any_combo", subj_sex = "M", summary = T )
 
-#unweighted
-prox_mixed_uw <- sna_w %>% filter(sex == "F") %>% age_fun_all(., beh = "prox", 
-                                                              net_sex = "any_combo", summary = T )
-prox_mixed_uw # no effects age or sex
+both_prox_mixed_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                           net_sex = "any_combo", subj_sex = "both", 
+                                           sex_age_int = T,summary = T )
+f_prox_mixed_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                        net_sex = "any_combo", subj_sex = "F", summary = T )
+m_prox_mixed_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(., beh = "prox", 
+                                        net_sex = "any_combo", subj_sex = "M", summary = T )
 
+# ----- save obs models ------
 
+# *6* primary models here, with others adding potential side analyses
+# e.g. unweighted undir degree with age
+# and patterns in older chimps i.e. > 30 yrs old
 
-# save(gmgmd_mixed_w, gmgmd_mixed_int_w,
-#      gmgmd_mixed_uw, gmgmd_mixed_int_uw,
-#      prox_mixed_w, prox_mixed_int_w,
-#      prox_mixed_uw, prox_mixed_int_uw, file = "data/models - summaries of age sex effects in undirected mixed networks.Rdata")
+# save(both_gmgmd_mixed_w,#*
+#     f_gmgmd_mixed_w,    #*
+#     m_gmgmd_mixed_w,    #*
+#     both_gmgmd_mixed_uw,
+#     f_gmgmd_mixed_uw,
+#     m_gmgmd_mixed_uw,
+#     both_prox_mixed_w,  #*
+#     f_prox_mixed_w,     #*
+#     m_prox_mixed_w,     #*
+#     both_prox_mixed_uw,
+#     f_prox_mixed_uw,
+#     m_prox_mixed_uw,
+#     file = "data/models - summaries of age sex effects in undirected mixed networks.Rdata")
 
-#save(gmgmd_mixed_w_old, gmgmd_mixed_uw_old, gmgmd_mixed_int_w_old, gmgmd_mixed_int_uw_old, file =
-#       "data/models - summaries of age sex effects of older individuals.Rdata")
+# save(both_gmgmd_mixed_w_old,
+#     f_gmgmd_mixed_w_old,
+#     m_gmgmd_mixed_w_old,
+#     both_gmgmd_mixed_uw_old,
+#     f_gmgmd_mixed_uw_old,
+#     m_gmgmd_mixed_uw_old,
+#     both_prox_mixed_w_old,
+#     f_prox_mixed_w_old,
+#     m_prox_mixed_w_old,
+#     both_prox_mixed_uw_old,
+#     f_prox_mixed_uw_old,
+#     m_prox_mixed_uw_old,
+# file = "data/models - summaries of age sex effects in undirected nets older individuals.Rdata")
 
 
 # ----- sig w - total grooming (mixed sex - weighted) -----
@@ -239,63 +271,52 @@ sum(coef(prox_mixed_int_uw$trans)[4,1] > prox_int_int_b_uw$trans_int_int, na.rm 
 # 2. Age effects on integration in same-sex networks (groom and prox) ------
 # ----- obs - prox and grooming (same sex) -----
 
-# all chimps
-gmgmd_same_w_f <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "female", summary = T)
-gmgmd_same_w_m <- age_fun_all(sna_w, beh = "total_grooming", net_sex = "male", summary = T)
-gmgmd_same_uw_f <- age_fun_all(sna_uw, beh = "total_grooming", net_sex = "female", summary = T)
-gmgmd_same_uw_m <- age_fun_all(sna_uw, beh = "total_grooming", net_sex = "male", summary = T)
-
-prox_same_w_f <- age_fun_all(sna_w, beh = "prox", net_sex = "female", summary = T ) 
-prox_same_w_m <- age_fun_all(sna_w, beh = "prox", net_sex = "male", summary = T ) 
-prox_same_uw_f <- age_fun_all(sna_uw, beh = "prox", net_sex = "female", summary = T ) 
-prox_same_uw_m <- age_fun_all(sna_uw, beh = "prox", net_sex = "male", summary = T ) 
-
-gmgmd_same_w_f # ec and deg dec sharply w age
-gmgmd_same_w_m # ec and deg inc w age, bt no converge
-gmgmd_same_uw_f # deg dec ec dec w age, bt almost
-gmgmd_same_uw_m #
-
-
-prox_same_w_f #
-prox_same_w_m # ec inc w age, bt no converge
-prox_same_uw_f # trans inc
-prox_same_uw_m #
-
+#weighted
+f_gmgmd_same_w <- age_sex_fun_all(sna_w, beh = "total_grooming", net_sex = "female", summary = T )
+m_gmgmd_same_w <- age_sex_fun_all(sna_w, beh = "total_grooming",  net_sex = "male", summary = T)
+#unweighted
+f_gmgmd_same_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming",net_sex = "female", summary = T ) # not converging
+m_gmgmd_same_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", net_sex = "male", summary = T)
 # chimps > 30 yo
-
-gmgmd_same_w_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
-gmgmd_same_w_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
-gmgmd_same_uw_f_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
-gmgmd_same_uw_m_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
-
-
-prox_same_w_f_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "female", summary = T ) 
-prox_same_w_m_old <- sna_w %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "male", summary = T ) 
-prox_same_uw_f_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "female", summary = T ) 
-prox_same_uw_m_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_fun_all(., beh = "prox", net_sex = "male", summary = T ) 
+f_gmgmd_same_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "total_grooming", net_sex = "female", summary = T )
+m_gmgmd_same_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "total_grooming", net_sex = "male", summary = T )
+f_gmgmd_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "total_grooming", net_sex = "female", summary = T )
+m_gmgmd_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "total_grooming", net_sex = "male", summary = T )
 
 
-gmgmd_same_w_f_old # trans dec fem older than 32, bt doesn't converge
-gmgmd_same_w_m_old # ec dec w age close to sig
-gmgmd_same_uw_f_old #
-gmgmd_same_uw_m_old # 
+#peep_dataset(sna_uw, beh = "total_grooming", net_sex = "female")
 
+#weighted
+f_prox_same_w <- age_sex_fun_all(sna_w, beh = "prox", net_sex = "female", summary = T )
+m_prox_same_w <- age_sex_fun_all(sna_w, beh = "prox", net_sex = "male", summary = T)
+#unweighted
+f_prox_same_uw <- age_sex_fun_all(sna_uw, beh = "prox", net_sex = "female", summary = T )
+m_prox_same_uw <- age_sex_fun_all(sna_uw, beh = "prox", net_sex = "male", summary = T)
+# chimps > 30 yo
+f_prox_same_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "female", summary = T )
+m_prox_same_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "male", summary = T )
+f_prox_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "female", summary = T )
+m_prox_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "male", summary = T )
 
-prox_same_w_f_old # inc trans
-prox_same_w_m_old # no age effects
-prox_same_uw_f_old # inc trans
-prox_same_uw_m_old # no age effects
-
-
-#save(gmgmd_same_w_f, gmgmd_same_w_m, prox_same_w_f, prox_same_w_m,
-#     gmgmd_same_uw_f, gmgmd_same_uw_m, prox_same_uw_f, prox_same_uw_m, 
+# save(f_gmgmd_same_w,
+#     m_gmgmd_same_w,
+#     f_prox_same_w,
+#     m_prox_same_w,
+#     f_gmgmd_same_uw,
+#     m_gmgmd_same_uw,
+#     f_prox_same_uw,
+#     m_prox_same_uw,
 #     file = "data/models - summaries of age effects in same sex undirected networks.Rdata")
 
-#save(gmgmd_same_w_f_old, gmgmd_same_w_m_old, prox_same_w_f_old, prox_same_w_m_old,
-# gmgmd_same_uw_f_old, gmgmd_same_uw_m_old, prox_same_uw_f_old, prox_same_uw_m_old,
+# save(f_gmgmd_same_w_old,
+#     m_gmgmd_same_w_old,
+#     f_prox_same_w_old,
+#     m_prox_same_w_old,
+#     f_gmgmd_same_uw_old,
+#     m_gmgmd_same_uw_old,
+#     f_prox_same_uw_old,
+#     m_prox_same_uw_old,
 # file = "data/models - summaries of age effects in same sex undirected networks: chimps > 30 yo.Rdata")
-
-
 
 # ----- sig - total grooming (same sex - weighted)----
 load("data/models - summaries of age effects in same sex undirected networks.Rdata", verbose = T)
