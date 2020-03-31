@@ -325,10 +325,10 @@ load("data/models - summaries of age effects in same sex undirected networks: ch
 load("data/random coefs age on gmgmd same sex net sna weighted.Rdata", verbose = T)
 load("data/random coefs age on prox same sex net sna weighted.Rdata", verbose = T)
 
-sum(coef(gmgmd_same_w_f$bt)[2,1] >  gmgmd_age_b_f$bt_age, na.rm = T) / 1000 # no convergence
-sum(coef(gmgmd_same_w_f$ec)[2,1] > gmgmd_age_b_f$ec_age, na.rm = T) / 1000 # b -0.59 sig dec ec w age
-sum(coef(gmgmd_same_w_f$deg)[2,1] > gmgmd_age_b_f$deg_age, na.rm = T) / 1000 # b of -0.69 is sig low, dec deg w age
-sum(coef(gmgmd_same_w_f$trans)[2,1] > gmgmd_age_b_f$trans_age, na.rm = T) / 1000 #
+sum(coef(gmgmd_same_w$bt)[2,1] >  gmgmd_age_b_f$bt_age, na.rm = T) / 1000 # no convergence
+sum(coef(gmgmd_same_w$ec)[2,1] > gmgmd_age_b_f$ec_age, na.rm = T) / 1000 # b -0.59 sig dec ec w age
+sum(coef(gmgmd_same_w$deg)[2,1] > gmgmd_age_b_f$deg_age, na.rm = T) / 1000 # b of -0.69 is sig low, dec deg w age
+sum(coef(gmgmd_same_w$trans)[2,1] > gmgmd_age_b_f$trans_age, na.rm = T) / 1000 #
 
 sum(coef(gmgmd_same_w_m$bt)[2,1] >  gmgmd_age_b_m$bt_age, na.rm = T) / 1000 # no convergence
 sum(coef(gmgmd_same_w_m$ec)[2,1] > gmgmd_age_b_m$ec_age, na.rm = T) / 1000 # b 0.3 sig inc ec w age
