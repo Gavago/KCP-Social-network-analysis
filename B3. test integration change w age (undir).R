@@ -37,47 +37,57 @@ all(sna_w$trans == sna_uw$trans)
 # ----- obs - total grooming (mixed sex) ----
 
 # weighted 
-gmgmd_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
-                                net_sex = "any_combo", sex_age_int = F, summary = T )
-gmgmd_mixed_int_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
-                net_sex = "any_combo", sex_age_int = T, summary = T )
+both_gmgmd_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                   net_sex = "any_combo", subj_sex = "both",
+                                   sex_age_int = T, summary = T )
+f_gmgmd_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                             net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gmgmd_mixed_w <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                             net_sex = "any_combo", subj_sex = "M", summary = T )
 
-gmgmd_mixed_w #males higher ec bt deg
-gmgmd_mixed_int_w # deg int sig
 
 # unweighted
-gmgmd_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
-                              net_sex = "any_combo", sex_age_int = F, summary = T )
-gmgmd_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
-                                  net_sex = "any_combo", sex_age_int = T, summary = T )
-gmgmd_mixed_uw # males higher bt, ec, and deg
-gmgmd_mixed_int_uw # no int sig
+both_gmgmd_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                      net_sex = "any_combo", subj_sex = "both",
+                                      sex_age_int = T, summary = T )
+f_gmgmd_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                   net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gmgmd_mixed_uw <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                   net_sex = "any_combo", subj_sex = "M", summary = T )
 
 # old chimps
+both_gmgmd_mixed_w_old <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                      net_sex = "any_combo", subj_sex = "both", 
+                                      sex_age_int = T,summary = T )
+f_gmgmd_mixed_w_old <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                   net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gmgmd_mixed_w_old <- age_sex_fun_all(sna_w, beh = "total_grooming", 
+                                   net_sex = "any_combo", subj_sex = "M", summary = T )
 
-gmgmd_mixed_w_old <- sna_w %>% 
-  filter(age_mid_year > 32) %>%
-           age_sex_fun_all(., beh = "total_grooming", 
-                              net_sex = "any_combo", sex_age_int = F, summary = T )
-gmgmd_mixed_int_w_old <- sna_w %>% 
-  filter(age_mid_year > 32) %>%
-  age_sex_fun_all(., beh = "total_grooming", 
-                                  net_sex = "any_combo", sex_age_int = T, summary = T )
+both_gmgmd_mixed_uw_old <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                          net_sex = "any_combo", subj_sex = "both", 
+                                          sex_age_int = T,summary = T )
+f_gmgmd_mixed_uw_old <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                       net_sex = "any_combo", subj_sex = "F", summary = T )
+m_gmgmd_mixed_uw_old <- age_sex_fun_all(sna_uw, beh = "total_grooming", 
+                                       net_sex = "any_combo", subj_sex = "M", summary = T )
 
-gmgmd_mixed_uw_old <- sna_w %>% 
-  filter(age_mid_year > 32) %>%
-  age_sex_fun_all(., beh = "total_grooming", 
-                  net_sex = "any_combo", sex_age_int = F, summary = T )
-gmgmd_mixed_int_uw_old <- sna_w %>% 
-  filter(age_mid_year > 32) %>%
-  age_sex_fun_all(., beh = "total_grooming", 
-                  net_sex = "any_combo", sex_age_int = T, summary = T )
 
-gmgmd_mixed_w_old # deg dec w age
-gmgmd_mixed_int_w_old
+both_gmgmd_mixed_w # strong age sex for deg, rank inc ec
+f_gmgmd_mixed_w #deg dec w age
+m_gmgmd_mixed_w
 
-gmgmd_mixed_uw_old # deg dec w age
-gmgmd_mixed_int_uw_old
+both_gmgmd_mixed_uw
+f_gmgmd_mixed_uw
+m_gmgmd_mixed_uw
+
+both_gmgmd_mixed_w_old 
+f_gmgmd_mixed_w_old
+m_gmgmd_mixed_w_old 
+
+both_gmgmd_mixed_uw_old 
+f_gmgmd_mixed_uw_old
+m_gmgmd_mixed_uw_old 
 
 
 # ----- obs - prox (mixed sex) -----
@@ -97,6 +107,18 @@ prox_mixed_int_uw <- age_sex_fun_all(sna_uw, beh = "prox",
                                     net_sex = "any_combo", sex_age_int = T, summary = T )
 prox_mixed_uw # no effects age or sex
 prox_mixed_int_uw # no sig int
+
+# single sex mixed
+# weighted # only 47 rows, not enough data...?
+f_prox_mixed_w <- sna_w %>% filter(sex == "F") %>% age_fun_all(., beh = "prox", 
+                                net_sex = "any_combo", summary = T )
+prox_mixed_w # males higher ec and deg than females, lower bt
+
+#unweighted
+prox_mixed_uw <- sna_w %>% filter(sex == "F") %>% age_fun_all(., beh = "prox", 
+                                                              net_sex = "any_combo", summary = T )
+prox_mixed_uw # no effects age or sex
+
 
 
 # save(gmgmd_mixed_w, gmgmd_mixed_int_w,
@@ -482,4 +504,7 @@ filt_cv <- function(data, net_sex, cv, beh) {
 # ec prox: no, no int
 # deg prox: lower among males - just a product of network size, no int
 # trans prox: no effects, no int
+
+
+
 
