@@ -31,7 +31,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, everything())
 }  
 
-#save(list_ran_undir_sna_measure_both_sex_w, file = "data/ran - both sexes w - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
+#save(list_ran_undir_sna_measure_both_sex_w, file = "data/ran1 - both sexes w - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
 
 # weighted - for model sex sep ----
 # undir ran for each sex in mixed sex net, and for same sex, either way sexes are analyzed separately
@@ -49,7 +49,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_undir_sna_measure_sex_sep_w, file = "data/ran - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
+#save(list_ran_undir_sna_measure_sex_sep_w, file = "data/ran2 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
 
 # unweighted - for model both sexes ---- 
 set.seed(100)
@@ -65,7 +65,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_undir_sna_measure_both_sex_uw, file = "data/ran - both sexes uw - node (sex age rank chimp_id)randomized sna measures undirected prox and gmgmd unweighted.Rdata")
+#save(list_ran_undir_sna_measure_both_sex_uw, file = "data/ran3 - both sexes uw - node (sex age rank chimp_id)randomized sna measures undirected prox and gmgmd unweighted.Rdata")
 
 # unweighted - for model sex sep ---- 
 set.seed(100)
@@ -81,7 +81,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_undir_sna_measure_sex_sep_uw, file = "data/ran - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata")
+#save(list_ran_undir_sna_measure_sex_sep_uw, file = "data/ran4 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata")
 
 
 # 1b. directed networks ------
@@ -100,7 +100,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, everything())
 }  
 
-#save(list_ran_dir_sna_measure_both_sex_w, file = "data/ran - both sexes w - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata")
+#save(list_ran_dir_sna_measure_both_sex_w, file = "data/ran5 - both sexes w - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata")
 
 # weighted - for model sex sep -----
 set.seed(100)
@@ -116,7 +116,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_dir_sna_measure_sex_sep_w, file = "data/ran - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures directed gm weighted.Rdata")
+#save(list_ran_dir_sna_measure_sex_sep_w, file = "data/ran6 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures directed gm weighted.Rdata")
 
 
 # unweighted - for model both sexes -----
@@ -133,7 +133,7 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, everything())
 }  
 
-#save(list_ran_dir_sna_measure_both_sex_uw, file = "data/ran - both sexes uw - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata")
+#save(list_ran_dir_sna_measure_both_sex_uw, file = "data/ran7 - both sexes uw - node (sex age rank chimp_id) randomized sna measures directed gm unweighted.Rdata")
 
 # unweighted - for model sex sep -----
 set.seed(100)
@@ -149,275 +149,521 @@ for(i in 1:1000) {
     select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_dir_sna_measure_sex_sep_uw, file = "data/ran - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures directed gm unweighted.Rdata")
+#save(list_ran_dir_sna_measure_sex_sep_uw, file = "data/ran8 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures directed gm unweighted.Rdata")
 
 
 
 # 2. Coefficient extraction ----
 # -- mixed sex networks -----
-# ---- total grooming ran models for mixed net, age-sex coefs, weighted -----------
+# ---- total grooming ran models for mixed net weighted -----------
 
 # node ran data
-load("data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
+load("data/ran1 - both sexes w - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
 
 # storage for betas
 list_age_b <- vector("list", length = 1000)
 list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
-  
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
 
 #loop
 t <- Sys.time()
 for(i in 1:1000) {
 
   
-ran_df <- list_ran_undir_sna_measure_w[[i]]  
+ran_df <- list_ran_undir_sna_measure_both_sex_w[[i]]  
 # run models
-gm_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "total_grooming", net_sex = "any_combo", sex_age_int = F, summary = T )
-gm_mixed_int_w <- ran_df %>%  
-  age_sex_fun_all(., beh = "total_grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
-
+both_gmgmd_mixed_w <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
 
 # extract coefficient of model
-list_age_b[[i]] <- ex_coef(gm_mixed_w, "age")
-list_sex_b[[i]] <- ex_coef(gm_mixed_w, "sex")
-list_age_b_int[[i]] <- ex_coef(gm_mixed_int_w, "age")
-list_sex_b_int[[i]] <- ex_coef(gm_mixed_int_w, "sex")
-list_int_b_int[[i]] <- ex_coef(gm_mixed_int_w, "int")
+list_age_b[[i]] <- ex_coef(both_gmgmd_mixed_w, "age")
+list_sex_b[[i]] <- ex_coef(both_gmgmd_mixed_w, "sex")
+list_rank_b[[i]] <- ex_coef(both_gmgmd_mixed_w, "rank")
+list_int_b[[i]] <- ex_coef(both_gmgmd_mixed_w, "int")
+}
+Sys.time() - t #12.5
+
+both_gmgmd_mixed_age_b <- do.call("rbind", list_age_b) %>% data.frame()
+both_gmgmd_mixed_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
+both_gmgmd_mixed_rank_b <- do.call("rbind", list_rank_b) %>% data.frame()
+both_gmgmd_mixed_age_sex_int_b <- do.call("rbind", list_int_b) %>% data.frame()
+
+# save(both_gmgmd_mixed_age_b,
+# both_gmgmd_mixed_sex_b,
+# both_gmgmd_mixed_rank_b,
+# both_gmgmd_mixed_age_sex_int_b, file = "data/random coefs - mixed both w - undir gmgmd.Rdata")
+
+# ---- total grooming ran models for mixed net - sex sep - weighted
+# node ran data
+load("data/ran2 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
+
+# storage for betas
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  ran_df <- list_ran_undir_sna_measure_sex_sep_w[[i]]  
+  # run models
+  f_gmgmd_mixed_w <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_gmgmd_mixed_w <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
+  
+  # extract coefficient of model
+  f_list_age_b[[i]] <- ex_coef(f_gmgmd_mixed_w, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_gmgmd_mixed_w, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_gmgmd_mixed_w, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_gmgmd_mixed_w, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_gmgmd_mixed_w, "rank")
+
+}
+Sys.time() - t # 14.8 min
+
+f_gmgmd_mixed_age_b <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_gmgmd_mixed_rank_b <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_gmgmd_mixed_prop_cyc_b <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
+
+m_gmgmd_mixed_age_b <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_gmgmd_mixed_rank_b <- do.call("rbind", m_list_rank_b) %>% data.frame()
+
+# save(f_gmgmd_mixed_age_b,
+# f_gmgmd_mixed_rank_b,
+# f_gmgmd_mixed_prop_cyc_b,
+# m_gmgmd_mixed_age_b,
+# m_gmgmd_mixed_rank_b,
+# file = "data/random coefs - mixed sex sep w - undir gmgmd.Rdata")
+
+# ---- total grooming ran models for mixed net unweighted -----------
+
+# node ran data
+load("data/ran3 - both sexes uw - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
+
+# storage for betas
+list_age_b <- vector("list", length = 1000)
+list_sex_b <- vector("list", length = 1000)
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  
+  ran_df <- list_ran_undir_sna_measure_both_sex_uw[[i]]  
+  # run models
+  both_gmgmd_mixed_uw <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
+  
+  # extract coefficient of model
+  list_age_b[[i]] <- ex_coef(both_gmgmd_mixed_uw, "age")
+  list_sex_b[[i]] <- ex_coef(both_gmgmd_mixed_uw, "sex")
+  list_rank_b[[i]] <- ex_coef(both_gmgmd_mixed_uw, "rank")
+  list_int_b[[i]] <- ex_coef(both_gmgmd_mixed_uw, "int")
+}
+Sys.time() - t #12.8
+
+both_gmgmd_mixed_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
+both_gmgmd_mixed_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
+both_gmgmd_mixed_rank_b_uw <- do.call("rbind", list_rank_b) %>% data.frame()
+both_gmgmd_mixed_age_sex_int_b_uw <- do.call("rbind", list_int_b) %>% data.frame()
+
+# save(both_gmgmd_mixed_age_b_uw,
+# both_gmgmd_mixed_sex_b_uw,
+# both_gmgmd_mixed_rank_b_uw,
+# both_gmgmd_mixed_age_sex_int_b_uw, file = "data/random coefs - mixed both uw - undir gmgmd.Rdata")
+
+# ---- total grooming ran models for mixed net - sex sep - unweighted
+# node ran data
+load("data/ran4 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
+
+# storage for betas
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  ran_df <- list_ran_undir_sna_measure_sex_sep_uw[[i]]  
+  # run models
+  f_gmgmd_mixed_uw <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_gmgmd_mixed_uw <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
+  
+  # extract coefficient of model
+  f_list_age_b[[i]] <- ex_coef(f_gmgmd_mixed_uw, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_gmgmd_mixed_uw, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_gmgmd_mixed_uw, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_gmgmd_mixed_uw, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_gmgmd_mixed_uw, "rank")
+  
+}
+Sys.time() - t #15.6
+
+f_gmgmd_mixed_age_b_uw <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_gmgmd_mixed_rank_b_uw <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_gmgmd_mixed_prop_cyc_b_uw <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
+
+m_gmgmd_mixed_age_b_uw <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_gmgmd_mixed_rank_b_uw <- do.call("rbind", m_list_rank_b) %>% data.frame()
+
+# save(f_gmgmd_mixed_age_b_uw,
+# f_gmgmd_mixed_rank_b_uw,
+# f_gmgmd_mixed_prop_cyc_b_uw,
+# m_gmgmd_mixed_age_b_uw,
+# m_gmgmd_mixed_rank_b_uw,
+# file = "data/random coefs - mixed sex sep uw - undir gmgmd.Rdata")
+
+# ---- prox ran models for mixed net weighted -----------
+
+# node ran data
+load("data/ran1 - both sexes w - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
+
+# storage for betas
+list_age_b <- vector("list", length = 1000)
+list_sex_b <- vector("list", length = 1000)
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  ran_df <- list_ran_undir_sna_measure_both_sex_w[[i]]  
+  # run models
+  both_prox_mixed_w <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
+  
+  # extract coefficient of model
+  list_age_b[[i]] <- ex_coef(both_prox_mixed_w, "age")
+  list_sex_b[[i]] <- ex_coef(both_prox_mixed_w, "sex")
+  list_rank_b[[i]] <- ex_coef(both_prox_mixed_w, "rank")
+  list_int_b[[i]] <- ex_coef(both_prox_mixed_w, "int")
+}
+Sys.time() - t #15.2 min
+
+both_prox_mixed_age_b <- do.call("rbind", list_age_b) %>% data.frame()
+both_prox_mixed_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
+both_prox_mixed_rank_b <- do.call("rbind", list_rank_b) %>% data.frame()
+both_prox_mixed_age_sex_int_b <- do.call("rbind", list_int_b) %>% data.frame()
+
+# save(both_prox_mixed_age_b,
+# both_prox_mixed_sex_b,
+# both_prox_mixed_rank_b,
+# both_prox_mixed_age_sex_int_b, file = "data/random coefs - mixed both w - undir prox.Rdata")
+
+# ---- prox ran models for mixed net - sex sep - weighted
+# node ran data
+load("data/ran2 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
+
+# storage for betas
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  ran_df <- list_ran_undir_sna_measure_sex_sep_w[[i]]  
+  # run models
+  f_prox_mixed_w <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_prox_mixed_w <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "M", summary = T )
+  
+  # extract coefficient of model
+  f_list_age_b[[i]] <- ex_coef(f_prox_mixed_w, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_prox_mixed_w, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_prox_mixed_w, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_prox_mixed_w, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_prox_mixed_w, "rank")
+  
+}
+Sys.time() - t # 14.8 min
+
+f_prox_mixed_age_b <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_prox_mixed_rank_b <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_prox_mixed_prop_cyc_b <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
+
+m_prox_mixed_age_b <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_prox_mixed_rank_b <- do.call("rbind", m_list_rank_b) %>% data.frame()
+
+# save(f_prox_mixed_age_b,
+# f_prox_mixed_rank_b,
+# f_prox_mixed_prop_cyc_b,
+# m_prox_mixed_age_b,
+# m_prox_mixed_rank_b,
+# file = "data/random coefs - mixed sex sep w - undir prox.Rdata")
+
+# ---- prox ran models for mixed net unweighted -----------
+
+# node ran data
+load("data/ran3 - both sexes uw - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
+
+# storage for betas
+list_age_b <- vector("list", length = 1000)
+list_sex_b <- vector("list", length = 1000)
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  
+  ran_df <- list_ran_undir_sna_measure_both_sex_uw[[i]]  
+  # run models
+  both_prox_mixed_uw <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
+  
+  # extract coefficient of model
+  list_age_b[[i]] <- ex_coef(both_prox_mixed_uw, "age")
+  list_sex_b[[i]] <- ex_coef(both_prox_mixed_uw, "sex")
+  list_rank_b[[i]] <- ex_coef(both_prox_mixed_uw, "rank")
+  list_int_b[[i]] <- ex_coef(both_prox_mixed_uw, "int")
 }
 Sys.time() - t
 
-gmgmd_age_b <- do.call("rbind", list_age_b) %>% data.frame()
-gmgmd_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
-gmgmd_age_int_b <- do.call("rbind", list_age_b_int) %>% data.frame()
-gmgmd_sex_int_b <- do.call("rbind", list_sex_b_int) %>% data.frame()
-gmgmd_int_int_b <- do.call("rbind", list_int_b_int) %>% data.frame()
+both_prox_mixed_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
+both_prox_mixed_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
+both_prox_mixed_rank_b_uw <- do.call("rbind", list_rank_b) %>% data.frame()
+both_prox_mixed_age_sex_int_b_uw <- do.call("rbind", list_int_b) %>% data.frame()
 
-#save(gmgmd_age_b, gmgmd_sex_b, gmgmd_age_int_b, gmgmd_sex_int_b, gmgmd_int_int_b, file = "data/random coefs age sex on gmgmd mixed sex net sna.Rdata")
+# save(both_prox_mixed_age_b_uw,
+# both_prox_mixed_sex_b_uw,
+# both_prox_mixed_rank_b_uw,
+# both_prox_mixed_age_sex_int_b_uw, file = "data/random coefs - mixed both uw - undir prox.Rdata")
 
-# ---- total grooming ran models for mixed net, age-sex coefs, unweighted -----------
+# ---- prox ran models for mixed net - sex sep - unweighted
+# node ran data
+load("data/ran4 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
+
+# storage for betas
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
+
+#loop
+t <- Sys.time()
+for(i in 1:1000) {
+  
+  ran_df <- list_ran_undir_sna_measure_sex_sep_uw[[i]]  
+  # run models
+  f_prox_mixed_uw <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_prox_mixed_uw <- age_sex_fun_all(ran_df, beh = "prox", net_sex = "any_combo", subj_sex = "M", summary = T )
+  
+  # extract coefficient of model
+  f_list_age_b[[i]] <- ex_coef(f_prox_mixed_uw, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_prox_mixed_uw, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_prox_mixed_uw, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_prox_mixed_uw, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_prox_mixed_uw, "rank")
+  
+}
+Sys.time() - t # 14.8 min
+
+f_prox_mixed_age_b_uw <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_prox_mixed_rank_b_uw <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_prox_mixed_prop_cyc_b_uw <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
+
+m_prox_mixed_age_b_uw <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_prox_mixed_rank_b_uw <- do.call("rbind", m_list_rank_b) %>% data.frame()
+
+# save(f_prox_mixed_age_b_uw,
+# f_prox_mixed_rank_b_uw,
+# f_prox_mixed_prop_cyc_b_uw,
+# m_prox_mixed_age_b_uw,
+# m_prox_mixed_rank_b_uw,
+# file = "data/random coefs - mixed sex sep uw - undir prox.Rdata")
+
+# ---- directed grooming ran models for mixed net weighted -----------
 
 # node ran data
-load("data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
+load("data/ran5 - both sexes w - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata", verbose = T)
 
 # storage for betas
 list_age_b <- vector("list", length = 1000)
 list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
-
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
 
 #loop
 t <- Sys.time()
 for(i in 1:1000) {
   
   
-  ran_df <- list_ran_undir_sna_measure_uw[[i]]  
+  ran_df <- list_ran_dir_sna_measure_both_sex_w[[i]]  
   # run models
-  gm_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "total_grooming", net_sex = "any_combo", sex_age_int = F, summary = T )
-  gm_mixed_int_w <- ran_df %>%  
-    age_sex_fun_all(., beh = "total_grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
-  
+  both_gm_mixed_w <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
   
   # extract coefficient of model
-  list_age_b[[i]] <- ex_coef(gm_mixed_w, "age")
-  list_sex_b[[i]] <- ex_coef(gm_mixed_w, "sex")
-  list_age_b_int[[i]] <- ex_coef(gm_mixed_int_w, "age")
-  list_sex_b_int[[i]] <- ex_coef(gm_mixed_int_w, "sex")
-  list_int_b_int[[i]] <- ex_coef(gm_mixed_int_w, "int")
+  list_age_b[[i]] <- ex_coef(both_gm_mixed_w, "age")
+  list_sex_b[[i]] <- ex_coef(both_gm_mixed_w, "sex")
+  list_rank_b[[i]] <- ex_coef(both_gm_mixed_w, "rank")
+  list_int_b[[i]] <- ex_coef(both_gm_mixed_w, "int")
 }
-Sys.time() - t
+Sys.time() - t #9.8
 
-gmgmd_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
-gmgmd_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
-gmgmd_age_int_b_uw <- do.call("rbind", list_age_b_int) %>% data.frame()
-gmgmd_sex_int_b_uw <- do.call("rbind", list_sex_b_int) %>% data.frame()
-gmgmd_int_int_b_uw <- do.call("rbind", list_int_b_int) %>% data.frame()
+both_gm_mixed_age_b <- do.call("rbind", list_age_b) %>% data.frame()
+both_gm_mixed_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
+both_gm_mixed_rank_b <- do.call("rbind", list_rank_b) %>% data.frame()
+both_gm_mixed_age_sex_int_b <- do.call("rbind", list_int_b) %>% data.frame()
 
-#save(gmgmd_age_b_uw, gmgmd_sex_b_uw, gmgmd_age_int_b_uw, gmgmd_sex_int_b_uw, gmgmd_int_int_b_uw, file = "data/random coefs age sex on gmgmd mixed sex net sna unweighted.Rdata")
+# save(both_gm_mixed_age_b,
+# both_gm_mixed_sex_b,
+# both_gm_mixed_rank_b,
+# both_gm_mixed_age_sex_int_b, file = "data/random coefs - mixed both w - undir gm.Rdata")
 
-# ---- prox ran models for mixed net, age-sex coefs, weighted ----------
-
+# ---- directed grooming ran models for mixed net - sex sep - weighted
 # node ran data
-load("data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
-
+load("data/ran6 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures directed gm weighted.Rdata", verbose = T)
 
 # storage for betas
-list_age_b <- vector("list", length = 1000)
-list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
 
-
+#loop
 t <- Sys.time()
 for(i in 1:1000) {
   
-  ran_df <- list_ran_undir_sna_measure_w[[i]]  
-  
+  ran_df <- list_ran_dir_sna_measure_sex_sep_w[[i]]  
   # run models
-  prox_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "prox", net_sex = "any_combo", sex_age_int = F, summary = T )
-  prox_mixed_int_w <- ran_df %>%  
-    age_sex_fun_all(., beh = "prox", net_sex = "any_combo", sex_age_int = T, summary = T )
-  
+  f_gm_mixed_w <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_gm_mixed_w <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
   
   # extract coefficient of model
-  list_age_b[[i]] <- ex_coef(prox_mixed_w, "age")
-  list_sex_b[[i]] <- ex_coef(prox_mixed_w, "sex")
-  list_age_b_int[[i]] <- ex_coef(prox_mixed_int_w, "age")
-  list_sex_b_int[[i]] <- ex_coef(prox_mixed_int_w, "sex")
-  list_int_b_int[[i]] <- ex_coef(prox_mixed_int_w, "int")
+  f_list_age_b[[i]] <- ex_coef(f_gm_mixed_w, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_gm_mixed_w, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_gm_mixed_w, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_gm_mixed_w, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_gm_mixed_w, "rank")
+  
 }
-Sys.time() - t # 20 min!
+Sys.time() - t #  min
 
-prox_age_b <- do.call("rbind", list_age_b) %>% data.frame()
-prox_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
-prox_age_int_b <- do.call("rbind", list_age_b_int) %>% data.frame()
-prox_sex_int_b <- do.call("rbind", list_sex_b_int) %>% data.frame()
-prox_int_int_b <- do.call("rbind", list_int_b_int) %>% data.frame()
+f_gm_mixed_age_b <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_gm_mixed_rank_b <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_gm_mixed_prop_cyc_b <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
 
+m_gm_mixed_age_b <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_gm_mixed_rank_b <- do.call("rbind", m_list_rank_b) %>% data.frame()
 
-#save(prox_age_b, prox_sex_b, prox_age_int_b, prox_sex_int_b, prox_int_int_b, file = "data/random coefs age sex on prox mixed sex net sna weighted.Rdata")
+# save(f_gm_mixed_age_b,
+# f_gm_mixed_rank_b,
+# f_gm_mixed_prop_cyc_b,
+# m_gm_mixed_age_b,
+# m_gm_mixed_rank_b,
+# file = "data/random coefs - mixed sex sep w - undir gm.Rdata")
 
-# ---- prox ran models for mixed net, age-sex coefs, unweighted ----------
+# ---- directed grooming ran models for mixed net unweighted -----------
 
 # node ran data
-load("data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata", verbose = T)
-
-
-# storage for betas
-list_age_b <- vector("list", length = 1000)
-list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
-
-
-t <- Sys.time()
-for(i in 1:1000) {
-  
-  ran_df <- list_ran_undir_sna_measure_uw[[i]]  
-  
-  # run models
-  prox_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "prox", net_sex = "any_combo", sex_age_int = F, summary = T )
-  prox_mixed_int_w <- ran_df %>%  
-    age_sex_fun_all(., beh = "prox", net_sex = "any_combo", sex_age_int = T, summary = T )
-  
-  
-  # extract coefficient of model
-  list_age_b[[i]] <- ex_coef(prox_mixed_w, "age")
-  list_sex_b[[i]] <- ex_coef(prox_mixed_w, "sex")
-  list_age_b_int[[i]] <- ex_coef(prox_mixed_int_w, "age")
-  list_sex_b_int[[i]] <- ex_coef(prox_mixed_int_w, "sex")
-  list_int_b_int[[i]] <- ex_coef(prox_mixed_int_w, "int")
-}
-Sys.time() - t # 20 min!
-
-prox_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
-prox_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
-prox_age_int_b_uw <- do.call("rbind", list_age_b_int) %>% data.frame()
-prox_sex_int_b_uw <- do.call("rbind", list_sex_b_int) %>% data.frame()
-prox_int_int_b_uw <- do.call("rbind", list_int_b_int) %>% data.frame()
-
-
-#save(prox_age_b_uw, prox_sex_b_uw, prox_age_int_b_uw, prox_sex_int_b_uw, prox_int_int_b_uw, file = "data/random coefs age sex on prox mixed sex net sna unweighted.Rdata")
-
-# ---- directed grooming mixed sex net ran models, age sex coefs, weighted ----
-load("data/ran - node (sex age chimp_id) randomized sna measures directed gm weighted.Rdata", verbose = T)
+load("data/ran7 - both sexes uw - node (sex age rank chimp_id) randomized sna measures directed gm unweighted.Rdata", verbose = T)
 
 # storage for betas
 list_age_b <- vector("list", length = 1000)
 list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
-
+list_rank_b <- vector("list", length = 1000)
+list_int_b <- vector("list", length = 1000)
 
 #loop
 t <- Sys.time()
 for(i in 1:1000) {
   
   
-  ran_df <- list_ran_dir_sna_measure_w[[i]]  
+  ran_df <- list_ran_dir_sna_measure_both_sex_uw[[i]]  
   # run models
-  gm_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = F, summary = T )
-  gm_mixed_int_w <- ran_df %>%  
-    age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
-  
+  both_gm_mixed_uw <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "both", sex_age_int = T, summary = T )
   
   # extract coefficient of model
-  list_age_b[[i]] <- ex_coef(gm_mixed_w, "age")
-  list_sex_b[[i]] <- ex_coef(gm_mixed_w, "sex")
-  list_age_b_int[[i]] <- ex_coef(gm_mixed_int_w, "age")
-  list_sex_b_int[[i]] <- ex_coef(gm_mixed_int_w, "sex")
-  list_int_b_int[[i]] <- ex_coef(gm_mixed_int_w, "int")
+  list_age_b[[i]] <- ex_coef(both_gm_mixed_uw, "age")
+  list_sex_b[[i]] <- ex_coef(both_gm_mixed_uw, "sex")
+  list_rank_b[[i]] <- ex_coef(both_gm_mixed_uw, "rank")
+  list_int_b[[i]] <- ex_coef(both_gm_mixed_uw, "int")
 }
-Sys.time() - t #12 min
+Sys.time() - t #
 
-gm_age_b <- do.call("rbind", list_age_b) %>% data.frame()
-gm_sex_b <- do.call("rbind", list_sex_b) %>% data.frame()
-gm_age_int_b <- do.call("rbind", list_age_b_int) %>% data.frame()
-gm_sex_int_b <- do.call("rbind", list_sex_b_int) %>% data.frame()
-gm_int_int_b <- do.call("rbind", list_int_b_int) %>% data.frame()
+both_gm_mixed_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
+both_gm_mixed_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
+both_gm_mixed_rank_b_uw <- do.call("rbind", list_rank_b) %>% data.frame()
+both_gm_mixed_age_sex_int_b_uw <- do.call("rbind", list_int_b) %>% data.frame()
 
-#save(gm_age_b, gm_sex_b, gm_age_int_b, gm_sex_int_b, gm_int_int_b, file = "data/random coefs age sex on dir grooming mixed sex net sna weighted.Rdata")
+# save(both_gm_mixed_age_b_uw,
+# both_gm_mixed_sex_b_uw,
+# both_gm_mixed_rank_b_uw,
+# both_gm_mixed_age_sex_int_b_uw, file = "data/random coefs - mixed both uw - undir gm.Rdata")
 
+# ---- directed grooming ran models for mixed net - sex sep - unweighted
+# node ran data
 
-# ---- directed grooming mixed sex net ran models, age sex coefs, unweighted ----
-load("data/ran - node (sex age chimp_id) randomized sna measures directed gm unweighted.Rdata", verbose = T)
+load("data/ran8 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures directed gm unweighted.Rdata", verbose = T)
 
 # storage for betas
-list_age_b <- vector("list", length = 1000)
-list_sex_b <- vector("list", length = 1000)
-list_age_b_int <- vector("list", length = 1000)
-list_sex_b_int <- vector("list", length = 1000)
-list_int_b_int <- vector("list", length = 1000)
-
+f_list_age_b <- vector("list", length = 1000)
+f_list_rank_b <- vector("list", length = 1000)
+f_list_prop_cyc_b <- vector("list", length = 1000)
+m_list_age_b <- vector("list", length = 1000)
+m_list_rank_b <- vector("list", length = 1000)
 
 #loop
 t <- Sys.time()
 for(i in 1:1000) {
   
-  
-  ran_df <- list_ran_dir_sna_measure_uw[[i]]  
+  ran_df <- list_ran_dir_sna_measure_sex_sep_uw[[i]]  
   # run models
-  gm_mixed_w <- ran_df %>%
-    age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = F, summary = T )
-  gm_mixed_int_w <- ran_df %>%  
-    age_sex_fun_all(., beh = "grooming", net_sex = "any_combo", sex_age_int = T, summary = T )
-  
+  f_gm_mixed_uw <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = T )
+  m_gm_mixed_uw <- age_sex_fun_all(ran_df, beh = "grooming", net_sex = "any_combo", subj_sex = "M", summary = T )
   
   # extract coefficient of model
-  list_age_b[[i]] <- ex_coef(gm_mixed_w, "age")
-  list_sex_b[[i]] <- ex_coef(gm_mixed_w, "sex")
-  list_age_b_int[[i]] <- ex_coef(gm_mixed_int_w, "age")
-  list_sex_b_int[[i]] <- ex_coef(gm_mixed_int_w, "sex")
-  list_int_b_int[[i]] <- ex_coef(gm_mixed_int_w, "int")
+  f_list_age_b[[i]] <- ex_coef(f_gm_mixed_uw, "age")
+  f_list_rank_b[[i]] <- ex_coef(f_gm_mixed_uw, "rank")
+  f_list_prop_cyc_b[[i]] <- ex_coef(f_gm_mixed_uw, "prop_cyc")
+  
+  m_list_age_b[[i]] <- ex_coef(m_gm_mixed_uw, "age")
+  m_list_rank_b[[i]] <- ex_coef(m_gm_mixed_uw, "rank")
+  
 }
-Sys.time() - t #12 min
+Sys.time() - t #15.6
 
-gm_age_b_uw <- do.call("rbind", list_age_b) %>% data.frame()
-gm_sex_b_uw <- do.call("rbind", list_sex_b) %>% data.frame()
-gm_age_int_b_uw <- do.call("rbind", list_age_b_int) %>% data.frame()
-gm_sex_int_b_uw <- do.call("rbind", list_sex_b_int) %>% data.frame()
-gm_int_int_b_uw <- do.call("rbind", list_int_b_int) %>% data.frame()
+f_gm_mixed_age_b_uw <- do.call("rbind", f_list_age_b) %>% data.frame()
+f_gm_mixed_rank_b_uw <- do.call("rbind", f_list_rank_b) %>% data.frame()
+f_gm_mixed_prop_cyc_b_uw <- do.call("rbind", f_list_prop_cyc_b) %>% data.frame()
 
-save(gm_age_b_uw, gm_sex_b_uw, gm_age_int_b_uw, gm_sex_int_b_uw, gm_int_int_b_uw, file = "data/random coefs age sex on dir grooming mixed sex net sna unweighted.Rdata")
+m_gm_mixed_age_b_uw <- do.call("rbind", m_list_age_b) %>% data.frame()
+m_gm_mixed_rank_b_uw <- do.call("rbind", m_list_rank_b) %>% data.frame()
 
+# save(f_gm_mixed_age_b_uw,
+# f_gm_mixed_rank_b_uw,
+# f_gm_mixed_prop_cyc_b_uw,
+# m_gm_mixed_age_b_uw,
+# m_gm_mixed_rank_b_uw,
+# file = "data/random coefs - mixed sex sep uw - undir gm.Rdata")
 
 # -- same sex networks -----
 # ---- total grooming ran models for same-sex nets, age coef, weighted ------
 
+load("data/ran2 - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata", verbose = T)
+
 list_age_b_f <- vector("list", length = 1000)
+list_rank_b_f <- vector("list", length = 1000)
+list_prop_cyc_b_f <- vector("list", length = 1000)
+
 list_age_b_m <- vector("list", length = 1000)
+list_rank_b_m <- vector("list", length = 1000)
 
 t <- Sys.time()
 for(i in 1:1000) {
@@ -425,26 +671,41 @@ for(i in 1:1000) {
   ran_df <- list_ran_undir_sna_measure_w[[i]]  
   
   # run models
-  gmgmd_mixed_w_f <- ran_df %>%
-    age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
-  gmgmd_mixed_w_m<- ran_df %>%  
-    age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
+  f_gmgmd_same_w <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "female", summary = T )
+  m_gmgmd_same_w <- age_sex_fun_all(ran_df, beh = "total_grooming",  net_sex = "male", summary = T)
   
   # extract coefficient of model
-  list_age_b_f[[i]] <- ex_coef(gmgmd_mixed_w_f, "age")
-  list_age_b_m[[i]] <- ex_coef(gmgmd_mixed_w_m, "age")
+  list_age_b_f[[i]] <- ex_coef(f_gmgmd_same_w, "age")
+  list_rank_b_f[[i]] <- ex_coef(f_gmgmd_same_w, "rank")
+  list_prop_cyc_b_f[[i]] <- ex_coef(f_gmgmd_same_w, "prop_cyc")
+  
+  list_age_b_m[[i]] <- ex_coef(m_gmgmd_same_w, "age")
+  list_rank_b_m[[i]] <- ex_coef(m_gmgmd_same_w, "rank")
 }
 Sys.time() - t #12.7 min
 
-gmgmd_age_b_f <- do.call("rbind", list_age_b_f) %>% data.frame()
-gmgmd_age_b_m <- do.call("rbind", list_age_b_m) %>% data.frame()
+f_gmgmd_same_age_b <- do.call("rbind", list_age_b_f) %>% data.frame()
+f_gmgmd_same_rank_b <- do.call("rbind", list_rank_b_f) %>% data.frame()
+f_gmgmd_same_prop_cyc_b <- do.call("rbind", list_prop_cyc_b_f) %>% data.frame()
 
-#save(gmgmd_age_b_f, gmgmd_age_b_m, file = "data/random coefs age on gmgmd same sex net sna weighted.Rdata")
+m_gmgmd_same_age_b <- do.call("rbind", list_age_b_m) %>% data.frame()
+m_gmgmd_same_rank_b <- do.call("rbind", list_rank_b_m) %>% data.frame()
+
+#save(f_gmgmd_same_age_b,
+#f_gmgmd_same_rank_b,
+#f_gmgmd_same_prop_cyc_b,
+#m_gmgmd_same_age_b,
+#m_gmgmd_same_rank_b, file = "data/random coefs - same sex sep w - dir gmgmd.Rdata")
 
 # ---- total grooming ran models for same-sex nets, age coef, unweighted ------
+load("data/ran4 - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted", verbose = T)
 
 list_age_b_f <- vector("list", length = 1000)
+list_rank_b_f <- vector("list", length = 1000)
+list_prop_cyc_b_f <- vector("list", length = 1000)
+
 list_age_b_m <- vector("list", length = 1000)
+list_rank_b_m <- vector("list", length = 1000)
 
 t <- Sys.time()
 for(i in 1:1000) {
@@ -452,21 +713,31 @@ for(i in 1:1000) {
   ran_df <- list_ran_undir_sna_measure_uw[[i]]  
   
   # run models
-  gmgmd_mixed_uw_f <- ran_df %>%
-    age_fun_all(., beh = "total_grooming", net_sex = "female", summary = T)
-  gmgmd_mixed_uw_m<- ran_df %>%  
-    age_fun_all(., beh = "total_grooming", net_sex = "male", summary = T)
+  f_gmgmd_same_uw <- age_sex_fun_all(ran_df, beh = "total_grooming", net_sex = "female", summary = T )
+  m_gmgmd_same_uw <- age_sex_fun_all(ran_df, beh = "total_grooming",  net_sex = "male", summary = T)
   
   # extract coefficient of model
-  list_age_b_f[[i]] <- ex_coef(gmgmd_mixed_uw_f, "age")
-  list_age_b_m[[i]] <- ex_coef(gmgmd_mixed_uw_m, "age")
+  list_age_b_f[[i]] <- ex_coef(f_gmgmd_same_uw, "age")
+  list_rank_b_f[[i]] <- ex_coef(f_gmgmd_same_uw, "rank")
+  list_prop_cyc_b_f[[i]] <- ex_coef(f_gmgmd_same_uw, "prop_cyc")
+  
+  list_age_b_m[[i]] <- ex_coef(m_gmgmd_same_uw, "age")
+  list_rank_b_m[[i]] <- ex_coef(m_gmgmd_same_uw, "rank")
 }
 Sys.time() - t #12.7 min
 
-gmgmd_age_b_f_uw <- do.call("rbind", list_age_b_f) %>% data.frame()
-gmgmd_age_b_m_uw <- do.call("rbind", list_age_b_m) %>% data.frame()
+f_gmgmd_same_age_b_uw <- do.call("rbind", list_age_b_f) %>% data.frame()
+f_gmgmd_same_rank_b_uw <- do.call("rbind", list_rank_b_f) %>% data.frame()
+f_gmgmd_same_prop_cyc_b_uw <- do.call("rbind", list_prop_cyc_b_f) %>% data.frame()
 
-save(gmgmd_age_b_f_uw, gmgmd_age_b_m_uw, file = "data/random coefs age on gmgmd same sex net sna unweighted.Rdata")
+m_gmgmd_same_age_b_uw <- do.call("rbind", list_age_b_m) %>% data.frame()
+m_gmgmd_same_rank_b_uw <- do.call("rbind", list_rank_b_m) %>% data.frame()
+
+#save(f_gmgmd_same_age_b_uw,
+#f_gmgmd_same_rank_b_uw,
+#f_gmgmd_same_prop_cyc_b_uw,
+#m_gmgmd_same_age_b_uw,
+#m_gmgmd_same_rank_b_uw, file = "data/random coefs - same sex sep uw - dir gmgmd.Rdata")
 
 # ---- prox ran models for same-sex nets, age coef, weighted ------
 list_age_b_f <- vector("list", length = 1000)
