@@ -10,7 +10,6 @@ z. <- function(x) scale(x)
 # changes in integration from year to year, etc.
 
 
-
 # 1. Node randomized graphs ----
 load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = T)
 load("data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = T)
@@ -18,73 +17,139 @@ load("data/sna dataframe - unweighted measures, individual sna measure for each 
 
 # 1a. undirected networks -------------
 
-# WEIGHTED
+# weighted - for model both sexes ----
 set.seed(100)
-list_ran_undir_sna_measure_w <- vector("list", length = 1000)
+list_ran_undir_sna_measure_both_sex_w <- vector("list", length = 1000)
+# Undirected prox gm networks, node attributes of id, age, rank, and sex randomized
+for(i in 1:1000) {
+  
+  # randomize nodes
+  list_ran_undir_sna_measure_both_sex_w[[i]] <- all_sna_measure_df_w %>%
+    group_by(year, network_sex, behavior) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), sex = sample(sex)) %>%
+    ungroup() %>%
+    select(chimp_id, age_mid_year, sex, avg_rank, everything())
+}  
+
+#save(list_ran_undir_sna_measure_both_sex_w, file = "data/ran - both sexes w - node (sex age rank chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
+
+# weighted - for model sex sep ----
+# undir ran for each sex in mixed sex net, and for same sex, either way sexes are analyzed separately
+# and randomizations of relevant variables are done within sex
+set.seed(100)
+list_ran_undir_sna_measure_sex_sep_w <- vector("list", length = 1000)
+# Undirected prox gm networks, node attributes of id, age, rank, and prop_cyc randomized
+for(i in 1:1000) {
+  
+  # randomize nodes
+  list_ran_undir_sna_measure_sex_sep_w[[i]] <- all_sna_measure_df_w %>%
+    group_by(year, network_sex, behavior, sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), prop_cyc = sample(prop_cyc)) %>%
+    ungroup() %>%
+    select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
+}  
+
+#save(list_ran_undir_sna_measure_sex_sep_w, file = "data/ran - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
+
+# unweighted - for model both sexes ---- 
+set.seed(100)
+list_ran_undir_sna_measure_both_sex_uw <- vector("list", length = 1000)
 # Undirected prox gm networks, node attributes of id, age, and sex randomized
 for(i in 1:1000) {
   
   # randomize nodes
-  list_ran_undir_sna_measure_w[[i]] <- all_sna_measure_df_w %>%
+  list_ran_undir_sna_measure_both_sex_uw[[i]] <- all_sna_measure_df_uw %>%
     group_by(year, network_sex, behavior) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
-    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), sex = sample(sex)) %>%
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), sex = sample(sex)) %>%
     ungroup() %>%
-    select(chimp_id, age_mid_year, sex, everything())
+    select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_undir_sna_measure_w, file = "data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd weighted.Rdata")
+#save(list_ran_undir_sna_measure_both_sex_uw, file = "data/ran - both sexes uw - node (sex age rank chimp_id)randomized sna measures undirected prox and gmgmd unweighted.Rdata")
 
-# UNWEIGHTED
+# unweighted - for model sex sep ---- 
 set.seed(100)
-list_ran_undir_sna_measure_uw <- vector("list", length = 1000)
+list_ran_undir_sna_measure_sex_sep_uw <- vector("list", length = 1000)
 # Undirected prox gm networks, node attributes of id, age, and sex randomized
 for(i in 1:1000) {
   
   # randomize nodes
-  list_ran_undir_sna_measure_uw[[i]] <- all_sna_measure_df_uw %>%
-    group_by(year, network_sex, behavior) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
-    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), sex = sample(sex)) %>%
+  list_ran_undir_sna_measure_sex_sep_uw[[i]] <- all_sna_measure_df_uw %>%
+    group_by(year, network_sex, behavior, sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), prop_cyc = sample(prop_cyc)) %>%
     ungroup() %>%
-    select(chimp_id, age_mid_year, sex, everything())
+    select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_undir_sna_measure_uw, file = "data/ran - node (sex age chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata")
-
+#save(list_ran_undir_sna_measure_sex_sep_uw, file = "data/ran - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures undirected prox and gmgmd unweighted.Rdata")
 
 
 # 1b. directed networks ------
 
-# WEIGHTED
+# weighted - for model both sexes -----
 set.seed(100)
-list_ran_dir_sna_measure_w <- vector("list", length = 1000)
+list_ran_dir_sna_measure_both_sex_w <- vector("list", length = 1000)
 # Undirected prox gm networks, node attributes of id, age, and sex randomized
 for(i in 1:1000) {
   
   # randomize nodes
-  list_ran_dir_sna_measure_w[[i]] <- dir_sna_measure_df_w %>%
+  list_ran_dir_sna_measure_both_sex_w[[i]] <- dir_sna_measure_df_w %>%
     group_by(year, network_sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
-    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), sex = sample(sex)) %>%
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), sex = sample(sex)) %>%
     ungroup() %>%
-    select(chimp_id, age_mid_year, sex, everything())
+    select(chimp_id, age_mid_year, sex, avg_rank, everything())
 }  
 
-#save(list_ran_dir_sna_measure_w, file = "data/ran - node (sex age chimp_id) randomized sna measures directed gm weighted.Rdata")
+#save(list_ran_dir_sna_measure_both_sex_w, file = "data/ran - both sexes w - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata")
 
-# UNWEIGHTED
+# weighted - for model sex sep -----
 set.seed(100)
-list_ran_dir_sna_measure_uw <- vector("list", length = 1000)
+list_ran_dir_sna_measure_sex_sep_w <- vector("list", length = 1000)
 # Undirected prox gm networks, node attributes of id, age, and sex randomized
 for(i in 1:1000) {
   
   # randomize nodes
-  list_ran_dir_sna_measure_uw[[i]] <- dir_sna_measure_df_uw %>%
+  list_ran_dir_sna_measure_sex_sep_w[[i]] <- dir_sna_measure_df_w %>%
     group_by(year, network_sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
-    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), sex = sample(sex)) %>%
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), prop_cyc = sample(prop_cyc)) %>%
     ungroup() %>%
-    select(chimp_id, age_mid_year, sex, everything())
+    select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
 }  
 
-#save(list_ran_dir_sna_measure_uw, file = "data/ran - node (sex age chimp_id) randomized sna measures directed gm unweighted.Rdata")
+#save(list_ran_dir_sna_measure_sex_sep_w, file = "data/ran - sex sep w - node (age rank prop_cyc chimp_id) randomized sna measures directed gm weighted.Rdata")
+
+
+# unweighted - for model both sexes -----
+set.seed(100)
+list_ran_dir_sna_measure_both_sex_uw <- vector("list", length = 1000)
+# Undirected prox gm networks, node attributes of id, age, and sex randomized
+for(i in 1:1000) {
+  
+  # randomize nodes
+  list_ran_dir_sna_measure_both_sex_uw[[i]] <- dir_sna_measure_df_uw %>%
+    group_by(year, network_sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), sex = sample(sex)) %>%
+    ungroup() %>%
+    select(chimp_id, age_mid_year, sex, avg_rank, everything())
+}  
+
+#save(list_ran_dir_sna_measure_both_sex_uw, file = "data/ran - both sexes uw - node (sex age rank chimp_id) randomized sna measures directed gm weighted.Rdata")
+
+# unweighted - for model sex sep -----
+set.seed(100)
+list_ran_dir_sna_measure_sex_sep_uw <- vector("list", length = 1000)
+# Undirected prox gm networks, node attributes of id, age, and sex randomized
+for(i in 1:1000) {
+  
+  # randomize nodes
+  list_ran_dir_sna_measure_sex_sep_uw[[i]] <- dir_sna_measure_df_uw %>%
+    group_by(year, network_sex) %>% #this holds constant number of individs in community and individual social tendencies within that year (e.g. individ A tendency to groom w many partners that year and have high deg)
+    mutate(chimp_id = sample(chimp_id), age_mid_year = sample(age_mid_year), avg_rank = sample(avg_rank), prop_cyc = sample(prop_cyc)) %>%
+    ungroup() %>%
+    select(chimp_id, age_mid_year, sex, avg_rank, prop_cyc, everything())
+}  
+
+#save(list_ran_dir_sna_measure_sex_sep_uw, file = "data/ran - sex sep uw - node (age rank prop_cyc chimp_id) randomized sna measures directed gm unweighted.Rdata")
 
 
 
