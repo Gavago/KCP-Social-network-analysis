@@ -1,5 +1,3 @@
-# -- age - sex functions -------
-
 
 # modeling function for single sna measure ------
 age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans", "deg_in", "deg_out"), 
@@ -49,7 +47,7 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans",
 }
 
 
-#modeling every sna measure -------------
+# modeling every sna measure -------------
 # function filters the network behavior, the network sex, and the sex of network members if a mixed sex network
 # then models the relationships between sna measures and network sex and subj sex specific predictor variables
 
@@ -131,7 +129,7 @@ age_sex_fun_all <- function(data,
   
 }
 
-#peek in modeled data set ------
+# peek in modeled data set ------
 
 peep_dataset <- function(data, 
                          beh = c("total_grooming", "prox", "grooming"), 
@@ -169,7 +167,7 @@ peep_dataset <- function(data,
   
 }
 
-#extract coefficient function - mostly for randomizations ------
+# extract coefficient function - mostly for randomizations ------
 
 # ex_coef <- function(m, coef = c("age", "sex")){
 #   if( m == "Error: model does not converge"){
@@ -185,32 +183,22 @@ peep_dataset <- function(data,
 #   return(b)
 # } 
 #figure out conditional lapply or just make loop for extracting
-# REWRITE FOR VARIOUS MODEL STRUCTURES... 
-# mixed both sexes
-# mixed female
-# mixed male
-# same female
-# same male
 
-ex_coef <- function(mod_list, coef = c("age", "sex", "int")){
+ex_coef <- function(mod_list, coef = c("age", "sex", "rank", "prop_cyc", "int")){
   
-  coef_list <- vector("list", length = 4)
+  coef_list <- vector("list", length = 4) # one for each network measure
   names(coef_list) <- paste(names(mod_list), coef, sep = "_")
+  if(coef == "int"){coef <- ":"} # for grep rownames in loop
+  
   
   for(k in 1:4){
     m <- mod_list[[k]]
     
     if(inherits(m, "summary.merMod")){
-
-        if(coef == "age"){
-          b <- coef(m)[2,1]
-        }
-        if(coef == "sex"){
-          b <- coef(m)[3,1]
-        }
-      if(coef == "int"){
-        b <- coef(m)[4,1]
-      }
+    cs <- coef(m) %>% data.frame()#summary
+    
+    b <- cs %>% slice(grep(coef, rownames(.))) %>%
+      .[1,1] #always chose the first row (when are more than 2, e.g. age and sex alone and in interaction) and first col bc = est
       }
     
     if( is.character(m)){
