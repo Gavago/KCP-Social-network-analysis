@@ -235,6 +235,8 @@ m_prox_same_w_old <- sna_w %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna
 f_prox_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "female", summary = T )
 m_prox_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna_uw, beh = "prox", net_sex = "male", summary = T )
 
+#looooads of female-years with 0 bt within same sex network
+peep_dataset(sna_w, beh = "prox", net_sex = "female")
 
 # ----- obs - grooming (same sex) -----
 #weighted
