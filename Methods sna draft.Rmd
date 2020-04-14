@@ -5,20 +5,36 @@ date: "2/7/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, messages = FALSE}
 library(tidyverse)
 select<- dplyr::select
 ```
 
-## Study site and data collection
+## Study site and subjects
+1. Number of males and females throughout study?
 
-We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. 200 subject-years. Subjects ranged 12 - 57 yo. 26.5 +/-  11.6 y, mean sd. Observations 1 - 8 years, 2010 - 2017. Age calculated at mid year.
-
-```{r total subj, eval=FALSE}
+```{r}
 library(tidyverse)
 select<- dplyr::select
 
 load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
+
+all_sna_measure_df_w %>%
+  distinct(chimp_id, sex) %>%
+  count(sex)
+
+all_sna_measure_df_w %>%
+  distinct(chimp_id, year) %>%
+  nrow()
+
+
+
+```
+
+#### age and total obs
+2. We included females > 12 years and males > 15 years, as the former represented a move to reproductive maturity(?) and an end of adolescence. 200 subject-years. Subjects ranged 12 - 57 yo. 26.5 +/-  11.6 y, mean sd. Observations 1 - 8 years, 2010 - 2017. Age calculated at mid year.
+
+```{r total subj, eval=FALSE}
 
 all_sna_measure_df_w %>%
   distinct(chimp_id, sex, year) %>%
@@ -35,13 +51,16 @@ all_sna_measure_df_w %>%
 all_sna_measure_df_w %>%
   distinct(chimp_id, year) %>%
   count(chimp_id) %>%
-  summarise(max_obs = max(n), min_obs = min(n))
+  summarise(max_obs = max(n), min_obs = min(n), avg_obs = mean(n), sd_obs = sd(n))
 
 
 
 ```
 
-## Data processing
+
+
+## Data processing/analysis
+
 
 #### Obs per year
 
@@ -50,14 +69,16 @@ all_sna_measure_df_w %>%
 ```{r filter sub-years: low time as focal, eval = FALSE}
 #load("data/total focal and possible focal per year (2009-2010 separate).Rdata", verbose = T)
 load("data/total focal and possible focal per year.Rdata", verbose = T)
+#see explanation in A1 for what are "possible focals", covers rare chance that community member is not focaled in a given year, but is present in parties.
 
-lo_focal <- total_poss_focal %>%
+foc_hours <- total_poss_focal %>%
   mutate(focal_hours = n/4) %>% #scan every 15 minutes
-  filter(focal_hours < 100) %>%
   rename(focal_n = n) %>%
-  select(year, ID1, focal_n, focal_hours, short_presence) %>%
+  select(year, ID1, focal_n, focal_hours, short_presence)
+lo_focal <- foc_hours %>%
+  filter(focal_hours < 100) %>%
   arrange(year, ID1)
-  
+
 lo_focal
 
 nrow(lo_focal) #92, 112 chimp-years w lo focal observations, i.e. < 100 hrs... (a lot!!!)
@@ -65,6 +86,19 @@ nrow(lo_focal) #92, 112 chimp-years w lo focal observations, i.e. < 100 hrs... (
 # many in 2009, 2011 & 2012
 lo_focal %>%
   count(year)
+
+# to check below if any members adequately observed as focals, but not often present in a party
+enough_focal <- foc_hours %>%
+  filter(focal_hours > 100) %>%
+  arrange(year, ID1)
+enough_focal
+
+# average number of focal and party hours per final chimp_year
+all_sna_measure_df_w %>%
+  distinct(chimp_id, year) %>%
+  left_join(foc_hours, by = c("chimp_id" = "ID1", "year")) %>%
+  left_join(total_party_member, by = c("year", "chimp_id" = "ID1", "short_presence")) %>%
+    summarise(avg_focal = mean(focal_hours), sd_focal = sd(focal_hours), avg_party_memb = mean(party_hours), sd_party = sd(party_hours))
 
 ```
 
@@ -106,6 +140,13 @@ nrow(lo_foc_hi_party) #84, 101
 
 lo_focal %>% anti_join(lo_foc_lo_party) %>% anti_join(lo_foc_hi_party)
 #should just be those w short pres
+
+#final check if any members adequately observed as focals, but not often present in a party - there are no network members who were observed > 100 hours as focal but seen fewer than 100 hours in a party.
+enough_focal %>% 
+  left_join(total_party_member, by = c("year", "ID1", "short_presence")) %>%
+  filter(party_hours < 100)
+
+
 
 ```
 
@@ -194,12 +235,6 @@ full_join(lo_foc_lo_party, shortpres_focal) %>% nrow() #15, no overlap
 
 ```
 
-4. Each network member was observed as a focal subject for an annual average +/- sd of hours.
-An average of X network members per year were never observed as a focal.
-
-```{r average obs time}
-
-```
 
 We calculated annual affiliation indices gmgmd, prox, and gm, time associating during focal obs relative to time subjects seen in same party while one was a focal (as in machanda et al 2013 IJP). Analyzed measures of affiliation independently - as they appear to have diff functions or patterns among diff sex dyads (e.g. Machanda et al 2013)
 Undirected (gmgmd prox) and directed (gm) annual networks with mixed and same sex dyads (9 networks) in R igraph
