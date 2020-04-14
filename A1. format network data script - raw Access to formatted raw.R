@@ -340,6 +340,12 @@ nrow(undir_annual_dyads) #11207 2009-10 collapsed, using "partner" column is 120
 #save(foc_part, file = "data/focal party scans formatted.Rdata")
 
 # ----- create total focal obs w possible focal years included ----
+# a "possible" focal is someone that was of adequate age to be included in the network
+# but perhaps wasn't observed as a focal subject, highly unlikely that this happens
+# but some community members could be rarely seen in a given year and thus not
+# focaled - by using ID2 in the focal party scans, these possible individuals
+# are covered
+
 
 #total focal obs in given year
 poss_focal <- foc_part %>%
@@ -369,6 +375,8 @@ total_poss_focal <- total_focal %>%
 
 nrow(total_focal) #209 2009-10 collapsed, 224
 nrow(total_poss_focal) #215 2009-10 collapsed; 234 aha, not so different
+# are 6 individuals overall that appear in party membership focal scan but are not 
+# focaled in a given year.
 
 total_poss_focal %>%
   filter(is.na(n)) # that, friend, is fucking beautiful.
