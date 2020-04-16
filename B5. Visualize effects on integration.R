@@ -1,110 +1,157 @@
 # 3. Visualization----------
-# -- viz - mixed sex gm age sex ------
+#### H1 - attraction isolation - w and uw degree -------
+# - gm ---- 
+# -- deg in ----
 
-# grooming
-# think we'll find all of these are sig relative to randomization - yup.
+# weighted
+v_deg_in_gm_w <- dir_sna_w %>%
+  filter(network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg_in, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + #sig mixed, sig M F same sex
+  labs( x = "Age (years)", y = "", title = "W Deg In") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_deg_in_gm_w
 
-sg1 <- sna_w %>%
+# unweighted
+v_deg_in_gm_uw <- dir_sna_uw %>%
+  filter(network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg_in, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + #sig mixed, sig M F same sex
+  labs( x = "Age (years)", y = "", title = "UW Deg In") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_deg_in_gm_uw
+
+# -- deg out -----
+
+# weighted
+v_deg_out_gm_w <- dir_sna_w %>%
+  filter(network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg_in, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + #sig mixed, sig M F same sex
+  labs( x = "Age (years)", y = "", title = "W Deg Out") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_deg_out_gm_w
+
+# unweighted
+v_deg_out_gm_uw <- dir_sna_uw %>%
+  filter(network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg_in, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + #sig mixed, sig M F same sex
+  labs( x = "Age (years)", y = "", title = "UW Deg Out") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_deg_out_gm_uw
+
+# - prox ----
+# -- deg ----
+
+v_deg_prox_w <- sna_w %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, deg, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + #loess no clearer
+  labs( x = "Age (years)", y = "", title = "W Degree Prox") +
+  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_deg_prox_w
+
+
+#### H2 - bridge vs cluster - bt and trans -------
+# - gmgmd ----
+# --- bt----
+v_bt_gm <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
   geom_point() +
-  geom_smooth( method = "lm") + # sig
-  labs( x = "Age (years)", y = "", title = "Grooming Betweenness") +
+  geom_smooth( method = "lm") + # no clear curves loess
+  labs( x = "Age (years)", y = "", title = "W Grooming Betweenness") +
   annotate("text",x = 35, y = 115, label = "*", size = 12) +
   theme(plot.title = element_text(hjust = 0.5, size = 14))
-#annotate("text",x = 52, y = 50, label = "M > F", size = 4)  
-sg1
+v_bt_gm
 
-sg2 <- sna_w %>%
-  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
-  ggplot(aes(age_mid_year, ec, color = sex)) +
-  geom_point() +
-  geom_smooth( method = "loess") +
-  labs( x = "Age (years)", y = "",title = "Grooming Eigenvector centrality") +
-  annotate("text",x = 52, y = 1, label = "** Age changes in \n same sex networks, alone", size = 3) +
-  theme(plot.title = element_text(hjust = 0.5, size = 14))
-#annotate("text",x = 52, y = 0.25, label = "M > F", size = 4)  
-sg2
-
-sg3 <- sna_w %>%
-  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
-  ggplot(aes(age_mid_year, deg, color = sex)) +
-  geom_point() +
-  geom_smooth( method = "lm") + #sig
-  labs( x = "Age (years)", y = "", title = "Grooming Weighted degree") +
-  annotate("text",x = 35, y = 65, label = "*", size = 12) +
-  annotate("text",x = 50, y = 75, label = "** Age changes in \n same sex networks, too", size = 3)+
-  theme(plot.title = element_text(hjust = 0.5, size = 14))
-#annotate("text",x = 52, y = 10, label = "M > F", size = 4)  
-sg3
-
-sg4 <- sna_w %>%
+# --- trans ----
+v_trans_gm <- sna_w %>%
   filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, trans, color = sex)) +
   geom_point() +
-  geom_smooth( method = "lm") + #sig
+  geom_smooth( method = "lm") + #extreme curve for F w loess
   labs( x = "Age (years)", y = "", title = "Grooming Weighted transitivity") +
-  annotate("text",x = 35, y = .8, label = "*", size = 12) +
-  annotate("text",x = 50, y = .9, label = "** Age changes in \n same sex networks, too", size = 3) +
+  annotate("text",x = 35, y = 0.9, label = "*", size = 12) +
+  annotate("text",x = 50, y = 1, label = "** Age changes in \n same sex networks, too", size = 3) +
   theme(plot.title = element_text(hjust = 0.5, size = 14))
-#no main effect diff M F
-sg4
+v_trans_gm
 
-sg1; sg2; sg3; sg4
-
-pdf("results/results viz - age sex changes in grooming integration.pdf", height = 16, width = 16)
-grid.arrange(grobs = list(sg1, sg2, sg3, sg4), nrow = 2, top = textGrob("Age changes in grooming integration, mixed sex networks"), gp = gpar(fontize = 32))
-dev.off()
-
-sna_uw %>%
-  filter(chimp_id == "QT", network_sex == "female", behavior =="total_grooming") %>%
-  ggplot(aes(age_mid_year, deg)) +
-  geom_point() +
-  geom_line()
-geom_smooth( method = "lm")
-
-
-# -- viz - mixed sex prox age sex ------
-
-sp1 <- sna_w %>%
+# - prox -----
+# --- bt -----
+v_bt_prox <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, bt, color = sex)) +
   geom_point() +
-  geom_smooth( method = "lm") +
+  geom_smooth( method = "lm") + # no clear pattern w loess
   labs(x = "Age (years)", y = "" ,title = "Prox Betweenness") +
   theme(plot.title = element_text(hjust = 0.5, size = 14))
-sp1
+v_bt_prox
+# --- trans ------
+v_trans_prox <- sna_w %>%
+  filter(behavior == "prox" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, trans, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "lm") + # no diff w loess, almost no variation in prox trans
+  labs( x = "Age (years)", y = "", title = "Prox Weighted transitivity") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_trans_prox
 
-sp2 <- sna_w %>%
+#### H3 - embededness - ec --------
+
+#  - gmgmd -----
+v_ec_gm <- sna_w %>%
+  filter(behavior == "total_grooming" & network_sex == "any_combo") %>%
+  ggplot(aes(age_mid_year, ec, color = sex)) +
+  geom_point() +
+  geom_smooth( method = "loess") + # clear > 35 yr drop in males
+  labs( x = "Age (years)", y = "",title = "Grooming Eigenvector centrality") +
+  annotate("text",x = 52, y = 1, label = "** Age changes in \n same sex networks, alone", size = 3) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+v_ec_gm
+
+#ATTEMPT TO PLOT Marginal relationship of EC and age - see if any affect of age left after rank accounted for
+
+
+# - prox -----
+v_ec_prox <- sna_w %>%
   filter(behavior == "prox" & network_sex == "any_combo") %>%
   ggplot(aes(age_mid_year, ec, color = sex)) +
   geom_point() +
-  geom_smooth( method = "lm") + # sig M F same sex
+  geom_smooth( method = "loess") + #see non linear pattern, > 30 male and female decline
   labs( x = "Age (years)", y = "", title = "Prox Eigenvector centrality") +
   annotate("text",x = 35, y = 0.9, label = "*", size = 12) +
   annotate("text",x = 50, y = 1, label = "** Age change in \n male network, too", size = 3) +
   theme(plot.title = element_text(hjust = 0.5, size = 14))
-sp2
+v_ec_prox
 
-sp3 <- sna_w %>%
-  filter(behavior == "prox" & network_sex == "any_combo") %>%
-  ggplot(aes(age_mid_year, deg, color = sex)) +
-  geom_point() +
-  geom_smooth( method = "lm") + #sig mixed, sig M F same sex
-  labs( x = "Age (years)", y = "", title = "Prox Weighted degree") +
-  annotate("text",x = 50, y = 4, label = "** Age changes in \n same sex networks, alone", size = 3) +
-  theme(plot.title = element_text(hjust = 0.5, size = 14))
-sp3
-
-sp4 <- sna_w %>%
-  filter(behavior == "prox" & network_sex == "any_combo") %>%
-  ggplot(aes(age_mid_year, trans, color = sex)) +
-  geom_point() +
-  geom_smooth( method = "lm") +
-  labs( x = "Age (years)", y = "", title = "Prox Weighted transitivity") +
-  theme(plot.title = element_text(hjust = 0.5, size = 14))
-sp4
-
+# save vis ----
+# ------- H1 ----
+#pdf("results/results viz - age sex changes in grooming integration.pdf", height = 16, width = 16)
+#grid.arrange(grobs = list(sg1, sg2, sg3, sg4), nrow = 2, top = textGrob("Age changes in grooming integration, mixed sex networks"), gp = gpar(fontize = 32))
+#dev.off()
+# ------- H2 ----
+# ------- H3 ----
 pdf("results/results viz - age sex changes in proximity integration.pdf", height = 16, width = 16)
 grid.arrange(grobs = list(sp1, sp2, sp3, sp4), nrow = 2, top = textGrob("Age changes in proximity integration, mixed sex network"), gp = gpar(fontize = 32))
 dev.off()
+
+
+# explore particular individuals -----
+sna_uw %>%
+  filter(chimp_id == "QT", network_sex == "female", behavior =="total_grooming") %>%
+  ggplot(aes(age_mid_year, deg)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
