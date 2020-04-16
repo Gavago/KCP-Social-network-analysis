@@ -7,7 +7,7 @@ load("data/sna dataframe - unweighted measures, individual sna measure for each 
 load("data/sna dataframe - weighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 load("data/sna dataframe - unweighted measures, individual sna measure for each year, network sex, & behavior.Rdata", verbose = TRUE)
 source("functions/functions - age sex modeling.R")
-
+source("functions/functions - table age sex results.R")
 
 sna_w <- all_sna_measure_df_w
 sna_uw <- all_sna_measure_df_uw
@@ -210,7 +210,7 @@ for(i in seq(all_mod_names)){
         if(all(prop_greater >= 0.95 | prop_greater <= 0.05)){sig = "*"} else {sig = ""}  
       }  else { beta = NA ; prop_greater = NA ; sig = NA }
       # mod_name gives the source, beta name gives the specific sna measure of the beta in question - identifies response
-      sig_coef[[k]] <- data.frame(mod_name, response = beta_name, pred, sex, beh, net_sex, weighted, beta, prop_greater, sig)
+      sig_coef[[k]] <- data.frame(mod_name, response = beta_name, pred, sex, beh, net_sex, weighted, beta, prop_greater, sig, stringsAsFactors = F)
       
     }
     sig_pred[[j]] <- do.call("rbind",sig_coef) 
@@ -224,28 +224,6 @@ sig_tests <- do.call("rbind", sig_mod)
 dim(sig_tests)
 #336, 10 hot diggity damn.
 
-#save(sig_tests, file = "data/sig tests - all models.Rdata")
-
-# 2. Explore sig ------
-load("data/sig tests - all models.Rdata", verbose = T)
-
-# total grooming (9 models)
-#  - age*sex in mixed (1)
-#  - age in m or f mixed (2)
-#  - age in same sex (2)
-#  - age in directed grooming degree both sexes, weighted and unweighted (4)
-# 
-# prox (5 models)
-# - age*sex in mixed (1)
-# - age in m or f mixed (2)
-# - age in same sex (2)
-
-names(sig_tests)
-nrow(sig_tests)
-
-sna_sort <- function(x) factor(x, levels = c("BT", "EC", "W DEG", "W DEG IN", "W DEG OUT","UW DEG", "UW DEG IN", "UW DEG OUT", "TRANS"))
-beh_sort <- function(x) factor(x, levels = c("total_grooming", "grooming" ,"prox"))
-
 same_sex_results <- sig_tests %>%
   filter(grepl("same", mod_name))
 nrow(same_sex_results)  #120
@@ -254,51 +232,53 @@ mixed_sex_results <- sig_tests %>%
   filter(grepl("mixed", mod_name))
 nrow(mixed_sex_results)  #216
 
-#number of model results removed bc are unweighted non-degree sna measures 
-mixed_sex_results %>%
-  filter(weighted == FALSE & !grepl("deg", rowname)) %>% View() nrow() # 76
-#number of model results removed bc are non-degree measures of directed grooming
-mixed_sex_results %>%
-  filter(grepl("gm_", mod_name) & !grepl("deg", rowname)) %>% nrow() # 40
 
-
-x <- mixed_sex_results %>%
-  mutate(beh = as.character(beh)) %>%
-  mutate(sna_measure = case_when(
-    grepl("bt", rowname) ~ "BT",
-    grepl("ec|1", rowname) ~ "EC",
-    grepl("trans", rowname) ~ "TRANS",
-    grepl("deg_in_", rowname) & grepl("_w$", mod_name) ~ "W DEG IN",
-    grepl("deg_out_", rowname) & grepl("_w$", mod_name) ~ "W DEG OUT",
-    grepl("deg_int|deg_[^i]|deg_[^o]", rowname) & grepl("_w$", mod_name) ~ "W DEG",
-    grepl("deg_in_", rowname) & grepl("_uw$", mod_name) ~ "UW DEG IN",
-    grepl("deg_out_", rowname) & grepl("_uw$", mod_name) ~ "UW DEG OUT",
-    grepl("deg_int|deg_[^i]|deg_[^o]", rowname) & grepl("_uw$", mod_name) ~ "UW DEG")) %>%
-  #don't want unweighted sna measures that aren't degree
-  filter(!(weighted == FALSE & !grepl("deg", rowname))) %>%
-  # don't want sna measures for grooming that aren't degree 
-  filter(!(grepl("gm_", mod_name) & !grepl("deg", rowname)))
-nrow(x)
- 
-xx <- x %>%
-  arrange(beh_sort(beh), sna_sort(sna_measure), mod_name) %>%
-  mutate_if(is.numeric, round, 2) %>%
-  select(beh, sna_measure, sex, pred, beta, prop_greater, sig, rowname, mod_name)
- 
-nrow(xx)
-
-xx[duplicated(xx[,c("beh", "sna_measure")]), "beh"] <- ""
-
-xx
 
 sig_tests %>%
-  filter(mod_name == "f_gm_mixed_w")
+  filter(is.na(beta)) %>%
+  filter(!(weighted == FALSE & !grepl("deg",response)))
+# most of what does not converge is either 1) in directed grooming and is ec, confirms that 
+# we don't want to look at grand/indirect integration measures when directed, doesn't
+# work mathematically and not very informative in the first place (who cares about the directions of your indirect connectons?)
+# or 2) is a product of very little variation in indirect measures of integration when ties aren't weighted
+# eg. betweenness in unweighted networks (can see without 2nd filter, bt in both gmgmd mixed uw)
+# strange non-ec that doesn't converge is betweenness in f_prox_same, many 0's
+
+#save(sig_tests, same_sex_results, mixed_sex_results, file = "data/sig tests - all models.Rdata")
+
+# 2. Explore sig ------
+load("data/sig tests - all models.Rdata", verbose = T)
+source("functions/functions - table age sex results.R")
+
+#H1
+undir_deg_tab <- table_results(mixed_sex_results, "DEG")
+#Hone degree table... Only use directed? refer to hypos
+
+dir_deg_tab <- table_results(mixed_sex_results, "DIR DEG")
+# could potentially only use undir degree for prox...
+
+#H2
+bt_trans_tab <- table_results(mixed_sex_results, "BT")
+
+#H3
+ec_tab <- table_results(mixed_sex_results, "EC")
+
+undir_deg_tab
+
+
+# write.table(undir_deg_tab, file = "results/tables/H1a. undir deg - age sex effects table.txt", row.names = F, quote = F, sep = "/")
+# write.table(dir_deg_tab, file = "results/tables/H1b. dir deg - age sex effects table.txt", row.names = F, quote = F, sep = "/")
+# write.table(bt_trans_tab, file = "results/tables/H2. bt trans - age sex effects table.txt", row.names = F, quote = F, sep = "/")
+# write.table(ec_tab, file = "results/tables/H3. ec - age sex effects table.txt", row.names = F, quote = F, sep = "/")
+
+
 
 #measure
 #behavior
 #network members
 
   
+# graveyard --------------
 
 # What are age effects on integration? ----
 
@@ -513,3 +493,28 @@ names(gmgmd_sex_b)
 # male = for 4 sna measures, coefs include age, rank
 sum(coef(gmgmd_mixed_int_w$bt)[4,1] >  gmgmd_int_int_b$bt_int_int, na.rm = T) / 1000 # b -0.55 sig lo, males decrease in betweenness w age while fem don't
 
+# checking filter on mod results -
+#number of model results removed bc are unweighted non-degree sna measures 
+mixed_sex_results %>%
+  filter(weighted == FALSE & !grepl("deg", response)) %>% nrow() # 72
+#number of model results removed bc are non-degree measures of directed grooming
+mixed_sex_results %>%
+  filter(grepl("gm_", mod_name) & !grepl("deg", response)) %>% nrow() # 36
+mixed_sex_results %>%
+  filter(weighted == FALSE & !grepl("deg", response)) %>%
+  filter(grepl("gm_", mod_name) & !grepl("deg", response)) %>% nrow() # 18 of 2nd condition are already in 1st
+# filter should subtract 90 from 216 or 126
+
+
+
+
+# total grooming (9 models)
+#  - age*sex in mixed (1)
+#  - age in m or f mixed (2)
+#  - age in same sex (2)
+#  - age in directed grooming degree both sexes, weighted and unweighted (4)
+# 
+# prox (5 models)
+# - age*sex in mixed (1)
+# - age in m or f mixed (2)
+# - age in same sex (2)

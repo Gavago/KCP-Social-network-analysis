@@ -1,0 +1,37 @@
+sna_measure/beh/sex/pred/beta/prop_greater/sig
+W Degree In/Grooming/Both/Age/-0.35/0/*
+///Sex/1.27/1/*
+///Rank/-0.02/0.42/
+///Age:Sex/0.47/0.98/*
+//Female/Age/-0.69/0/*
+///Rank/0.24/0.97/*
+///Time swelling/-0.09/0.31/
+//Male/Age/-0.32/0/*
+///Rank/0.32/0.99/*
+UW Degree In/Grooming/Both/Age/-0.23/0.01/*
+///Sex/0.69/1/*
+///Rank/0.08/0.91/
+///Age:Sex/0.15/0.86/
+//Female/Age/-0.43/0/*
+///Rank/0.29/1/*
+///Time swelling/-0.09/0.1/
+//Male/Age/0.13/0.96/*
+///Rank/0.12/0.92/
+W Degree Out/Grooming/Both/Age/-0.53/0/*
+///Sex/1.52/1/*
+///Rank/0.31/1/*
+///Age:Sex/0.53/0.99/*
+//Female/Age/-1.07/0/*
+///Rank/0.8/1/*
+///Time swelling/0.03/0.71/
+//Male/Age/-0.68/0/*
+///Rank/-0.18/0.12/
+UW Degree Out/Grooming/Both/Age/-0.21/0.03/*
+///Sex/1.83/1/*
+///Rank/0.34/1/*
+///Age:Sex/-0.19/0.09/
+//Female/Age/-0.39/0/*
+///Rank/0.26/0.99/*
+///Time swelling/-0.02/0.42/
+//Male/Age/0.15/0.96/*
+///Rank/0.04/0.65/
