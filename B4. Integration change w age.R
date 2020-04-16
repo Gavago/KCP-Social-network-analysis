@@ -146,8 +146,8 @@ m_gm_mixed_uw <- age_sex_fun_all(dir_sna_uw, beh = "grooming", net_sex = "any_co
 peep_dataset(dir_sna_w, beh = "grooming", net_sex = "any_combo", subj_sex = "F")
 peep_dataset(dir_sna_w, beh = "grooming", net_sex = "any_combo", subj_sex = "M")
 
-f_gm_mixed_w <- age_sex_fun_single(sna_measure = "deg_out", dir_sna_w, beh = "grooming", net_sex = "any_combo", sex_age_int = F, subj_sex = "F")
-f_gm_mixed_uw <- age_sex_fun_single(sna_measure = "deg_out", dir_sna_uw, beh = "grooming", net_sex = "any_combo", sex_age_int = F, subj_sex = "F")
+#f_gm_mixed_w <- age_sex_fun_single(sna_measure = "deg_out", dir_sna_w, beh = "grooming", net_sex = "any_combo", sex_age_int = F, subj_sex = "F")
+#f_gm_mixed_uw <- age_sex_fun_single(sna_measure = "deg_out", dir_sna_uw, beh = "grooming", net_sex = "any_combo", sex_age_int = F, subj_sex = "F")
 
 # old chimps
 
