@@ -285,6 +285,62 @@ m_gm_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna
 # file = "data/models - same sex networks - older.Rdata")
 
 
+
+# Non linear age effects ----
+
+#fem deg in gm uw - yes quad
+f_gm_mixed_uw_l  <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_in", beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = F)
+f_gm_mixed_uw_nl <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_in", beh = "grooming", net_sex = "any_combo", subj_sex = "F", quadratic = TRUE, summary = F)
+AIC(f_gm_mixed_uw_l, f_gm_mixed_uw_nl)
+f_gm_mixed_deg_in_uw <- summary(f_gm_mixed_uw_nl)
+
+
+#male deg out gm w and uw - no quad for either 
+m_gm_mixed_w_l <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_out", beh = "grooming", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
+m_gm_mixed_w_nl <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_out",  beh = "grooming", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_mixed_w_l,m_gm_mixed_w_nl)
+
+m_gm_mixed_uw_l <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_out", beh = "grooming", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
+m_gm_mixed_uw_nl <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_out",  beh = "grooming", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_mixed_uw_l,m_gm_mixed_uw_nl)
+
+#male and fem deg prox - no quad for either
+m_prox_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
+m_prox_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_prox_mixed_w_l, m_prox_mixed_w_nl)
+
+f_prox_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "any_combo", subj_sex = "F", quadratic = F, summary = F)
+f_prox_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "any_combo", subj_sex = "F", quadratic = T, summary = F)
+AIC(f_prox_mixed_w_l, f_prox_mixed_w_nl)
+
+#fem trans gmgmd - yes quad
+f_gmgmd_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "trans", beh = "total_grooming", net_sex = "any_combo", subj_sex = "F", quadratic = F, summary = F)
+f_gmgmd_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "trans", beh = "total_grooming", net_sex = "any_combo", subj_sex = "F", quadratic = T, summary = F)
+AIC(f_gmgmd_mixed_w_l, f_gmgmd_mixed_w_nl)
+f_gmgmd_mixed_trans_w <- summary(f_gmgmd_mixed_w_nl)
+
+#male trans gmgmd - yes quad
+m_gmgmd_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
+m_gmgmd_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_gmgmd_mixed_w_l, m_gmgmd_mixed_w_nl)
+m_gmgmd_mixed_ec_w <- summary(m_gmgmd_mixed_w_nl)
+
+#male and fem ec prox - quad for females
+m_prox_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
+m_prox_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_prox_mixed_w_l, m_prox_mixed_w_nl)
+
+f_prox_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "any_combo", subj_sex = "F", quadratic = F, summary = F)
+f_prox_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "any_combo", subj_sex = "F", quadratic = T, summary = F)
+AIC(f_prox_mixed_w_l, f_prox_mixed_w_nl)
+f_prox_mixed_ec_w <- summary(f_prox_mixed_w_nl)
+
+
+# save observed non-linear effects
+# save(f_gm_mixed_deg_in_uw, f_gmgmd_mixed_trans_w, m_gmgmd_mixed_ec_w, f_prox_mixed_ec_w, file = "data/models - non linear age relationships.Rdata")
+
 #gyard ----
 filt_cv <- function(data, net_sex, cv, beh) {
   val <- data %>%
