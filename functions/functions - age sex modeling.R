@@ -98,23 +98,36 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans",
                                beh = c("total_grooming", "prox"), 
                                net_sex = c("any_combo", "female", "male"), 
                                subj_sex = NULL,
-                               sex_age_int = FALSE, summary = FALSE){
+                               sex_age_int = FALSE, quadratic = FALSE, summary = FALSE){
   
+  require(lme4)
   #scale shorthand function
   z. <- function(x) scale(x)
+  
+  
+  #create appropriate age and age interaction terms 
+  # depending on modeling non linear relationship
+  if(quadratic == TRUE) {
+    age_term <- expr(z.(age_mid_year) + z.(age_mid_year^2))
+  } else { age_term <- expr(z.(age_mid_year)) }
+  # in the event that an interaction is used, make them according to the quadratic argument
+  if(quadratic == TRUE){
+    interaction_term <- expr(z.(age_mid_year)*sex + z.(age_mid_year^2)*sex)
+  } else { interaction_term <- expr(sex*z.(age_mid_year))}
+
   #model expressions
   #both sexes 
   if(all(net_sex == "any_combo" & subj_sex == "both" & sex_age_int == TRUE)){
-    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + sex + z.(avg_rank) + sex*z.(age_mid_year) + (1|chimp_id))
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + sex + z.(avg_rank) + !!interaction_term + (1|chimp_id))
   }
   if(all(net_sex == "any_combo" & subj_sex == "both" & sex_age_int == FALSE)){
-    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + sex + z.(avg_rank) + (1|chimp_id))
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + sex + z.(avg_rank) + (1|chimp_id))
   }
   if(all(net_sex == "any_combo" & subj_sex == "M" | net_sex == "male")){
-    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + z.(avg_rank) + (1|chimp_id))
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + z.(avg_rank) + (1|chimp_id))
   }
   if(all(net_sex == "any_combo" & subj_sex == "F" | net_sex == "female")){
-    f <- expr(!!sym(sna_measure) + 0.00001 ~ z.(age_mid_year) + z.(avg_rank) + z.(prop_cyc) + (1|chimp_id))
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + z.(avg_rank) + z.(prop_cyc) + (1|chimp_id))
   }
   
   #data
@@ -133,11 +146,14 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans",
   
 # if max|grad reached, then change integration method - give model more points to integrate random effects over
   # https://stats.stackexchange.com/questions/77313/why-cant-i-match-glmer-family-binomial-output-with-manual-implementation-of-g
-  if(grepl("max", mod)){
-    mod <- glmer(f, family = Gamma(link = "log") , data = d)
-    mod <- update(mod, nAGQ = 2) 
-  }
+  if(inherits(mod, "character")){
+    if(grepl("max", mod)){
+      mod <- glmer(f, family = Gamma(link = "log") , data = d)
+      mod <- update(mod, nAGQ = 2) 
+    }
+    }
   
+  #make summary
   if(all(!inherits(mod, "character") & summary == T)){
     mod <- summary(mod)
   }
