@@ -1,0 +1,16 @@
+sna_measure/beh/sex/pred/beta/prop_greater/sig
+UW Degree In/Grooming/Female/Age/3.24/1/*
+///Age_squared/-3.81/0/*
+///Rank/0.06/0.78/
+///Time swelling/-0.04/0.99/*
+Local Transitivity/Total Grooming/Female/Age/2.48/1/*
+///Age_squared/-2.97/0/*
+///Rank/0.14/0.99/*
+///Time swelling/-0.04/0.85/
+Eigenvectory Centrality/Total Grooming/Male/Age/1.49/0.99/*
+///Age_squared/-1.28/0.04/*
+///Rank/0.11/0.84/
+Eigenvectory Centrality/Prox/Female/Age/0.87/1/*
+///Age_squared/-0.84/0/*
+///Rank/0.06/0.92/
+///Time swelling/-0.05/1/*

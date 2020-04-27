@@ -19,12 +19,12 @@ table_results <- function(results, table = c("full", "DEG", "DIR DEG", "BT", "EC
       grepl("bt", response) ~ "Betweenness",
       grepl("ec|1", response) ~ "Eigenvectory Centrality",
       grepl("trans", response) ~ "Local Transitivity",
-      grepl("deg_in_", response) & grepl("_w$", mod_name) ~ "W Degree In",
-      grepl("deg_out_", response) & grepl("_w$", mod_name) ~ "W Degree Out",
+      grepl("deg_in$|deg_in[^t]", response) & grepl("_w$", mod_name) ~ "W Degree In",
+      grepl("deg_out", response) & grepl("_w$", mod_name) ~ "W Degree Out",
       grepl("deg_int|deg_[^i]|deg_[^o]", response) & grepl("_w$", mod_name) ~ "W Degree",
-      grepl("deg_in_", response) & grepl("_uw$", mod_name) ~ "UW Degree In",
-      grepl("deg_out_", response) & grepl("_uw$", mod_name) ~ "UW Degree Out",
-      grepl("deg_int|deg_[^i]|deg_[^o]", response) & grepl("_uw$", mod_name) ~ "UW Degree")) %>%
+      grepl("deg_in$|deg_in[^t]", response) & grepl("_uw$", mod_name) ~ "UW Degree In",
+      grepl("deg_out", response) & grepl("_uw$", mod_name) ~ "UW Degree Out",
+      grepl("deg_int|(deg_[^i] & deg_[^o])", response) & grepl("_uw$", mod_name) ~ "UW Degree")) %>%
     #don't want unweighted sna measures that aren't degree
     filter(!(weighted == FALSE & !grepl("deg", response))) %>%
     # don't want sna measures for grooming that aren't degree 
