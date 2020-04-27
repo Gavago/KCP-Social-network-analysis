@@ -10,7 +10,8 @@ age_sex_fun_all <- function(data,
                             subj_sex = NULL,
                             sex_age_int = FALSE, summary = TRUE){
   
-  library(lme4)
+  require(lme4)
+  require(tidyverse)
   #scale shorthand function
   z. <- function(x) scale(x)
   
@@ -101,6 +102,7 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans",
                                sex_age_int = FALSE, quadratic = FALSE, summary = FALSE){
   
   require(lme4)
+  require(tidyverse)
   #scale shorthand function
   z. <- function(x) scale(x)
   
@@ -207,19 +209,6 @@ peep_dataset <- function(data,
 
 # extract coefficient function - mostly for randomizations ------
 
-# ex_coef <- function(m, coef = c("age", "sex")){
-#   if( m == "Error: model does not converge"){
-#     b <- NA
-#   }
-#   
-#   if(coef == "age"){
-#     b <- coef(m)[2,1]
-#   }
-#   if(coef == "sex"){
-#     b <- coef(m)[3,1]
-#   }
-#   return(b)
-# } 
 #figure out conditional lapply or just make loop for extracting
 
 ex_coef <- function(mod_list, pred = c("age", "sex", "rank", "prop_cyc", "int")){
@@ -249,3 +238,26 @@ ex_coef <- function(mod_list, pred = c("age", "sex", "rank", "prop_cyc", "int"))
   return(coefs)
 }
 
+ex_coef_single <- function(m, pred = c("age", "age_squared", "sex", "rank", "prop_cyc", "int")){
+  
+  #name_m <- ensym(m)
+
+  if(pred == "int"){pred_term <- ":"} # for grep rownames in loop
+  if(pred == "age"){pred_term <- "age_mid_year)"}
+  if(pred == "age_squared"){pred_term <- "age_mid_year\\^2)"}
+  if(!grepl("age", pred)){pred_term <- pred}
+  
+    if(inherits(m, "summary.merMod")){
+      cs <- coef(m) %>% data.frame()#summary
+      
+      b <- cs %>% slice(grep(pred_term, rownames(.))) %>%
+        .[1,1] #always chose the first row (when are more than 2, e.g. age and sex alone and in interaction) and first col bc = estimate
+    }
+    
+    if( is.character(m)){
+      b <- NA
+    }
+    
+  names(b) <- pred #paste(name_m, pred, sep = "_")
+  return(b)
+}
