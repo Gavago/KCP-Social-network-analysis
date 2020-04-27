@@ -286,7 +286,7 @@ m_gm_same_uw_old <- sna_uw %>% filter(age_mid_year > 30) %>% age_sex_fun_all(sna
 
 
 
-# Non linear age effects ----
+# Non linear age effects - mixed sex ----
 
 #fem deg in gm uw - yes quad
 f_gm_mixed_uw_l  <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_in", beh = "grooming", net_sex = "any_combo", subj_sex = "F", summary = F)
@@ -321,7 +321,7 @@ f_gmgmd_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "trans", be
 AIC(f_gmgmd_mixed_w_l, f_gmgmd_mixed_w_nl)
 f_gmgmd_mixed_trans_w <- summary(f_gmgmd_mixed_w_nl)
 
-#male trans gmgmd - yes quad
+#male ec gmgmd - yes quad
 m_gmgmd_mixed_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", quadratic = F, summary = F)
 m_gmgmd_mixed_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "any_combo", subj_sex = "M", quadratic = T, summary = F)
 AIC(m_gmgmd_mixed_w_l, m_gmgmd_mixed_w_nl)
@@ -340,6 +340,59 @@ f_prox_mixed_ec_w <- summary(f_prox_mixed_w_nl)
 
 # save observed non-linear effects
 # save(f_gm_mixed_deg_in_uw, f_gmgmd_mixed_trans_w, m_gmgmd_mixed_ec_w, f_prox_mixed_ec_w, file = "data/models - non linear age relationships.Rdata")
+
+# Non linear age effects - same sex ------
+
+# male deg in gm w and uw - no quad for either
+m_gm_same_w_l <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_in", beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_gm_same_w_nl <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_in",  beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_same_w_l,m_gm_same_w_nl) # quad no better
+
+m_gm_same_uw_l <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_in", beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_gm_same_uw_nl <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_in",  beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_same_uw_l,m_gm_same_uw_nl) # quad no better
+
+# male deg out gm w and uw - no quad for either
+m_gm_same_w_l <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_out", beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_gm_same_w_nl <- age_sex_fun_single(data = dir_sna_w, sna_measure = "deg_out",  beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_same_w_l,m_gm_same_w_nl) # quad no better
+
+m_gm_same_uw_l <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_out", beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_gm_same_uw_nl <- age_sex_fun_single(data = dir_sna_uw, sna_measure = "deg_out",  beh = "grooming", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+
+AIC(m_gm_same_uw_l,m_gm_same_uw_nl) # quad no better
+
+#male deg prox - no quad or cubic
+m_prox_same_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_prox_same_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "deg", beh = "prox", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_prox_same_w_l, m_prox_same_w_nl)
+
+d <- sna_w %>%
+  filter(behavior == "prox", network_sex == "male", sex %in% "M")
+glmer(deg + 0.00001 ~ z.(age_mid_year) + z.(age_mid_year^2) + z.(age_mid_year^3) + z.(avg_rank) + (1|chimp_id), family = Gamma(link = "log"), data = d) %>%
+  summary()
+
+# male gmgmd ec - yes quad
+m_gmgmd_same_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_gmgmd_same_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "total_grooming", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_gmgmd_same_w_l, m_gmgmd_same_w_nl) 
+m_gmgmd_same_ec_w <- summary(m_gmgmd_same_w_nl)
+
+# male prox ec - no quad
+m_prox_same_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "male", subj_sex = "M", quadratic = F, summary = F)
+m_prox_same_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "ec", beh = "prox", net_sex = "male", subj_sex = "M", quadratic = T, summary = F)
+AIC(m_prox_same_w_l, m_prox_same_w_nl) 
+m_prox_same_ec_w <- summary(m_prox_same_w_nl)
+
+# female bt prox -
+f_prox_same_w_l <- age_sex_fun_single(data = sna_w, sna_measure = "bt", beh = "prox", net_sex = "female", subj_sex = "F", quadratic = F, summary = F)
+f_prox_same_w_nl <- age_sex_fun_single(data = sna_w, sna_measure = "bt", beh = "prox", net_sex = "female", subj_sex = "F", quadratic = T, summary = F)
+f_prox_same_bt_w <- summary(f_prox_same_w_nl)
+
+
 
 #gyard ----
 filt_cv <- function(data, net_sex, cv, beh) {
