@@ -72,7 +72,8 @@ total_gm_gmd %>%
 
 
 #save(total_gm_gmd_index, total_gm_index, total_gmd_index, file = "data/indices - annual dyadic grooming.Rdata")
-
+#write.csv(total_gm_gmd_index, file = "data/total grooming dyadic indices.csv", row.names = F)
+#write.csv(total_gm_index, file = "data/grooming given dyadic indices.csv", row.names = F)
 
 # ----- Explore annual grooming indices ####
 load("data/annual possible focal dyads.Rdata", verbose = T)
@@ -121,13 +122,16 @@ names(total_5m)
 nrow(total_5m) #2412, 2597, 2936
 names(total_AB_party)
 
+
+#11/25/20 did not multiply prox index by 100 in original go
 index_5m <- total_5m %>%
   left_join(., total_AB_party, by = c("ID1", "ID2", "year")) %>%
   mutate(total_AB_party = ifelse(is.na(total_AB_party), 0 , total_AB_party)) %>% #NAs of total AB party are dyads never seen in groups
-  mutate(prox5i = ifelse(total_AB_party == 0, 0, total_5m/total_AB_party)) %>% # if total AB party is zero, avoid NaN of 0/0
+  mutate(prox5i = ifelse(total_AB_party == 0, 0, (total_5m/total_AB_party)*100)) %>% # if total AB party is zero, avoid NaN of 0/0
   select(ID1, ID2, year, total_5m, total_AB_party, prox5i, everything()) %>%
   mutate(dyad_sex = ifelse(sex_ID1 == "M" & sex_ID2 == "M", "male", ifelse( sex_ID1 == "F" & sex_ID2 == "F", "female", "mixed" )))
   
+range(index_5m$prox5i)
 
 nrow(index_5m) #2412, 2597, 2679, 2936
 names(index_5m)
@@ -151,7 +155,7 @@ load("data/annual thresholds for same sex prox nets.Rdata", verbose = T)
 see_prox_filter <- index_5m %>%
   left_join(., prox_sex_thresh, by = c("dyad_sex", "year")) %>%
   mutate(prox5i = case_when(
-     dyad_sex != "mixed" & prox5i < mean_prox ~ 100, #(mean_prox - sd_prox)
+     dyad_sex != "mixed" & prox5i < mean_prox ~ 100, #(mean_prox - sd_prox) - ??? why 100?
      TRUE ~ prox5i
   ))
 
@@ -228,11 +232,11 @@ g_data_prox_sex_comb <- index_5m %>%
   arrange(year)
 
 
-# save(g_data_gmgmd_sex_comb, 
-#     g_data_gm_sex_comb, 
-#      g_data_prox_sex_comb, 
-#     g_data_gmgmd_sex_sep, 
-#      g_data_gm_sex_sep, 
+# save(g_data_gmgmd_sex_comb,
+#     g_data_gm_sex_comb,
+#      g_data_prox_sex_comb,
+#     g_data_gmgmd_sex_sep,
+#      g_data_gm_sex_sep,
 #      g_data_prox_sex_sep, file = "data/list column dyadic data prox & gm by year & dyad-sex year.Rdata")
 
 
