@@ -4,6 +4,7 @@ library(tidyverse)
 library(magrittr)
 library(RODBC)
 library(readxl)
+library(gtools)
 ymd <- lubridate::ymd
 mdy <- lubridate::mdy
 month <- lubridate::month
@@ -147,11 +148,10 @@ m_ranks %<>%
   group_by(year) %>%
   mutate(rank_class = as.numeric(quantcut(avg_rank, 3))) %>%
   ungroup() %>%
-  mutate(rank_class = as.factor(case_when(
+  mutate(rank_class = case_when(
     rank_class == 1 ~ "lo",
     rank_class == 2 ~ "med",
-    rank_class == 3 ~ "hi"
-  )))
+    rank_class == 3 ~ "hi"))
 
 
 f_ranks %<>%
@@ -163,18 +163,16 @@ f_ranks %<>%
   group_by(year) %>%
   mutate(rank_class = as.numeric(quantcut(avg_rank, 3))) %>%
   ungroup() %>%
-  mutate(rank_class = as.factor(case_when(
+  mutate(rank_class = case_when(
     rank_class == 1 ~ "lo",
     rank_class == 2 ~ "med",
-    rank_class == 3 ~ "hi"
-  )))
+    rank_class == 3 ~ "hi"))
 
 
 ann_ranks <- rbind(m_ranks, f_ranks)
 
-
 #save(ann_ranks, file = "data/annual average standardized ranks.Rdata")
-
+#saved rank clas as character 5.1
 
 # ----- Format prox in 5 #####
 names(focal_5m1)
@@ -240,13 +238,14 @@ foc_part1 <- read.csv(file = "data/d. FOCAL PARTY CORRECTED MET.txt", header = F
   unite("scan_id", date, time, sep = "_") %>%
   separate(scan_id, into = c("date", "trash", "scan_time"), sep = " ", remove = F) %>%
   select(-trash) %>%
-  mutate(orig_year = year(mdy(date)), month = month(mdy(date))) %>%
+  mutate(orig_year = lubridate::year(mdy(date)), month = lubridate::month(mdy(date))) %>%
   mutate(year = case_when(
     orig_year == 2009 ~ 2010,
     TRUE ~ orig_year
   ))
 
 names(foc_part1)
+
 
 foc_part1$focal[foc_part1$focal == "NPT"] <- "NT"
 foc_part1$partner[foc_part1$partner == "NPT"] <- "NT"
@@ -257,6 +256,13 @@ foc_part1[grepl(" ", foc_part1$partner), "partner"]
 foc_part <- fix_ID_errors(foc_part1, ID1 = "focal", ID2 = "partner")
 
 foc_part
+
+# number of focals in data ...
+# does not count alone time? it's ok, doesn't need to, this analysis just cares about time when social interaction is possible, i.e. when focal is in party
+foc_part %>%
+  count(date, ID1) %>%
+  nrow()
+#3371 focals
 
 # test fix id errors worked
 # foc_part[grepl(" ", foc_part$ID1), "ID1"]
