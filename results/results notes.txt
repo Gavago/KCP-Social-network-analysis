@@ -1,8 +1,0 @@
-Males are decreasing time grooming and being groomed, but increasing number of grooming partners. 
-
-Males decreasing betweenness gm but increasing betweenness prox, increasing trans grooming (not prox).
-
-Males quadratic  in gmgmd.
-
-
-Females decrease w and uw deg in and out gm, also decrease local trans prox and EC prox.
