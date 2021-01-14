@@ -94,7 +94,10 @@ age_sex_fun_all <- function(data,
   
 }
 
-# modeling function for single sna measure ------
+
+
+
+# glmm - modeling function for single sna measure ------
 age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans", "deg_in", "deg_out"), 
                                beh = c("total_grooming", "prox"), 
                                net_sex = c("any_combo", "female", "male"), 
@@ -154,6 +157,78 @@ age_sex_fun_single <- function(data, sna_measure = c("bt", "ec", "deg", "trans",
       mod <- update(mod, nAGQ = 2) 
     }
     }
+  
+  #make summary
+  if(all(!inherits(mod, "character") & summary == T)){
+    mod <- summary(mod)
+  }
+  
+  
+  return(mod)
+  
+}
+
+
+# glmm -modeling function for single sna measure w no extra attributes (no rank, no prop cyc)  ------
+age_sex_fun_single_no_attr <- function(data, sna_measure = c("bt", "ec", "deg", "trans", "deg_in", "deg_out"), 
+                               beh = c("total_grooming", "prox"), 
+                               net_sex = c("any_combo", "female", "male"), 
+                               subj_sex = NULL,
+                               sex_age_int = FALSE, quadratic = FALSE, summary = FALSE){
+  
+  require(lme4)
+  require(tidyverse)
+  #scale shorthand function
+  z. <- function(x) scale(x)
+  
+  
+  #create appropriate age and age interaction terms 
+  # depending on modeling non linear relationship
+  if(quadratic == TRUE) {
+    age_term <- expr(z.(age_mid_year) + z.(age_mid_year^2))
+  } else { age_term <- expr(z.(age_mid_year)) }
+  # in the event that an interaction is used, make them according to the quadratic argument
+  if(quadratic == TRUE){
+    interaction_term <- expr(z.(age_mid_year)*sex + z.(age_mid_year^2)*sex)
+  } else { interaction_term <- expr(sex*z.(age_mid_year))}
+  
+  #model expressions
+  #both sexes 
+  if(all(net_sex == "any_combo" & subj_sex == "both" & sex_age_int == TRUE)){
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + sex + !!interaction_term + (1|chimp_id))
+  }
+  if(all(net_sex == "any_combo" & subj_sex == "both" & sex_age_int == FALSE)){
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + sex + (1|chimp_id))
+  }
+  if(all(net_sex == "any_combo" & subj_sex == "M" | net_sex == "male")){
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + (1|chimp_id))
+  }
+  if(all(net_sex == "any_combo" & subj_sex == "F" | net_sex == "female")){
+    f <- expr(!!sym(sna_measure) + 0.00001 ~ !!age_term + (1|chimp_id))
+  }
+  
+  #data
+  if(subj_sex == "both"){ subj_sex1 <- c("M", "F")} else {subj_sex1 <- subj_sex}
+  
+  d <- data %>%
+    filter(behavior == beh, network_sex == net_sex, sex %in% subj_sex1)
+  #model with error handling
+  mod <- tryCatch({
+    mod <- glmer(f, family = Gamma(link = "log") , data = d)
+  }, warning = function(w) {
+    mod <- "Warning: model does not converge, max|grad|"
+  }, error = function(e) {
+    mod <- "Error: model does not converge" 
+  }) # I finally figured out tryCatch syntax...8o http://mazamascience.com/WorkingWithData/?p=912
+  
+  # if max|grad reached, then change integration method - give model more points to integrate random effects over
+  # https://stats.stackexchange.com/questions/77313/why-cant-i-match-glmer-family-binomial-output-with-manual-implementation-of-g
+  if(inherits(mod, "character")){
+    if(grepl("max", mod)){
+      mod <- glmer(f, family = Gamma(link = "log") , data = d)
+      mod <- update(mod, nAGQ = 2) 
+    }
+  }
   
   #make summary
   if(all(!inherits(mod, "character") & summary == T)){
