@@ -42,7 +42,7 @@ sna_measures_undir <- function(g, year = NULL, network_sex = NULL, bt_weight = T
   
   #eigenvector centrality
   if(ec_weight == TRUE){
-  ge <- eigen_centrality(g, weights = g_weights)$vector
+  ge <- eigen_centrality(g, weights = g_weights)$vector #is default undirected
   }
   if(ec_weight == FALSE){
   ge <- eigen_centrality(g)$vector
@@ -109,7 +109,7 @@ sna_measures_dir <- function(g, year = NULL, network_sex = NULL, bt_weight = TRU
   #creates edge weight vector
   g_weights <- edge_attr(g)[[1]]
   
-  #betweeness
+  #betweeness (never used)
   if(bt_weight == TRUE){
     gb <- betweenness(g, directed = TRUE, normalized = FALSE, weights = g_weights)
   }
@@ -117,7 +117,7 @@ sna_measures_dir <- function(g, year = NULL, network_sex = NULL, bt_weight = TRU
     gb <- betweenness(g, directed = TRUE, normalized = FALSE, weights = NULL)
   }
   
-  #eigenvector centrality
+  #eigenvector centrality (never used, directional ec too confusing, if ever want directed ec use pagerank - good measure of prestige)
   if(ec_weight == TRUE){
     ge <- eigen_centrality(g, weights = g_weights, directed = TRUE)$vector
   }

@@ -1,7 +1,7 @@
 library(dplyr)
 
 #sorting var as if factor but preserve as character funs
-sna_sort <- function(x) factor(x, levels = c( "W Degree", "UW Degree", "W Degree In","UW Degree In", "W Degree Out", "UW Degree Out", "Betweenness", "Local Transitivity", "Eigenvector Centrality"))
+sna_sort <- function(x) factor(x, levels = c( "Strength", "Degree", "Strength In","Degree In", "Strength Out", "Degree Out", "Betweenness", "Local Transitivity", "Eigenvector Centrality"))
 beh_sort <- function(x) factor(x, levels = c("Total Grooming", "Grooming" ,"Prox"))
 
 #filter age sex model results
@@ -19,12 +19,12 @@ table_results <- function(results, table = c("full", "DEG", "DIR DEG", "BT", "EC
       grepl("bt", response) ~ "Betweenness",
       grepl("ec|1", response) ~ "Eigenvectory Centrality",
       grepl("trans", response) ~ "Local Transitivity",
-      grepl("deg_in$|deg_in[^t]", response) & grepl("_w$", mod_name) ~ "W Degree In",
-      grepl("deg_out", response) & grepl("_w$", mod_name) ~ "W Degree Out",
-      grepl("deg_int|deg_[^i]|deg_[^o]", response) & grepl("_w$", mod_name) ~ "W Degree",
-      grepl("deg_in$|deg_in[^t]", response) & grepl("_uw$", mod_name) ~ "UW Degree In",
-      grepl("deg_out", response) & grepl("_uw$", mod_name) ~ "UW Degree Out",
-      grepl("deg_int|(deg_[^i] & deg_[^o])", response) & grepl("_uw$", mod_name) ~ "UW Degree")) %>%
+      grepl("deg_in$|deg_in[^t]", response) & grepl("_w$", mod_name) ~ "Strength In",
+      grepl("deg_out", response) & grepl("_w$", mod_name) ~ "Strength Out",
+      grepl("deg_int|deg_[^i]|deg_[^o]", response) & grepl("_w$", mod_name) ~ "Strength",
+      grepl("deg_in$|deg_in[^t]", response) & grepl("_uw$", mod_name) ~ "Degree In",
+      grepl("deg_out", response) & grepl("_uw$", mod_name) ~ "Degree Out",
+      grepl("deg_int|(deg_[^i] & deg_[^o])", response) & grepl("_uw$", mod_name) ~ "Degree")) %>%
     #don't want unweighted sna measures that aren't degree
     filter(!(weighted == FALSE & !grepl("deg", response))) %>%
     # don't want sna measures for grooming that aren't degree 
@@ -39,13 +39,13 @@ table_results <- function(results, table = c("full", "DEG", "DIR DEG", "BT", "EC
   
   if(all(table == "DEG")){
     x <- x %>%
-      filter(grepl("Deg", sna_measure) & !grepl("In|Out", sna_measure)) %>%
+      filter(grepl("Deg|Stre", sna_measure) & !grepl("In|Out", sna_measure)) %>%
       prettify()
   }
   
   if(all(table == "DIR DEG")){
     x <- x %>%
-      filter(grepl("Deg", sna_measure) & grepl("In|Out", sna_measure)) %>%
+      filter(grepl("Deg|Stre", sna_measure) & grepl("In|Out", sna_measure)) %>%
       prettify()
   }
   
@@ -65,21 +65,4 @@ table_results <- function(results, table = c("full", "DEG", "DIR DEG", "BT", "EC
   return(x)
 }
 
-prettify <- function(x, full = FALSE){
-  # duplicated mentions of sna measure and behavior
-  dup_sna_beh <- which(duplicated(x[,c("sna_measure", "beh")]))
-  # duplicated mentions of sna and beh, given beh is same
-  dup_beh_sex <- which(duplicated(x[,c("sna_measure", "beh", "sex")]))
-  
-  
-  if(full == TRUE){
-    x[dup_sna_beh, "sna_measure"] <- ""
-    x[dup_beh_sex, c("beh","sex")] <- ""  
-  } else { 
-    x[dup_beh_sex, "sex"] <- "" 
-    x[dup_sna_beh, c("sna_measure", "beh")] <- ""
-    
-    }
-  
-  return(x)
-}
+
