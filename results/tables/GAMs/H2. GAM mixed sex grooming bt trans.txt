@@ -1,0 +1,17 @@
+sna_measure/sex/beh/R/pred/F_smooths/B_sex/F_prop_greater_than/B_prop_greater_than/sig
+Betweenness/both/Grooming/0.47/sex//1.41//1/*
+////female age/2.61//0.69//
+////male age/4.41//0.83//
+Betweenness/both/Grooming/0.49/sex (with rank)//1.48//1/*
+////female age (with rank)/3.55//0.68//
+////male age (with rank)/1.91//0.5//
+////female rank/2.1//0.55//
+////male rank/2.76//0.63//
+Local Transitivty/both/Grooming/0.27/sex//0.34//1/*
+////female age/6.3//0.99//*
+////male age/11.94//1//*
+Local Transitivty/both/Grooming/0.27/sex (with rank)//0.18//0.99/*
+////female age (with rank)/4.54//0.98//*
+////male age (with rank)/12.23//1//*
+////female rank/3.7//0.95//*
+////male rank/0.03//0.11//

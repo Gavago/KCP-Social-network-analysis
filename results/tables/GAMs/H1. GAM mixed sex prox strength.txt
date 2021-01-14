@@ -1,0 +1,9 @@
+sna_measure/sex/beh/R/pred/F_smooths/B_sex/F_prop_greater_than/B_prop_greater_than/sig
+Strength/both/Prox/0.55/sex//0.52//1/*
+////female age/1.93//0.8//
+////male age/2.96//0.88//
+Strength/both/Prox/0.5/sex (with rank)//0.44//1/*
+////female age (with rank)/3.49//0.94//
+////male age (with rank)/0.6//0.43//
+////female rank/1.81//0.83//
+////male rank/2.85//0.91//

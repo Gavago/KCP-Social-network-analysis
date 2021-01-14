@@ -1,0 +1,13 @@
+sna_measure/sex/beh/R/pred/F_smooths/F_prop_greater_than/sig
+Out-Strength/mixed-sex/Proximity/0.28/Age/0.29/0.38/
+////Time in estrus/1.24/0.62/
+////Age * Estrus/0.98/0.58/
+Betweenness/mixed-sex/Proximity/0.22/Age/2.01/0.7/
+////Time in estrus/0.04/0.07/
+////Age * Estrus/1.57/0.47/
+Local Transitivty/mixed-sex/Proximity/0/Age/0/0/
+////Time in estrus/0.11/0.23/
+////Age * Estrus/0.72/0.46/
+Eigenvector Centrality/mixed-sex/Proximity/0.23/Age/2.58/1/*
+////Time in estrus/1.32/1/*
+////Age * Estrus/6.16/1/*

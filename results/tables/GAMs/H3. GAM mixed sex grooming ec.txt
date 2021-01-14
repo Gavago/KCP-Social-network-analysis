@@ -1,0 +1,9 @@
+sna_measure/sex/beh/R/pred/F_smooths/B_sex/F_prop_greater_than/B_prop_greater_than/sig
+Eigenvector Centrality/both/Grooming/0.81/sex//1.36//1/*
+////female age/0.45//0.39//
+////male age/4.57//0.96//*
+Eigenvector Centrality/both/Grooming/0.81/sex (with rank)//1.36//1/*
+////female age (with rank)/1.82//0.77//
+////male age (with rank)/4.16//0.95//*
+////female rank/2.65//0.89//
+////male rank/0.47//0.42//

@@ -1,0 +1,13 @@
+sna_measure/sex/beh/R/pred/F_smooths/F_prop_greater_than/sig
+Local Transitivity/same/Prox/-0.01/female age/0/0.02/
+Local Transitivity/same/Prox/-0.01/male age/0.02/0.15/
+Local Transitivity/same/Prox/0/female age (with rank)/0/0.01/
+////female rank/0.73/0.68/
+Local Transitivity/same/Prox/-0.01/male age (with rank)/0/0.03/
+////male rank/1.23/0.49/
+Betweeness/same/Prox/-0.01/female age/0.27/0.26/
+Betweeness/same/Prox/0.43/male age/15.86/0.99/*
+Betweeness/same/Prox/0.1/female age (with rank)/3.11/0.74/
+////female rank/4.77/0.86/
+Betweeness/same/Prox/0.66/male age (with rank)/0.98/0.19/
+////male rank/8.68/0.89/

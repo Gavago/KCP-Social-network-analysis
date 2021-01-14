@@ -1,0 +1,29 @@
+sna_measure/sex/beh/R/pred/F_smooths/F_prop_greater_than/sig
+In-Degree/both/Grooming/0.46/Age/1.93/0.81/
+////Time in estrus/1.4/0.62/
+////Age * Estrus/1.91/0.67/
+////Intercept/1.86/0.99/*
+Out-Degree/both/Grooming/0.72/Age/3.29/0.88/
+////Time in estrus/0.68/0.42/
+////Age * Estrus/0.61/0.26/
+////Intercept/7.63/1/*
+In-Strength/both/Grooming/0.21/Age/0.04/0.12/
+////Time in estrus/23.12/1/*
+////Age * Estrus/20.22/0.99/*
+////Intercept/6.13/1/*
+Out-Strength/both/Grooming/0.42/Age/1.05/0.61/
+////Time in estrus/0.18/0.25/
+////Age * Estrus/1.05/0.58/
+////Intercept/32.06/1/*
+Betweenness/both/Grooming/0.56/Age/6.23/0.9/
+////Time in estrus/2.64/0.72/
+////Age * Estrus/2.03/0.41/
+////Intercept/3.29/0.94/
+Local Transitivty/both/Grooming/0.26/Age/7.17/1/*
+////Time in estrus/0.64/0.52/
+////Age * Estrus/1.57/0.77/
+////Intercept/0.28/0.89/
+Eigenvector Centrality/both/Grooming/0.55/Age/0.27/0/
+////Time in estrus/0.11/0/
+////Age * Estrus/4.36/0/
+////Intercept/6.38/0/

@@ -1,0 +1,121 @@
+---
+title: "Explore effects of female time swollen on integration in mixed sex networks"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r, include = FALSE}
+library(mgcv)
+library(mgcViz)
+library(fitdistrplus)
+library(tidyverse)
+source("data/data sets for gams.R")
+library(gridExtra)
+library(grid)
+```
+
+
+
+### 1. Bivariate relationships: age, proportion of year swollen, and degree / strength.
+
+
+- A: Relationship between time swollen and age is similar to relationship of number of partners that groom the subject (In-Degree, not pictured here) and age. Suggests that time swollen might play a role in age-related change in number partners that give females grooming.
+```{r, echo = FALSE}
+f_mixed_dir_sna_w %>%
+  mutate(strength_grooming_rec = deg_in) %>%
+  ggplot(aes(y = prop_cyc, x = age_mid_year)) +
+  geom_point(aes(size = strength_grooming_rec), alpha = 0.5) +
+  geom_smooth(method = "gam", formula = y ~ s(x, k = 5)) +
+  labs(tag = "A)", x = "Age", title = "Time swollen by age", subtitle = "size of dot = time receiving grooming", y = "Annual time swollen") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none", plot.subtitle = element_text(hjust = 0.5))
+
+```
+
+
+- B: No real relationship with time receiving grooming (In-Strength) and females' annual time swollen.
+```{r echo=FALSE}
+f_mixed_dir_sna_w %>%
+  ggplot(aes(x = prop_cyc, y = deg_in)) +
+  geom_point(aes(size = age_mid_year), alpha = 0.5) +
+  geom_smooth(method = "gam", formula = y ~ s(x, k = 5)) +
+  labs(tag = "B)", title = "Time receiving grooming by \n time swollen", subtitle = "size of dot = age", y = "In-Strength Grooming", x = "Annual time swollen") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none", plot.subtitle = element_text(hjust = 0.5))
+
+```
+
+
+- C: Appears that female receive grooming from fewer partners (In-Degree) the more time they are swollen in a year.
+```{r echo=FALSE}
+f_mixed_dir_sna_uw %>%
+  ggplot(aes(x = prop_cyc, y = deg_in)) +
+  geom_point(aes(size = age_mid_year), alpha = 0.5) +
+  geom_smooth(method = "gam", formula = y ~ s(x, k = 5)) +
+  labs(tag = "C)", title = "Number partners grooming subject \n by time swollen", subtitle = "size of dot = age", y = "Number partners grooming subject", x = "Annual time swollen") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none", plot.subtitle = element_text(hjust = 0.5))
+
+```
+
+
+- D: Appears that females spend less time near others (Prox Strength) the more annual time swollen.
+```{r echo=FALSE}
+f_mixed_sna_w %>%
+  filter(behavior == "prox") %>%
+  ggplot(aes(x = prop_cyc, y = deg)) +
+  geom_point(aes(size = age_mid_year), alpha = 0.5) +
+  geom_smooth(method = "gam", formula = y ~ s(x, k = 5)) +
+  labs(tag = "D)", title = "Time in prox by time swollen", subtitle = "size of dot = age", y = "Prox Strength", x = "Annual time swollen") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none", plot.subtitle = element_text(hjust = 0.5))
+```
+
+### 2. Tensor smooths of integration by age and time swollen
+
+Lo, you can find time swollen influences sociality if you model it this way...
+
+These plots show integration measures modeled by a smooth plane defined by female age and time swollen in a given year. It is a type of interaction, where both main and interaction effects form the smooth plane. Both time swollen as a main effect and time swollen in an independent interaction with age behave strangely -- similar to the relationships shown above in the bivariate plots. I think the tensor smooth interaction is the best way to model this relationship and test our predictions.
+
+Our first prediction is that females receive more attention the more time they are maximally swollen in a given year, and that this attention should be particularly high when females are swollen and *old* (an indicator of fecundity). Second, it is also possible that females give more attention when maximally swollen, e.g. to pacify mate-guarding males.
+
+```{r, include = FALSE}
+dig_f_swol <- gam(deg_in ~ te(age_mid_year, prop_cyc, k =5) + s(chimp_id, bs = "re"), data = f_mixed_dir_sna_uw, family = gaussian(link = "log"), method = "REML")
+
+dog_f_swol <- gam(deg_out ~ te(age_mid_year, prop_cyc, k =5)  + s(chimp_id, bs = "re"), data = f_mixed_dir_sna_uw, family = gaussian(link = "log"), method = "REML")
+
+sig_f_swol <- gam(deg_in ~ te(age_mid_year, prop_cyc, k = 5) + s(chimp_id, bs = "re"), data = f_mixed_dir_sna_w, family = gaussian(link = "log"), method = "REML")
+
+
+sog_f_swol <- gam(deg_out ~ te(age_mid_year, prop_cyc, k = 5) + s(chimp_id, bs = "re"), data = f_mixed_dir_sna_w, family = gaussian(link = "log"), method = "REML")
+
+```
+
+A. *Vertical response = Grooming In-Degree* Here can see that our first prediction was at least partially met. Although  attention received doesn't increase with time swollen, the number of partners that groom females is highest when age and time swollen is highest. "Prop_cyc" on axis = time swollen
+```{r, echo = FALSE, fig.height = 6, fig.width = 6}
+vis.gam(dig_f_swol, plot.type='persp', phi = 5, theta = -30, ticktype = "detailed")
+
+```
+
+
+B. *Vertical response = Grooming Out-Degree* Our second prediction is partially met... the number of partners a female grooms is highest when she spends much of the year cycling, but only if she is old.
+```{r echo = FALSE, fig.height = 6, fig.width = 6}
+vis.gam(dog_f_swol,  plot.type='persp', phi = -5, theta = -40, ticktype = "detailed") 
+
+```
+
+
+C. *Vertical response = Grooming In-Strength* This is a bit strange. It appears that females receive the least amount of grooming when they are age and time swollen is highest.
+```{r, echo = FALSE, fig.height = 6, fig.width = 6}
+vis.gam(sig_f_swol,  plot.type='persp', phi = -5, theta = 60, ticktype = "detailed")
+```
+
+
+D. *Vertical response = Grooming Out-Strength* Again, interesting. Females spend the most time grooming partners when age and time swollen are highest.
+```{r echo=FALSE, fig.height = 6, fig.width = 6}
+vis.gam(sog_f_swol,  plot.type='persp', phi = -5, theta = -40, ticktype = "detailed") # time giving grooming highest when age and time swollen highest
+```
+
+
+Transitivity, Betweenness, and Eigenvector centrality show a similar smooth plane as above figures A, B, & D.
+
+I've left rank out of these tensor smooth models, because including it doesn't change the shape or significance of the smooth plane and the effect of rank is already modeled for females in other models that include male and female changes in mixed-sex integration.

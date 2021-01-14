@@ -1,0 +1,25 @@
+sna_measure/sex/beh/R/pred/F_smooths/F_prop_greater_than/sig
+In-Degree/same/Grooming/0.05/female age/0.46/0.38/
+In-Degree/same/Grooming/0.32/male age/7.1/1/*
+In-Degree/same/Grooming/0.05/female age (with rank)/0.76/0.45/
+////female rank/0.65/0.39/
+In-Degree/same/Grooming/0.33/male age (with rank)/5/0.99/*
+////male rank/1.19/0.69/
+Out-Degree/same/Grooming/0.6/female age/6.92/0.89/
+Out-Degree/same/Grooming/0.46/male age/0.96/0.66/
+Out-Degree/same/Grooming/0.05/female age (with rank)/0.76/0.24/
+////female rank/0.65/0.2/
+Out-Degree/same/Grooming/0.45/male age (with rank)/0.74/0.57/
+////male rank/0.54/0.5/
+In-Strength/same/Grooming/0.14/female age/0.85/0.35/
+In-Strength/same/Grooming/0.55/male age/3.51/0.81/
+In-Strength/same/Grooming/0.44/female age (with rank)/5.92/0.59/
+////female rank/9.15/0.8/
+In-Strength/same/Grooming/0.57/male age (with rank)/4.24/0.85/
+////male rank/2.34/0.87/
+Out-Strength/same/Grooming/0.25/female age/61.01/1/*
+Out-Strength/same/Grooming/0.28/male age/2.24/0.68/
+Out-Strength/same/Grooming/0.44/female age (with rank)/5.92/0.93/
+////female rank/9.15/1/*
+Out-Strength/same/Grooming/0.39/male age (with rank)/1.55/0.51/
+////male rank/2.14/0.9/
